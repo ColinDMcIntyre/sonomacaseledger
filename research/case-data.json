@@ -1,0 +1,672 @@
+{
+  "researchDate": "2026-11-18",
+  "scope": "Curated Sonoma County and Sonoma-connected federal cases, no countywide largest-case claim",
+  "county": [
+    {
+      "slug": "aldo-joseph-baccala",
+      "name": "Aldo Joseph Baccala",
+      "era": "2014",
+      "subject": "Investor fraud / Ponzi scheme",
+      "amount": "More than $17 million",
+      "amountType": "Victim losses reported by California DOJ",
+      "outcome": "California DOJ reported no-contest pleas to 140 counts and a 20-year sentence in Sonoma County Superior Court.",
+      "details": "The state Attorney General described investor losses exceeding $17 million. The number is a prosecutorial loss figure, not an independent audit conducted by this publication.",
+      "verification": "A",
+      "sources": [
+        {
+          "label": "baccala",
+          "url": "https://oag.ca.gov/news/press-releases/attorney-general-kamala-d-harris-announces-20-year-prison-sentence-perpetrator"
+        }
+      ],
+      "caseNo": ""
+    },
+    {
+      "slug": "michael-rosen",
+      "name": "Michael Rosen",
+      "era": "1997",
+      "subject": "Investment / pyramid scheme",
+      "amount": "Approximately $7 million",
+      "amountType": "Scheme size described in reporting",
+      "outcome": "Rosen pleaded guilty in Sonoma County Superior Court to six grand-theft counts; reporting said the plea agreement contemplated six years in prison.",
+      "details": "The reported six-year term comes from the plea agreement. Without the sentencing judgment, this page does not assert that the proposed term was ultimately imposed.",
+      "verification": "B",
+      "sources": [
+        {
+          "label": "rosen",
+          "url": "https://www.sfgate.com/news/article/Developer-Pleads-Guilty-In-Pyramid-Scheme-Thefts-2841619.php"
+        }
+      ],
+      "caseNo": ""
+    },
+    {
+      "slug": "leona-schutte-robert-williams",
+      "name": "Leona Schutte and Robert Thomas Williams",
+      "era": "2002",
+      "subject": "Investor fraud",
+      "amount": "Approximately $2.1 million",
+      "amountType": "Reported investor losses",
+      "outcome": "Reporting describes no-contest pleas to grand theft, followed by ten-year and seven-year sentences for Schutte and Williams respectively.",
+      "details": "The report distinguishes the defendants' sentences and puts investor losses at about $2.1 million. Their complete court dockets were not independently reviewed.",
+      "verification": "B",
+      "sources": [
+        {
+          "label": "schutte",
+          "url": "https://www.sfgate.com/bayarea/article/Santa-Rosa-couple-get-prison-in-fraud-case-2771720.php"
+        }
+      ],
+      "caseNo": ""
+    },
+    {
+      "slug": "ryan-merman",
+      "name": "Ryan S. Merman",
+      "era": "2010",
+      "subject": "Employer embezzlement",
+      "amount": "$1,888,280.43",
+      "amountType": "Reported restitution ordered",
+      "outcome": "Reporting identifies a six-year-eight-month sentence in Sonoma Superior Court and a restitution order of $1,888,280.43.",
+      "details": "Restitution is not necessarily identical to gross proceeds or to an independent estimate of the amount taken. The underlying sentencing judgment was not separately examined.",
+      "verification": "B",
+      "sources": [
+        {
+          "label": "merman",
+          "url": "https://lakeconews.com/news/13171-regional-embezzler-sentenced-agrees-to-repay-more-than-1-million-in-restitution"
+        }
+      ],
+      "caseNo": ""
+    },
+    {
+      "slug": "elana-cohen-roth",
+      "name": "Elana Cohen-Roth",
+      "era": "2025",
+      "subject": "Trust-related financial crimes",
+      "amount": "More than $1.5 million",
+      "amountType": "Amount described in trial reporting",
+      "outcome": "A Sonoma jury convicted Cohen-Roth on 23 felony financial-crime counts and reporting says she received a 12-year sentence in 2025.",
+      "details": "A published Sonoma Superior Court document identifies case SCR-751314-1 and describes the then-pending trust-related criminal matter. Later news coverage documents conviction and sentence; the earlier court document does not itself prove the later verdict.",
+      "verification": "A/B",
+      "sources": [
+        {
+          "label": "cohenCourt",
+          "url": "https://sonoma.courts.ca.gov/system/files/tentative-rulings/6-7-23-lm.pdf"
+        },
+        {
+          "label": "cohenNews",
+          "url": "https://www.sfchronicle.com/crime/article/tax-fraud-sonoma-county-20320734.php"
+        }
+      ],
+      "caseNo": "SCR-751314-1"
+    },
+    {
+      "slug": "timothy-charles-webb-jr",
+      "name": "Timothy Charles Webb Jr.",
+      "era": "2010",
+      "subject": "Burglary and grand theft",
+      "amount": "$1.22 million",
+      "amountType": "Reported agreed restitution",
+      "outcome": "Reporting states Webb entered no-contest pleas to burglary and grand theft, received a two-year sentence, and agreed to pay $1.22 million restitution.",
+      "details": "This figure is characterized as agreed restitution. The source is a contemporaneous sentencing report, and the trial-court docket was not independently inspected.",
+      "verification": "B",
+      "sources": [
+        {
+          "label": "merman",
+          "url": "https://lakeconews.com/news/13171-regional-embezzler-sentenced-agrees-to-repay-more-than-1-million-in-restitution"
+        }
+      ],
+      "caseNo": ""
+    },
+    {
+      "slug": "john-c-sheehan",
+      "name": "John C. Sheehan",
+      "era": "2012",
+      "subject": "Business theft and tax offenses",
+      "amount": "More than $1 million",
+      "amountType": "Amount reportedly taken from Bibbero Systems",
+      "outcome": "Sheehan reportedly pleaded no contest to grand theft, receiving stolen property and tax evasion and received a nine-year-four-month prison sentence.",
+      "details": "The newspaper's court report attributes the financial figure to theft from Bibbero Systems. A current Sonoma court record has not been independently checked.",
+      "verification": "B",
+      "sources": [
+        {
+          "label": "sheehan",
+          "url": "https://patch.com/california/rohnertpark-cotati/rohnert-park-man-sentenced-to-9-years-in-prison-for-103a855feae"
+        }
+      ],
+      "caseNo": ""
+    },
+    {
+      "slug": "suede-lee-barganski",
+      "name": "Suede Lee Barganski",
+      "era": "2024",
+      "subject": "Classic-car business customer losses",
+      "amount": "More than $350,000",
+      "amountType": "Losses reported by Sonoma prosecutors",
+      "outcome": "Barganski pleaded guilty to six felonies and admitted an enhancement; reporting quotes a nine-year-eight-month sentence.",
+      "details": "CBS/Bay City News cites the Sonoma District Attorney and describes losses affecting at least 22 customers. The underlying docket has not been separately inspected.",
+      "verification": "B",
+      "sources": [
+        {
+          "label": "barganski",
+          "url": "https://www.cbsnews.com/sanfrancisco/news/sonoma-auto-shop-owner-9-years-prison-stealing-350k-from-customers/"
+        }
+      ],
+      "caseNo": ""
+    },
+    {
+      "slug": "frances-farias",
+      "name": "Frances Farias",
+      "era": "2018",
+      "subject": "Senior-center embezzlement",
+      "amount": "More than $250,000",
+      "amountType": "Amount described by prosecutors",
+      "outcome": "Reporting says Farias pleaded guilty to grand theft and received a four-year prison sentence in Sonoma Superior Court.",
+      "details": "Local coverage concerns theft from a Sonoma senior center. This is a reported disposition; later court relief, if any, was not checked.",
+      "verification": "B",
+      "sources": [
+        {
+          "label": "farias",
+          "url": "https://patch.com/california/sonomavalley/sonoma-senior-center-worker-sentenced-embezzling-250k"
+        }
+      ],
+      "caseNo": ""
+    },
+    {
+      "slug": "christopher-ramos",
+      "name": "Christopher Ramos",
+      "era": "2023",
+      "subject": "Insurance-agent theft",
+      "amount": "$189,526",
+      "amountType": "Restitution ordered according to California DOI",
+      "outcome": "The California Department of Insurance reported felony theft convictions, a four-year term with mandatory supervision, and $189,526 in restitution.",
+      "details": "The state regulator confirms Sonoma District Attorney prosecution of a former Santa Rosa agent. The restitution is labeled as an order, not automatically as total financial loss.",
+      "verification": "A",
+      "sources": [
+        {
+          "label": "ramos",
+          "url": "https://www.insurance.ca.gov/0400-news/0100-press-releases/2023/release041-2023.cfm"
+        }
+      ],
+      "caseNo": ""
+    },
+    {
+      "slug": "tina-cabudoy",
+      "name": "Tina Cabudoy",
+      "era": "2025",
+      "subject": "Business-manager theft",
+      "amount": "$179,306.98",
+      "amountType": "Reported restitution",
+      "outcome": "Reporting describes a plea and an aggregate five-year-four-month prison term that included a previous San Mateo County sentence.",
+      "details": "The combined term must not be characterized as entirely attributable to the Sonoma prosecution. Court dockets for both counties were not independently reviewed.",
+      "verification": "B",
+      "sources": [
+        {
+          "label": "cabudoy",
+          "url": "https://www.sfgate.com/news/bayarea/article/sonoma-co-ex-business-manager-gets-over-5-years-21031608.php"
+        }
+      ],
+      "caseNo": ""
+    },
+    {
+      "slug": "lisa-fatu",
+      "name": "Lisa Fatu",
+      "era": "2023",
+      "subject": "Nonprofit embezzlement",
+      "amount": "At least $53,000",
+      "amountType": "Police-estimated losses, per reporting",
+      "outcome": "Reporting states Fatu admitted a grand-theft count and received four months in jail, three years of probation and full restitution.",
+      "details": "The at-least-$53,000 figure is a police estimate reported by the press and should not be assumed to be the exact restitution judgment.",
+      "verification": "B",
+      "sources": [
+        {
+          "label": "fatu",
+          "url": "https://patch.com/california/petaluma/former-sonoma-county-nonprofit-director-sentenced-embezzlement"
+        }
+      ],
+      "caseNo": ""
+    },
+    {
+      "slug": "daniel-broin",
+      "name": "Daniel Broin",
+      "era": "2018",
+      "subject": "Community-association embezzlement",
+      "amount": "More than $135,000",
+      "amountType": "Amount described in local reporting",
+      "outcome": "The Sonoma Valley Sun reported a two-year sentence for embezzlement from the Finnish American Home Association.",
+      "details": "The source attributes prosecution to the Sonoma DA. This archive has not independently obtained the sentencing judgment.",
+      "verification": "B",
+      "sources": [
+        {
+          "label": "broin",
+          "url": "https://sonomasun.com/2018/03/28/two-years-in-slammer-for-sonoma-embezzler/"
+        }
+      ],
+      "caseNo": ""
+    },
+    {
+      "slug": "mary-katherine-david",
+      "name": "Mary Katherine David",
+      "era": "2018",
+      "subject": "School-program treasurer theft",
+      "amount": "Nearly $50,000",
+      "amountType": "Reported grand theft and forgery total",
+      "outcome": "Reporting describes no-contest pleas to felony grand theft and forgery, six months in jail, four years formal probation and restitution already paid.",
+      "details": "The available news report supports those proceedings, but does not establish whether any later relief occurred.",
+      "verification": "B",
+      "sources": [
+        {
+          "label": "david",
+          "url": "https://patch.com/california/rohnertpark-cotati/former-treasurer-rancho-cotate-hs-program-sentenced"
+        }
+      ],
+      "caseNo": ""
+    },
+    {
+      "slug": "mohannad-halaweh",
+      "name": "Mohannad Halaweh",
+      "era": "2015",
+      "subject": "Financial fraud",
+      "amount": "Not consistently established",
+      "amountType": "No adjudicated financial figure used",
+      "outcome": "Reporting says Halaweh pleaded no contest to 15 of 32 felony counts and received a 13-year-four-month structured term.",
+      "details": "The sentence reportedly included nine years four months of county custody and four years of mandatory supervision. A sentence is not proof that the full custody time was actually served.",
+      "verification": "B",
+      "sources": [
+        {
+          "label": "halaweh",
+          "url": "https://patch.com/california/petaluma/rohnert-park-man-sentenced-fraud-supported-luxury-lifestyle-0"
+        }
+      ],
+      "caseNo": ""
+    },
+    {
+      "slug": "michael-alan-voorhees",
+      "name": "Michael Alan Voorhees",
+      "era": "2025",
+      "subject": "Family-trust theft and attorney discipline",
+      "amount": "Approximately $550,000",
+      "amountType": "Reported trust theft amount",
+      "outcome": "Reporting describes a conviction after pleas on six grand-theft counts; the California Supreme Court separately ordered summary disbarment.",
+      "details": "The Supreme Court document confirms the disciplinary outcome. Financial and criminal plea details are sourced to reporting; the criminal docket was not separately verified.",
+      "verification": "A/B",
+      "sources": [
+        {
+          "label": "voorheesCourt",
+          "url": "https://supreme.courts.ca.gov/sites/default/files/supremecourt/default/documents/m04172025%28th%29.pdf"
+        },
+        {
+          "label": "voorheesNews",
+          "url": "https://patch.com/california/san-francisco/san-francisco-lawyer-disbarred-after-stealing-550k-ca-state-bar"
+        }
+      ],
+      "caseNo": ""
+    },
+    {
+      "slug": "jeffrey-holzworth",
+      "name": "Jeffrey Holzworth",
+      "era": "2014",
+      "subject": "Campus parking revenue theft",
+      "amount": "Not quantified here",
+      "amountType": "No uniform court-proven loss figure",
+      "outcome": "Published appellate material describes guilty pleas to grand theft and 11 receiving-stolen-property counts, a four-year prison sentence and an unsuccessful resentencing petition.",
+      "details": "A California Court of Appeal opinion describes the related proceedings. Jeffrey's pleas and sentence must be distinguished from Karen Holzworth's separate jury convictions.",
+      "verification": "A/B",
+      "sources": [
+        {
+          "label": "holzworthCourt",
+          "url": "https://www.casemine.com/judgement/us/5914e3ecadd7b049348fdc68"
+        },
+        {
+          "label": "holzworthNews",
+          "url": "https://www.sfgate.com/crime/article/santa-rosa-campus-officer-sentenced-in-theft-of-5517929.php"
+        }
+      ],
+      "caseNo": ""
+    },
+    {
+      "slug": "karen-holzworth",
+      "name": "Karen Marie Holzworth",
+      "era": "2016 appellate decision",
+      "subject": "Accessory and receiving stolen property",
+      "amount": "Not quantified here",
+      "amountType": "No independent loss assigned to this defendant",
+      "outcome": "A jury convicted Karen Holzworth of accessory conduct and two misdemeanor receiving-stolen-property counts; she received probation and nine months county jail, and the judgment was affirmed.",
+      "details": "An appellate opinion identifies Sonoma Superior Court case SCR-627215. These convictions are distinct from the separate grand-theft counts against Jeffrey Holzworth.",
+      "verification": "A",
+      "sources": [
+        {
+          "label": "holzworthCourt",
+          "url": "https://www.casemine.com/judgement/us/5914e3ecadd7b049348fdc68"
+        }
+      ],
+      "caseNo": "SCR-627215"
+    },
+    {
+      "slug": "eileen-madayag",
+      "name": "Eileen Madayag",
+      "era": "2015",
+      "subject": "Employer embezzlement",
+      "amount": "$138,175",
+      "amountType": "Amount reportedly taken; restitution was reported at about $168,000",
+      "outcome": "Reporting says Madayag pleaded guilty to felony embezzlement and received 14 months custody followed by 14 months probation.",
+      "details": "The larger restitution amount reportedly included audit and legal costs; it is not interchangeable with the amount said to have been embezzled.",
+      "verification": "B",
+      "sources": [
+        {
+          "label": "madayag",
+          "url": "https://patch.com/california/petaluma/petaluma-solar-company-employee-gets-14-months-behind-bars-embezzlement-0"
+        }
+      ],
+      "caseNo": ""
+    },
+    {
+      "slug": "christopher-miranda-pamela-malfa",
+      "name": "Christopher John Miranda and Pamela Malfa",
+      "era": "2017",
+      "subject": "Classic-car restoration theft",
+      "amount": "Approximately $850,000",
+      "amountType": "Reported restitution for Miranda",
+      "outcome": "Reporting says Miranda entered no-contest pleas and received 15 years four months; Malfa entered separate grand-theft pleas and received jail and probation.",
+      "details": "The defendants had different charge and sentence outcomes. The published $850,000 restitution amount was reported for Miranda rather than Malfa.",
+      "verification": "B",
+      "sources": [
+        {
+          "label": "miranda",
+          "url": "https://patch.com/california/healdsburg/sonoma-co-auto-shop-owner-wife-sentenced-scamming-customers"
+        }
+      ],
+      "caseNo": ""
+    },
+    {
+      "slug": "kim-louise-lemoine",
+      "name": "Kim Louise Lemoine",
+      "era": "2009",
+      "subject": "Counterfeit government checks / identity theft",
+      "amount": "Approximately $308,000",
+      "amountType": "Counterfeit-check total described by California DOJ",
+      "outcome": "California DOJ reported guilty pleas in Sonoma Superior Court to identity theft, forgery and grand theft and a five-year prison sentence.",
+      "details": "The state Attorney General's sentencing announcement and a filed Sonoma court complaint provide government documentation. The complaint itself describes initial charges; the press release supplies the later conviction and sentence.",
+      "verification": "A",
+      "sources": [
+        {
+          "label": "lemoineDOJ",
+          "url": "https://oag.ca.gov/news/press-releases/brown-sends-counterfeiter-prison"
+        },
+        {
+          "label": "lemoineComplaint",
+          "url": "https://oag.ca.gov/system/files/attachments/press_releases/n1764_lemoinecomplaint.pdf"
+        }
+      ],
+      "caseNo": ""
+    },
+    {
+      "slug": "ana-carrillo",
+      "name": "Ana Carrillo",
+      "era": "2024 CDI report",
+      "subject": "Insurance enforcement matter",
+      "amount": "$13,754.79",
+      "amountType": "Restitution reported paid in full",
+      "outcome": "California Department of Insurance listed 12 months probation, 60 hours community service and restitution paid in full.",
+      "details": "This is a Sonoma County entry in a state regulator's report. A matching Superior Court docket and complete charge history were not independently obtained.",
+      "verification": "A; docket pending",
+      "sources": [
+        {
+          "label": "cdi2024",
+          "url": "https://www.insurance.ca.gov/0400-news/0200-studies-reports/0700-commissioner-report/upload/2024-Annual-Report-of-the-Commissioner.pdf"
+        }
+      ],
+      "caseNo": ""
+    },
+    {
+      "slug": "mark-garcia-sleep-number",
+      "name": "Mark Garcia / Sleep Number",
+      "era": "2024 CDI report",
+      "subject": "Insurance enforcement matter",
+      "amount": "Unspecified",
+      "amountType": "Report says restitution paid but gives no amount",
+      "outcome": "California Department of Insurance listed 60 days jail, 12 months probation, a fine and restitution paid at sentencing.",
+      "details": "The report confirms a Sonoma-labeled enforcement disposition but does not establish a dollar amount or a full matched court docket.",
+      "verification": "A; docket pending",
+      "sources": [
+        {
+          "label": "cdi2024",
+          "url": "https://www.insurance.ca.gov/0400-news/0200-studies-reports/0700-commissioner-report/upload/2024-Annual-Report-of-the-Commissioner.pdf"
+        }
+      ],
+      "caseNo": ""
+    },
+    {
+      "slug": "casey-harding",
+      "name": "Casey Harding",
+      "era": "2024 CDI report",
+      "subject": "Insurance enforcement matter",
+      "amount": "$73,700",
+      "amountType": "Restitution listed by California DOI",
+      "outcome": "California Department of Insurance listed 24 months probation, community service and $73,700 restitution.",
+      "details": "No specific statutory charge or subsequent court action is inferred from the state enforcement table; a matched docket remains outstanding.",
+      "verification": "A; docket pending",
+      "sources": [
+        {
+          "label": "cdi2024",
+          "url": "https://www.insurance.ca.gov/0400-news/0200-studies-reports/0700-commissioner-report/upload/2024-Annual-Report-of-the-Commissioner.pdf"
+        }
+      ],
+      "caseNo": ""
+    },
+    {
+      "slug": "justin-mchale",
+      "name": "Justin McHale",
+      "era": "2024 CDI report",
+      "subject": "Insurance enforcement matter",
+      "amount": "$24,547",
+      "amountType": "Restitution listed by California DOI",
+      "outcome": "California Department of Insurance listed 16 months probation and $24,547 restitution.",
+      "details": "The annual report provides the Sonoma enforcement entry, but a matching criminal-court docket was not independently checked.",
+      "verification": "A; docket pending",
+      "sources": [
+        {
+          "label": "cdi2024",
+          "url": "https://www.insurance.ca.gov/0400-news/0200-studies-reports/0700-commissioner-report/upload/2024-Annual-Report-of-the-Commissioner.pdf"
+        }
+      ],
+      "caseNo": ""
+    },
+    {
+      "slug": "gabriel-desantos",
+      "name": "Gabriel DeSantos",
+      "era": "2021 CDI report",
+      "subject": "Insurance enforcement matter",
+      "amount": "Not listed",
+      "amountType": "No restitution in the state table; not proof of zero losses",
+      "outcome": "California Department of Insurance listed 240 days jail and 36 months probation.",
+      "details": "The state report's omission of restitution does not establish that no financial harm occurred. The trial docket is not independently verified.",
+      "verification": "A; docket pending",
+      "sources": [
+        {
+          "label": "cdi2021",
+          "url": "https://www.insurance.ca.gov/0400-news/0200-studies-reports/0700-commissioner-report/upload/2021Annual-Report-of-the-Insurance-Commissioner.pdf"
+        }
+      ],
+      "caseNo": ""
+    },
+    {
+      "slug": "rogelio-robleto",
+      "name": "Rogelio Robleto",
+      "era": "2021 CDI report",
+      "subject": "Insurance enforcement matter",
+      "amount": "$4,500",
+      "amountType": "Restitution listed by California DOI",
+      "outcome": "California Department of Insurance listed 60 days jail, 12 months probation and $4,500 restitution.",
+      "details": "The sentence does not prove actual time served; the corresponding Superior Court docket has not been independently matched.",
+      "verification": "A; docket pending",
+      "sources": [
+        {
+          "label": "cdi2021",
+          "url": "https://www.insurance.ca.gov/0400-news/0200-studies-reports/0700-commissioner-report/upload/2021Annual-Report-of-the-Insurance-Commissioner.pdf"
+        }
+      ],
+      "caseNo": ""
+    },
+    {
+      "slug": "miguel-martinez-herrera",
+      "name": "Miguel Martinez-Herrera",
+      "era": "2020 CDI report",
+      "subject": "Insurance enforcement matter",
+      "amount": "$37,927",
+      "amountType": "Restitution plus a separate $1,997 criminal fine",
+      "outcome": "California Department of Insurance listed 60 days jail, 36 months probation, $37,927 restitution and a $1,997 fine.",
+      "details": "The restitution and fine are separate categories. The court docket and any later relief have not been independently checked.",
+      "verification": "A; docket pending",
+      "sources": [
+        {
+          "label": "cdi2020",
+          "url": "https://www.insurance.ca.gov/0400-news/0200-studies-reports/0700-commissioner-report/upload/2020-Annual-Report-of-the-Insurance-Commissioner.pdf"
+        }
+      ],
+      "caseNo": ""
+    },
+    {
+      "slug": "amanda-rodgers-graton-casino",
+      "name": "Amanda Rodgers / Graton Casino",
+      "era": "2020 CDI report",
+      "subject": "Insurance enforcement matter",
+      "amount": "$36,369",
+      "amountType": "Restitution reported paid in full",
+      "outcome": "California Department of Insurance listed 60 days jail, 36 months probation and full restitution.",
+      "details": "The report mentions a future misdemeanor reduction conditional on requirements. It does not establish that such a reduction or dismissal actually occurred.",
+      "verification": "A; later relief unverified",
+      "sources": [
+        {
+          "label": "cdi2020",
+          "url": "https://www.insurance.ca.gov/0400-news/0200-studies-reports/0700-commissioner-report/upload/2020-Annual-Report-of-the-Insurance-Commissioner.pdf"
+        }
+      ],
+      "caseNo": ""
+    },
+    {
+      "slug": "isidro-vencez",
+      "name": "Isidro Vencez",
+      "era": "2020 CDI report",
+      "subject": "Insurance enforcement matter",
+      "amount": "$12,560",
+      "amountType": "Restitution reported paid in full",
+      "outcome": "California Department of Insurance listed 60 days jail, 18 months probation and restitution paid at sentencing.",
+      "details": "The state enforcement report was checked, but a complete matching court docket and later dispositions remain unverified.",
+      "verification": "A; docket pending",
+      "sources": [
+        {
+          "label": "cdi2020",
+          "url": "https://www.insurance.ca.gov/0400-news/0200-studies-reports/0700-commissioner-report/upload/2020-Annual-Report-of-the-Insurance-Commissioner.pdf"
+        }
+      ],
+      "caseNo": ""
+    }
+  ],
+  "federal": [
+    {
+      "slug": "sonoma-valley-bank",
+      "name": "Sonoma Valley Bank — Sean Cutting, Brian Melland and David Lonich",
+      "era": "2018",
+      "subject": "Federal bank fraud",
+      "amount": "At least $47 million",
+      "amountType": "Losses identified by federal prosecutors",
+      "outcome": "After a federal trial, Cutting and Melland each received 100 months, and Lonich received 80 months in prison.",
+      "details": "DOJ attributed about $39.18 million in losses to the FDIC and $8.65 million to TARP. This case was prosecuted in federal court, not Sonoma Superior Court.",
+      "verification": "A",
+      "sources": [
+        {
+          "label": "bank",
+          "url": "https://www.justice.gov/usao-ndca/pr/former-ceo-and-chief-loan-officer-failed-sonoma-valley-bank-and-borrower-s-california"
+        }
+      ],
+      "caseNo": ""
+    },
+    {
+      "slug": "brandon-frere",
+      "name": "Brandon Frere",
+      "era": "2020",
+      "subject": "Federal wire fraud / money laundering",
+      "amount": "$25 million to $65 million",
+      "amountType": "Loss range admitted for federal sentencing",
+      "outcome": "Frere pleaded guilty to wire fraud and money laundering and was sentenced to 42 months in federal prison.",
+      "details": "The Rohnert Park business operator admitted a sentencing loss range, not an exact final restitution amount. This is a federally prosecuted Sonoma-area matter.",
+      "verification": "A",
+      "sources": [
+        {
+          "label": "frere",
+          "url": "https://www.justice.gov/usao-ndca/pr/sonoma-county-ceo-sentenced-three-and-half-years-prison-charges-stemming-multi-million"
+        }
+      ],
+      "caseNo": ""
+    },
+    {
+      "slug": "robert-stephens",
+      "name": "Robert Stephens",
+      "era": "2017",
+      "subject": "Federal wire fraud / money laundering",
+      "amount": "$7,901,081",
+      "amountType": "Federal restitution ordered",
+      "outcome": "Stephens pleaded guilty to conspiracy, wire fraud and money laundering and received 42 months in federal prison.",
+      "details": "The Petaluma resident's scheme was reported by DOJ to have obtained almost $8 million. The restitution figure comes from the federal court disposition.",
+      "verification": "A",
+      "sources": [
+        {
+          "label": "stephens",
+          "url": "https://www.justice.gov/usao-ndca/pr/petaluma-resident-sentenced-35-years-prison-role-wire-fraud-scheme"
+        }
+      ],
+      "caseNo": ""
+    },
+    {
+      "slug": "douglas-hollingsworth",
+      "name": "Douglas Hollingsworth",
+      "era": "2014",
+      "subject": "Federal Ponzi scheme",
+      "amount": "$4.9 million",
+      "amountType": "Federal restitution ordered",
+      "outcome": "Hollingsworth pleaded guilty to wire fraud and money laundering and was sentenced to 64 months in federal prison.",
+      "details": "The federal prosecutor described a Santa Rosa-based Ponzi scheme. Restitution is not the same measure as all investment flows.",
+      "verification": "A",
+      "sources": [
+        {
+          "label": "hollingsworth",
+          "url": "https://www.justice.gov/usao-ndca/pr/santa-rosa-man-sentenced-64-months-ponzi-scheme"
+        }
+      ],
+      "caseNo": ""
+    },
+    {
+      "slug": "stephanie-simontacchi",
+      "name": "Stephanie Simontacchi",
+      "era": "2022",
+      "subject": "Federal bank fraud / embezzlement / tax evasion",
+      "amount": "At least $821,525.52",
+      "amountType": "Restitution contemplated in plea agreement",
+      "outcome": "Simontacchi pleaded guilty to bank fraud, credit-union fund misapplication and tax evasion and received 29 months in federal prison.",
+      "details": "The plea agreement contemplated restitution of at least this amount. The research did not independently verify that this was the final restitution order.",
+      "verification": "A",
+      "sources": [
+        {
+          "label": "simontacchi",
+          "url": "https://www.justice.gov/usao-ndca/pr/north-bay-accountant-sentenced-29-months-prison-bank-fraud-embezzlement-credit-union"
+        }
+      ],
+      "caseNo": ""
+    },
+    {
+      "slug": "generose-casiano-yambao",
+      "name": "Generose Casiano Yambao",
+      "era": "2020",
+      "subject": "Federal bank fraud / loan application",
+      "amount": "$49,500",
+      "amountType": "Attempted loan, not established financial loss",
+      "outcome": "Yambao pleaded guilty to bank fraud and a false loan-application statement and received 27 months in federal prison.",
+      "details": "The attempted loan involved a Santa Rosa credit union, establishing the Sonoma geographic connection. This is not a county-court prosecution.",
+      "verification": "A",
+      "sources": [
+        {
+          "label": "yambao",
+          "url": "https://www.justice.gov/usao-ndca/pr/susanville-woman-sentenced-more-two-years-prison-bank-fraud-and-related-offense"
+        }
+      ],
+      "caseNo": ""
+    }
+  ]
+}
