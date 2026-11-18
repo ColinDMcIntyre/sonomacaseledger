@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://colindmcintyre.github.io/sonomacaseledger/sitemap.xml
