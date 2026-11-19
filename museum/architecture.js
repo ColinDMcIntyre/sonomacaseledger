@@ -24,6 +24,24 @@ function tube(parent,points,material=M.edge,radius=.09){
 function cylinder(parent,mat,x,y,z,r,h,seg=16){
  return object(parent,new THREE.CylinderGeometry(r,r,h,seg),mat,x,y,z,true);
 }
+function museumSign(title){
+ const canvas=document.createElement('canvas');canvas.width=1024;canvas.height=256;
+ const ctx=canvas.getContext('2d');
+ ctx.fillStyle='#263632';ctx.fillRect(0,0,1024,256);
+ ctx.strokeStyle='#b89f71';ctx.lineWidth=9;ctx.strokeRect(11,11,1002,234);
+ ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle='#f0e4cd';
+ const words=String(title).split(/\s+/),lines=[''];ctx.font='43px Georgia,serif';
+ for(const word of words){
+  const i=lines.length-1,v=(lines[i]+' '+word).trim();
+  if(ctx.measureText(v).width>900&&lines[i]&&lines.length<2)lines.push(word);else lines[i]=v;
+ }
+ ctx.font=(lines.length>1?37:45)+'px Georgia,serif';
+ lines.forEach((line,i)=>ctx.fillText(line,512,128+(i-(lines.length-1)/2)*66,923));
+ const tex=new THREE.CanvasTexture(canvas);tex.colorSpace=THREE.SRGBColorSpace;
+ return new THREE.Mesh(new THREE.PlaneGeometry(3.9,.78),
+  new THREE.MeshBasicMaterial({map:tex,side:THREE.DoubleSide}));
+}
+
 function archPath(path,c,r,bottom,shoulder,rise){
  path.moveTo(c-r,bottom);path.lineTo(c+r,bottom);path.lineTo(c+r,shoulder);
  for(let i=0;i<=24;i++){
@@ -41,7 +59,7 @@ function openings(room,dir){
   &&Math.abs(p.value-boundary)<.07&&Math.abs(p.at-(vertical?room.z:room.x))<length/2
  ).map(p=>({
   type:'door',at:p.at-(vertical?room.z:room.x),width:p.width,
-  bottom:-.12,shoulder:room.height>10?5.6:4.75,rise:room.height>10?1.65:1.45
+  bottom:.018,shoulder:room.height>10?5.6:4.75,rise:room.height>10?1.65:1.45
  }));
  const windows=[];
  const add=(offset,params={})=>{
@@ -66,7 +84,7 @@ function openings(room,dir){
   for(const at of [-4.8,4.8])add(at,{width:2.1,bottom:3.4,shoulder:5.8,rise:1.1});
  if(room.id==='vestibule'&&dir==='s'){
   // Opening to exterior arrival court.
-  active.push({type:'door',at:0,width:6.2,bottom:-.1,shoulder:4.85,rise:1.45});
+  active.push({type:'door',at:0,width:6.2,bottom:.018,shoulder:4.85,rise:1.45});
  }
  const combined=[...active,...windows];
  for(let i=0;i<combined.length;i++)for(let j=i+1;j<combined.length;j++)
@@ -118,6 +136,11 @@ function wall(room,dir,parent,blockers,windows){
   tube(outer,pts,trim,.13);
   for(const side of [-1,1]){
    box(outer,M.beam,h.at+side*r,h.bottom+Math.max(0,h.shoulder-h.bottom)/2,.34,.16,h.shoulder-h.bottom,.2);
+  }
+  if(h.type==='door' && room.id!=='rotunda' && room.id!=='vestibule'){
+   const sign=museumSign(room.name);
+   sign.position.set(h.at,Math.min(height-.65,h.shoulder+h.rise+.57),.47);
+   outer.add(sign);
   }
   if(h.type==='window'){
    const seed=110+Math.round((room.x+room.z+h.at)*7);
