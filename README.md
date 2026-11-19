@@ -53,3 +53,9 @@ The character attempts to load a free CC0 Gobkit GLB with Idle/Walk clips; a pro
 To test: publish GitHub Pages from `main` at root, then open `https://colindmcintyre.github.io/sonomacaseledger/museum/`. WebGL and the Three.js CDN are required for the 3D view. Full case articles remain accessible as normal HTML pages.
 
 **Phase 4 is deferred:** lighting/art polish, sound, advanced animation transitions, mobile optimization and accessibility testing.
+
+## Current source and docket transparency
+
+The public archive now distinguishes **source grade** (A: government, court or regulator source; A/B: mixed primary material and reporting; B: published reporting) from **complete trial-court docket review**. A government announcement alone is not a verified full docket. Each of the 37 case pages displays a source date and explicit docket-status note.
+
+The current Sonoma record acquisition tracker is [research/COURT-RECORDS-CHECKLIST.md](research/COURT-RECORDS-CHECKLIST.md) (also available as CSV). Of 31 county profiles, 3 case numbers are confirmed from existing cited material and 28 await identification through the official portal's party-name search. New court PDFs must be examined before upload, and confidential/unredacted protected documents must not be published. See [corrections](corrections/) for public correction requests and [research/README.md](research/README.md) for evidence-grade rules. The dated source register is not live court monitoring.
