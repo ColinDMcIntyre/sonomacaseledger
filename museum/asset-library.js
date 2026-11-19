@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
 import {clone as skeletonClone} from 'three/addons/utils/SkeletonUtils.js';
+import {installCaseDioramas} from './case-dioramas.js';
 
 /**
  * Local-only asset mount system. It never calls a public model API at runtime.
@@ -81,15 +82,13 @@ export async function installMuseumAssets(world,onStatus=()=>{}){
   if(!response.ok)throw Error('Asset manifest could not be loaded');
   manifest=await response.json();
  }catch(error){
-  onStatus('Furniture: original exhibits (asset manifest unavailable)');
-  return {installed:0,errors:[String(error)]};
+  const caseCount=installCaseDioramas(world,{}, {},normalize);
+  onStatus('Case illustrations: '+caseCount+' procedural displays (asset manifest unavailable)');
+  return {installed:0,caseCount,errors:[String(error)]};
  }
  const props=manifest.props||{};
- const available=Object.entries(props).filter(([,v])=>safeLocalPath(v?.path));
- if(!available.length){
-  onStatus('Furniture: curated 3D models awaiting import');
-  return {installed:0,errors:[]};
- }
+ const caseProps=manifest.caseProps||{};
+ const available=Object.entries({...props,...caseProps}).filter(([,v])=>safeLocalPath(v?.path));
  const loaded={};const errors=[];
  await Promise.all(available.map(async ([key,config])=>{
   try{loaded[key]=await load(config.path);}
@@ -97,7 +96,10 @@ export async function installMuseumAssets(world,onStatus=()=>{}){
  }));
  let installed=0;
  for(const slot of world.assetSlots||[]){
-  const role=slot.kind==='case'||slot.kind==='archive'?'displayCase':
+  // Case exhibits retain the purpose-built transparent vitrines: imported
+  // opaque cabinets could otherwise conceal contextual case models.
+  if(slot.kind==='case')continue;
+  const role=slot.kind==='archive'?'displayCase':
    slot.kind==='directory'?'directoryDesk':null;
   const config=props[role],model=loaded[role];
   if(!model||!config)continue;
@@ -130,6 +132,7 @@ export async function installMuseumAssets(world,onStatus=()=>{}){
    installed++;
   }catch(error){errors.push(place.role+': '+String(error));}
  }
- onStatus('Museum models: '+installed+' installed'+(errors.length?' ('+errors.length+' unavailable)':''));
- return {installed,errors};
+ const caseCount=installCaseDioramas(world,loaded,caseProps,normalize);
+ onStatus('Case illustrations: '+caseCount+' · Museum props: '+installed+(errors.length?' ('+errors.length+' unavailable)':''));
+ return {installed,caseCount,errors};
 }
