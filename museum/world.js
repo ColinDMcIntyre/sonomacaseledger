@@ -16,7 +16,7 @@ export const ROOM_DEFS = [
 ];
 export const HALLWAYS=[
  {x:-16,z:0,w:16,d:6},{x:16,z:0,w:16,d:6},
- {x:0,z:-16.5,w:7,d:15},{x:0,z:16.5,w:7,d:15},
+ {x:0,z:-16,w:7,d:16},{x:0,z:16,w:7,d:16},
  {x:-29,z:-13.5,w:6,d:12},{x:29,z:-13.5,w:6,d:12}
 ];
 const M={};
