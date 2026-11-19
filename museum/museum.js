@@ -22,16 +22,19 @@ const UI={
 const MQ=window.matchMedia('(min-width:781px)');
 const state={
   cases:[],exhibits:[],gallery:'rotunda',fx:!window.matchMedia('(prefers-reduced-motion:reduce)').matches,
-  yaw:Math.PI/4,zoom:1.06,cameraMode:'close',waypoints:[],onArrival:null,moving:false,openPanel:false
+  yaw:Math.PI/4,pitch:.35,zoom:1,cameraMode:'close',waypoints:[],onArrival:null,moving:false,openPanel:false
 };
 let scene,camera,renderer,world,visitor,clock,noticeTimer,rafId;
-let viewTarget=new THREE.Vector3(0,0,7.5);
+let viewTarget=new THREE.Vector3(0,0,3);
+const cameraCollisionRay=new THREE.Raycaster();
+const cameraAnchor=new THREE.Vector3();
+const cameraDirection=new THREE.Vector3();
+const desiredCamera=new THREE.Vector3();
 let cameraEye=new THREE.Vector3();
 const heldKeys=new Set();
 const interactionPosition=new THREE.Vector3();
 let closestExhibit=null;
-const cameraDefault=()=>state.cameraMode==='close'
-  ?(MQ.matches?9.5:10.5):(MQ.matches?20:18);
+const cameraDistance=()=>((state.cameraMode==='close')?10.7:16.4)/state.zoom;
 const COLOR={gold:0xd1b37b,aqua:0x86d8c9};
 const clamp=THREE.MathUtils.clamp;
 function element(tag,text,cls){
@@ -135,15 +138,15 @@ function populateMuseum(){
 }
 function setupThree(){
   scene=new THREE.Scene();
-  scene.background=new THREE.Color(0x28343a);
-  scene.fog=new THREE.FogExp2(0x28343a,.0035);
-  camera=new THREE.OrthographicCamera(-10,10,10,-10,.1,350);
+  scene.background=new THREE.Color(0x353d40);
+  scene.fog=new THREE.FogExp2(0x353d40,.002);
+  camera=new THREE.PerspectiveCamera(62,window.innerWidth/window.innerHeight,.12,275);
   renderer=new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:'high-performance'});
   renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.65));
   renderer.setSize(window.innerWidth,window.innerHeight,false);
   renderer.outputColorSpace=THREE.SRGBColorSpace;
   renderer.toneMapping=THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure=1.18;
+  renderer.toneMappingExposure=1.04;
   renderer.shadowMap.enabled=MQ.matches;
   renderer.shadowMap.type=THREE.PCFSoftShadowMap;
   const pmrem=new THREE.PMREMGenerator(renderer);
@@ -151,8 +154,8 @@ function setupThree(){
   scene.environment=pmrem.fromScene(environment,0.04).texture;
   environment.dispose();pmrem.dispose();
   UI.viewport.append(renderer.domElement);
-  scene.add(new THREE.HemisphereLight(0xf3eff1,0x827064,1.45));
-  const key=new THREE.DirectionalLight(0xffdfb4,2.7);
+  scene.add(new THREE.HemisphereLight(0xfff1df,0x7d7370,1.9));
+  const key=new THREE.DirectionalLight(0xffedd1,1.65);
   key.position.set(-12,29,18);key.castShadow=MQ.matches;
   key.shadow.mapSize.set(2048,2048);
   key.shadow.camera.left=-27;key.shadow.camera.right=27;
@@ -160,35 +163,55 @@ function setupThree(){
   key.shadow.camera.near=.5;key.shadow.camera.far=95;
   key.shadow.bias=-0.00022;key.shadow.normalBias=.02;
   scene.add(key);
-  const fill=new THREE.DirectionalLight(0xa5d2d8,.85);fill.position.set(28,20,-15);scene.add(fill);
+  const fill=new THREE.DirectionalLight(0x9db5bb,.7);fill.position.set(28,20,-15);scene.add(fill);
   world=makeMuseum(scene);
   visitor=createVisitor(scene,status=>UI.asset.textContent=status);
-  visitor.root.position.set(0,0,7.5);
+  visitor.root.position.set(0,0,3);
   viewTarget.copy(visitor.root.position);
   clock=new THREE.Clock();
   resize();
   window.addEventListener('resize',resize);
 }
 function resize(){
-  if(!camera||!renderer)return;
-  const w=window.innerWidth,h=window.innerHeight;
-  const size=cameraDefault()/state.zoom;
-  const aspect=w/h;
-  camera.left=-size*aspect/2;camera.right=size*aspect/2;
-  camera.top=size/2;camera.bottom=-size/2;
-  camera.updateProjectionMatrix();
-  renderer.setSize(w,h,false);
+ if(!camera||!renderer)return;
+ const w=window.innerWidth,h=window.innerHeight;
+ camera.aspect=w/h;
+ camera.fov=w<650?68:62;
+ camera.updateProjectionMatrix();
+ renderer.setSize(w,h,false);
 }
 function updateCamera(dt){
-  const smooth=1-Math.exp(-dt*4.5);
-  const target=new THREE.Vector3(visitor.root.position.x,0,visitor.root.position.z);
-  viewTarget.lerp(target,smooth);
-  const distance=state.cameraMode==='close'?24:31;
-  const elevation=state.cameraMode==='close'?16.6:26;
-  cameraEye.set(viewTarget.x+Math.sin(state.yaw)*distance,viewTarget.y+elevation,viewTarget.z+Math.cos(state.yaw)*distance);
-  camera.position.lerp(cameraEye,1-Math.exp(-dt*5.5));
-  camera.lookAt(viewTarget.x,1.65,viewTarget.z);
+ const target=new THREE.Vector3(visitor.root.position.x,0,visitor.root.position.z);
+ viewTarget.lerp(target,1-Math.exp(-dt*6));
+ cameraAnchor.set(viewTarget.x,1.55,viewTarget.z);
+ const d=cameraDistance(),cp=Math.cos(state.pitch),sp=Math.sin(state.pitch);
+ desiredCamera.set(
+  cameraAnchor.x+Math.sin(state.yaw)*d*cp,
+  cameraAnchor.y+d*sp,
+  cameraAnchor.z+Math.cos(state.yaw)*d*cp
+ );
+ cameraDirection.copy(desiredCamera).sub(cameraAnchor);
+ const fullDistance=cameraDirection.length();
+ cameraDirection.normalize();
+ // Stop the camera at a wall rather than hiding architectural geometry.
+ if(world.cameraBlockers?.length){
+  cameraCollisionRay.set(cameraAnchor,cameraDirection);
+  cameraCollisionRay.near=0.25;cameraCollisionRay.far=fullDistance;
+  const hits=cameraCollisionRay.intersectObjects(world.cameraBlockers,false);
+  if(hits.length&&hits[0].distance<fullDistance){
+   desiredCamera.copy(cameraAnchor).addScaledVector(cameraDirection,Math.max(1.6,hits[0].distance-.55));
+  }
+ }
+ const damp=1-Math.exp(-dt*7);
+ camera.position.lerp(desiredCamera,damp);
+ // Aim just ahead of the visitor, keeping the character in the lower center.
+ camera.lookAt(
+  viewTarget.x-Math.sin(state.yaw)*1.55,
+  1.78,
+  viewTarget.z-Math.cos(state.yaw)*1.55
+ );
 }
+
 const gridStep=.85;
 const gridOrigin=-43;
 const gridSize=103;
@@ -569,13 +592,13 @@ function setupUI(){
  $('zoom-in').addEventListener('click',()=>{state.zoom=clamp(state.zoom*1.22,.65,2);resize();});
  $('zoom-out').addEventListener('click',()=>{state.zoom=clamp(state.zoom/1.22,.65,2);resize();});
  $('reset-camera').addEventListener('click',()=>{
-  state.yaw=Math.PI/4;state.zoom=1.06;state.cameraMode='close';
-  $('view-button').textContent='Close view';resize();report('Camera view reset.');
+  state.yaw=Math.PI/4;state.pitch=.35;state.zoom=1;state.cameraMode='close';
+  $('view-button').textContent='Follow';resize();report('Third-person camera reset.');
  });
  $('view-button').addEventListener('click',()=>{
   state.cameraMode=state.cameraMode==='close'?'overview':'close';
-  $('view-button').textContent=state.cameraMode==='close'?'Close view':'Overview';
-  resize();report(state.cameraMode==='close'?'Closer cinematic camera':'Wider gallery overview');
+  $('view-button').textContent=state.cameraMode==='close'?'Follow':'Wide';
+  resize();report(state.cameraMode==='close'?'Third-person follow camera':'Wider third-person view');
  });
  $('interact-button').addEventListener('click',interactNearby);
  $('graphics-button').addEventListener('click',()=>{
@@ -634,7 +657,7 @@ function setupPointer(){
   if(state.openPanel)return;
   fingers.set(e.pointerId,{x:e.clientX,y:e.clientY});
   canvas.setPointerCapture?.(e.pointerId);
-  if(fingers.size===1){active={x:e.clientX,y:e.clientY,yaw:state.yaw,time:performance.now()};moved=false;}
+  if(fingers.size===1){active={x:e.clientX,y:e.clientY,yaw:state.yaw,pitch:state.pitch,time:performance.now()};moved=false;}
   else {const v=[...fingers.values()];startDistance=Math.hypot(v[0].x-v[1].x,v[0].y-v[1].y);moved=true;}
  });
  canvas.addEventListener('pointermove',e=>{
@@ -649,7 +672,7 @@ function setupPointer(){
   if(!active)return;
   const delta=e.clientX-active.x,dy=e.clientY-active.y;
   if(Math.hypot(delta,dy)>7)moved=true;
-  if(moved)state.yaw=active.yaw-delta*.006;
+  if(moved){state.yaw=active.yaw-delta*.006;state.pitch=clamp(active.pitch+dy*.003,.17,.69);}
  });
  function end(e){
   const had=fingers.has(e.pointerId);fingers.delete(e.pointerId);

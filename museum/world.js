@@ -1,311 +1,313 @@
 import * as THREE from 'three';
 import {M,mat} from './materials.js';
 
-/**
- * Modular vaulted museum kit: every wing uses the same walls, ribs, exhibits
- * and doorway geometry. Camera-facing upper walls and eaves are cut away,
- * keeping the historical architecture visible without blocking gameplay.
+/*
+ * Sonoma Case Ledger — third-person museum scene v3.
+ * All seven rooms are made from one architectural kit. The camera stays below
+ * a genuinely vaulted ceiling; it never needs a roof cutaway or orbital walls.
+ * Existing case exhibit placements, collision map, and search remain compatible.
  */
 export const ROOM_DEFS=[
- {id:'rotunda',name:'The Grand Rotunda',short:'Rotunda',icon:'⌂',x:0,z:0,w:18,d:18,doors:['n','s','e','w'],color:0x4c7469,role:'hub'},
- {id:'investment',name:'Investment & Banking Gallery',short:'Investment',icon:'◇',x:-29,z:0,w:18,d:16,doors:['e','n'],color:0x547762,role:'cases'},
- {id:'business',name:'Business & Property Gallery',short:'Business',icon:'▤',x:29,z:0,w:18,d:16,doors:['w','n'],color:0x776c58,role:'cases'},
- {id:'insurance',name:'Insurance & Financial Services',short:'Insurance',icon:'◈',x:-29,z:-27,w:18,d:16,doors:['s'],color:0x3e6877,role:'cases'},
- {id:'trust',name:'Public Trust Gallery',short:'Public Trust',icon:'✧',x:29,z:-27,w:18,d:16,doors:['s'],color:0x655c7b,role:'cases'},
- {id:'federal',name:'Federal Cases Wing',short:'Federal',icon:'⚖',x:0,z:-29,w:18,d:16,doors:['s'],color:0x51698b,role:'cases'},
- {id:'archive',name:'The Records Library',short:'Records Library',icon:'▥',x:0,z:29,w:18,d:16,doors:['n'],color:0x80654d,role:'library'}
+ {id:'rotunda',name:'The Grand Rotunda',short:'Rotunda',icon:'⌂',x:0,z:0,w:18,d:18,doors:['n','s','e','w'],color:0x6c8277,role:'hub'},
+ {id:'investment',name:'Investment & Banking Gallery',short:'Investment',icon:'◇',x:-29,z:0,w:18,d:16,doors:['e','n'],color:0x698a75,role:'cases'},
+ {id:'business',name:'Business & Property Gallery',short:'Business',icon:'▤',x:29,z:0,w:18,d:16,doors:['w','n'],color:0x907a5f,role:'cases'},
+ {id:'insurance',name:'Insurance & Financial Services',short:'Insurance',icon:'◈',x:-29,z:-27,w:18,d:16,doors:['s'],color:0x668b98,role:'cases'},
+ {id:'trust',name:'Public Trust Gallery',short:'Public Trust',icon:'✧',x:29,z:-27,w:18,d:16,doors:['s'],color:0x83778e,role:'cases'},
+ {id:'federal',name:'Federal Cases Wing',short:'Federal',icon:'⚖',x:0,z:-29,w:18,d:16,doors:['s'],color:0x6b829b,role:'cases'},
+ {id:'archive',name:'The Records Library',short:'Records Library',icon:'▥',x:0,z:29,w:18,d:16,doors:['n'],color:0x9a7a58,role:'library'}
 ];
 export const HALLWAYS=[
  {x:-16,z:0,w:16,d:6},{x:16,z:0,w:16,d:6},
  {x:0,z:-16,w:7,d:16},{x:0,z:16,w:7,d:16},
  {x:-29,z:-13.5,w:6,d:12},{x:29,z:-13.5,w:6,d:12}
 ];
-const boxGeo=new THREE.BoxGeometry(1,1,1);
-function mesh(geometry,material,parent,x=0,y=0,z=0,shadow=false){
- const o=new THREE.Mesh(geometry,material);
- o.position.set(x,y,z);o.castShadow=shadow;o.receiveShadow=true;parent.add(o);return o;
+const cube=new THREE.BoxGeometry(1,1,1);
+const wood=M.wood,stone=M.stone,brass=M.brass;
+function mesh(parent,geometry,material,x=0,y=0,z=0,shadows=false){
+ const o=new THREE.Mesh(geometry,material);o.position.set(x,y,z);
+ o.castShadow=shadows;o.receiveShadow=true;parent.add(o);return o;
 }
-function block(parent,material,x,y,z,w,h,d,shadow=false){
- const o=mesh(boxGeo,material,parent,x,y,z,shadow);o.scale.set(w,h,d);return o;
+function box(parent,material,x,y,z,w,h,d,shadow=false){
+ const o=mesh(parent,cube,material,x,y,z,shadow);o.scale.set(w,h,d);return o;
 }
-function cylinder(parent,material,x,y,z,r,h,seg=20){
- return mesh(new THREE.CylinderGeometry(r,r,h,seg),material,parent,x,y,z,true);
+function cylinder(parent,material,x,y,z,r,h,n=20){
+ return mesh(parent,new THREE.CylinderGeometry(r,r,h,n),material,x,y,z,true);
 }
-function label(str,w=2.8,h=.43){
- const c=document.createElement('canvas');c.width=768;c.height=144;
- const ctx=c.getContext('2d');ctx.fillStyle='#2b3436';ctx.fillRect(0,0,768,144);
- ctx.strokeStyle='#c6a978';ctx.lineWidth=7;ctx.strokeRect(8,8,752,128);
- ctx.fillStyle='#e9dec7';ctx.font='36px Georgia,serif';ctx.textAlign='center';ctx.textBaseline='middle';
- const words=String(str).split(/\s+/);const rows=[''];
+function tube(parent,points,r,material,segments=32){
+ return mesh(parent,new THREE.TubeGeometry(new THREE.CatmullRomCurve3(points),segments,r,8,false),material);
+}
+function metalBetween(parent,a,b,r=.055,material=M.brass){
+ const va=new THREE.Vector3(...a),vb=new THREE.Vector3(...b),diff=vb.clone().sub(va);
+ const m=mesh(parent,new THREE.CylinderGeometry(r,r,diff.length(),8),material);
+ m.position.copy(va).add(vb).multiplyScalar(.5);m.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),diff.normalize());return m;
+}
+function plaque(title,w=2.1,h=.37){
+ const canvas=document.createElement('canvas');canvas.width=900;canvas.height=180;
+ const c=canvas.getContext('2d');c.fillStyle='#272d29';c.fillRect(0,0,900,180);
+ c.fillStyle='#b9a178';c.fillRect(13,13,874,3);c.fillRect(13,164,874,3);
+ c.fillStyle='#f3ebd9';c.textBaseline='middle';c.textAlign='center';
+ const words=String(title).split(/\s+/),lines=[''];
  for(const word of words){
-  const i=rows.length-1,merged=(rows[i]+' '+word).trim();
-  if(ctx.measureText(merged).width>682 && rows[i] && rows.length<3)rows.push(word);
-  else rows[i]=merged;
+  const i=lines.length-1,next=(lines[i]+' '+word).trim();
+  c.font='bold 38px Georgia,serif';
+  if(c.measureText(next).width>830&&lines[i]&&lines.length<2)lines.push(word);else lines[i]=next;
  }
- const size=rows.length===1?37:rows.length===2?31:26;
- ctx.font=size+'px Georgia,serif';
- rows.forEach((line,i)=>ctx.fillText(line,384,72+(i-(rows.length-1)/2)*38,685));
- const tex=new THREE.CanvasTexture(c);tex.colorSpace=THREE.SRGBColorSpace;
- return new THREE.Mesh(new THREE.PlaneGeometry(w,h),new THREE.MeshBasicMaterial({map:tex,side:THREE.DoubleSide}));
+ c.font=(lines.length===1?38:31)+'px Georgia,serif';
+ lines.forEach((line,i)=>c.fillText(line,450,90+(i-(lines.length-1)/2)*46,840));
+ const t=new THREE.CanvasTexture(canvas);t.colorSpace=THREE.SRGBColorSpace;
+ return new THREE.Mesh(new THREE.PlaneGeometry(w,h),new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}));
 }
-function archCurve(radius,spring,rise,z,originX,originZ){
- const pts=[];
- for(let i=0;i<=34;i++){
-  const t=-1+2*i/34;
-  pts.push(new THREE.Vector3(originX+t*radius,spring+rise*Math.sqrt(Math.max(0,1-t*t)),originZ+z));
- }
- return new THREE.CatmullRomCurve3(pts);
+function getMat(texture,repeatX,repeatY){
+ const material=texture.clone();material.map=texture.map.clone();
+ material.map.wrapS=material.map.wrapT=THREE.RepeatWrapping;
+ material.map.repeat.set(repeatX,repeatY);material.map.needsUpdate=true;
+ if(texture.bumpMap){material.bumpMap=material.map;material.bumpScale=texture.bumpScale;}
+ return material;
+}
+function floorTile(parent,x,z,w,d,walking){
+ const floor=mesh(parent,new THREE.PlaneGeometry(w,d),getMat(walking?M.floor:M.corridor,w/5,d/5),x,0,z);
+ floor.rotation.x=-Math.PI/2;
+ floor.userData.walkable=true;return floor;
 }
 export function makeMuseum(scene){
  const root=new THREE.Group();scene.add(root);
- const rooms={},floors=[],floorRects=[],obstacles=[],interactives=[],effects=[];
- const cutaways=[];const overhead=[];
- const totalHeight=7.7, vaultSpring=8.4,vaultRise=3.35;
- function floor(x,z,w,d,isRoom=false){
-  const plate=block(root,isRoom?M.floor:M.corridor,x,-.24,z,w,.42,d);
-  plate.userData.walkable=true;plate.receiveShadow=true;
-  floors.push(plate);floorRects.push({x,z,w,d});
-  if(isRoom){
-   for(const edge of [-1,1]){
-    block(root,M.edge,x,0,z+edge*d/2,w,.045,.055);
-    block(root,M.edge,x+edge*w/2,0,z,.055,.045,d);
+ const rooms={},floors=[],floorRects=[],interactives=[],obstacles=[],effects=[],cameraBlockers=[];
+ const lighting=[];
+ // Ground beyond the building prevents a distracting empty black void at entrances.
+ const under=mesh(root,new THREE.PlaneGeometry(165,165),mat(0x33383a,.03,.9),0,-.34,0);
+ under.rotation.x=-Math.PI/2;
+ function addFloor(x,z,w,d,room=false){
+  const tile=floorTile(root,x,z,w,d,room);
+  floors.push(tile);floorRects.push({x,z,w,d});
+  if(room){
+   for(const sign of [-1,1]){
+    box(root,brass,x,.018,z+sign*d/2,w,.035,.085);
+    box(root,brass,x+sign*w/2,.018,z,.085,.035,d);
    }
   }
  }
- function column(parent,x,z,short=false){
-  const height=short?1.15:totalHeight;
-  cylinder(parent,M.stone,x,height/2,z,short?.19:.27,height,24);
-  cylinder(parent,M.beam,x,.18,z,short?.29:.39,.18,24);
-  cylinder(parent,M.brass,x,height-.13,z,short?.29:.38,.17,24);
-  if(!short)block(parent,M.beam,x,totalHeight,z,.8,.17,.8);
+ for(const hall of HALLWAYS)addFloor(hall.x,hall.z,hall.w,hall.d,false);
+ const wallHeight=8.6,doorWidth=5.6;
+ function wallPart(group,room,dir,offset,len){
+  if(len<=0)return;
+  const isZ=dir==='n'||dir==='s',sign=dir==='n'||dir==='w'?-1:1;
+  const x=room.x+(isZ?offset:sign*room.w/2);
+  const z=room.z+(isZ?sign*room.d/2:offset);
+  const face=dir==='n'?1:dir==='s'?-1:dir==='w'?1:-1;
+  const solid=box(group,stone,x,wallHeight/2,z,isZ?len:.32,wallHeight,isZ?.32:len,true);
+  cameraBlockers.push(solid);
+  const panelCount=Math.max(1,Math.floor(len/2.7));
+  for(let i=0;i<panelCount;i++){
+   const side=(i+.5-panelCount/2)*len/panelCount,span=len/panelCount-.38;
+   const inset=.197*face;
+   const tx=x+(isZ?side:inset),tz=z+(isZ?inset:side);
+   box(group,M.woodHighlight,tx,1.55,tz,isZ?span:.065,2.8,isZ?.065:span);
+   box(group,brass,tx,3.02,tz,isZ?span+.11:.076,.045,isZ?.076:span+.11);
+   box(group,M.wood,tx,3.1,tz,isZ?span*.74:.11,.05,isZ?.11:span*.74);
+   // Upper architectural recesses, with restrained plaster surrounds.
+   const ux=x+(isZ?side:inset),uz=z+(isZ?inset:side);
+   box(group,M.darkStone,ux,5.9,uz,isZ?span*.67:.11,2.32,isZ?.11:span*.67);
+   box(group,M.edge,ux,7.1,uz,isZ?span*.76:.14,.1,isZ?.14:span*.76);
+  }
+  box(group,M.edge,x,wallHeight-.17,z,isZ?len:.48,.21,isZ?.48:len);
  }
- function wallSegment(room,dir,offset,len,upper){
-  const g=upper?upper.group:root;
-  const level=upper?1.15:0;
-  const height=upper?totalHeight-1.15:1.15;
-  const isX=dir==='n'||dir==='s',sign=(dir==='n'||dir==='w')?-1:1;
-  const x=room.x+(isX?offset:sign*room.w/2),z=room.z+(isX?sign*room.d/2:offset);
-  const w=isX?len:.28,d=isX?.28:len;
-  block(g,upper?M.stone:M.wood,x,level+height/2,z,w,height,d,true);
-  if(!upper){
-   block(g,M.brass,x,1.13,z,isX?len:.3,.055,isX?.3:len);
-   return;
+ function arc(parent,centre,radius,axis,material=M.edge,height=5.95){
+  const points=[];
+  for(let i=0;i<=24;i++){
+   const t=i*Math.PI/24;
+   const dx=Math.cos(t)*radius,dy=Math.sin(t)*radius*.7;
+   const p=axis==='x'
+    ?new THREE.Vector3(centre[0]+dx,height+dy,centre[2])
+    :new THREE.Vector3(centre[0],height+dy,centre[2]+dx);
+   points.push(p);
   }
-  // Historic walnut paneling and thin, non-emissive brass picture rails.
-  const divisions=Math.max(1,Math.floor(len/2.65));
-  for(let i=0;i<divisions;i++){
-   const off=(i+.5-divisions/2)*len/divisions;
-   const px=x+(isX?off:0),pz=z+(isX?0:off),span=len/divisions-.27;
-   const inside=sign<0?.18:-.18;
-   block(g,M.woodHighlight,px+(isX?0:inside),3.1,pz+(isX?inside:0),
-    isX?span:.075,2.4,isX?.075:span);
-   block(g,M.brass,px+(isX?0:inside*1.2),4.35,pz+(isX?inside*1.2:0),
-    isX?span+.07:.085,.06,isX?.085:span+.07);
+  tube(parent,points,.12,material,30);
+ }
+ function door(room,dir){
+  const isZ=dir==='n'||dir==='s',sign=dir==='n'||dir==='w'?-1:1;
+  const x=room.x+(isZ?0:sign*room.w/2),z=room.z+(isZ?sign*room.d/2:0);
+  for(const s of [-1,1]){
+   const px=x+(isZ?s*doorWidth/2:0),pz=z+(isZ?0:s*doorWidth/2);
+   cylinder(root,stone,px,3.3,pz,.26,6.6,18);
+   cylinder(root,M.edge,px,6.59,pz,.36,.16,18);
+   cylinder(root,M.beam,px,.16,pz,.37,.25,18);
   }
-  block(g,M.beam,x,totalHeight-.12,z,isX?len:.4,.24,isX?.4:len);
+  arc(root,[x,0,z],doorWidth/2,isZ?'x':'z');
+  // Lintel is ABOVE the walking clearance and never fills the opening.
+  const upper=box(root,stone,x,7.65,z,isZ?doorWidth:.35,1.9,isZ?.35:doorWidth,true);
+  cameraBlockers.push(upper);
  }
  function wall(room,dir){
-  const upper={group:new THREE.Group(),roomId:room.id,dir};
-  root.add(upper.group);cutaways.push(upper);
   const len=dir==='n'||dir==='s'?room.w:room.d;
-  const hasDoor=room.doors.includes(dir);
-  const parts=hasDoor?[[-(len+5.6)/4,(len-5.6)/2],[(len+5.6)/4,(len-5.6)/2]]:[[0,len]];
-  for(const [offset,width] of parts){
-   wallSegment(room,dir,offset,width,null);
-   wallSegment(room,dir,offset,width,upper);
+  if(room.doors.includes(dir)){
+   const side=(len-doorWidth)/2;
+   for(const s of [-1,1])wallPart(root,room,dir,s*(doorWidth/2+side/2),side);
+   door(room,dir);
+  }else wallPart(root,room,dir,0,len);
+ }
+ function roof(room){
+  const w=room.w-1.0,depth=room.d-.48,segments=36,rows=14;
+  const verts=[],uv=[],indices=[];
+  // Continuous barrel vault is high above the follow camera.
+  // It is intentionally a real inner ceiling, not a roof visible from above.
+  for(let j=0;j<=rows;j++)for(let i=0;i<=segments;i++){
+   const t=-1+2*i/segments;
+   const x=room.x+t*w/2;
+   const y=wallHeight-.08+3.4*Math.sqrt(Math.max(0,1-t*t));
+   const z=room.z-depth/2+depth*j/rows;
+   verts.push(x,y,z);uv.push(i/segments,j/rows);
+   if(i<segments&&j<rows){
+    const q=j*(segments+1)+i;
+    indices.push(q,q+1,q+segments+1,q+1,q+segments+2,q+segments+1);
+   }
   }
-  if(hasDoor){
-   const alongX=dir==='n'||dir==='s';
-   const sign=dir==='n'||dir==='w'?-1:1;
-   const x=room.x+(alongX?0:sign*room.w/2),z=room.z+(alongX?sign*room.d/2:0);
-   for(const side of [-1,1])
-    column(upper.group,x+(alongX?side*2.8:0),z+(alongX?0:side*2.8));
-   // Stone arch above doorway, open below. It is part of the camera cutaway.
+  const geo=new THREE.BufferGeometry();
+  geo.setAttribute('position',new THREE.Float32BufferAttribute(verts,3));
+  geo.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));geo.setIndex(indices);geo.computeVertexNormals();
+  const plaster=mesh(root,geo,M.vault);plaster.castShadow=false;plaster.receiveShadow=false;
+  for(let z=-depth/2+.5;z<=depth/2-.2;z+=Math.max(3.1,depth/3.6)){
    const points=[];
-   for(let i=0;i<=20;i++){
-    const a=Math.PI-i*Math.PI/20,dist=Math.cos(a)*2.8,y=6+2*Math.sin(a);
-    points.push(new THREE.Vector3(x+(alongX?dist:0),y,z+(alongX?0:dist)));
+   for(let i=0;i<=30;i++){
+    const t=-1+2*i/30;
+    points.push(new THREE.Vector3(room.x+t*w/2,wallHeight+.0+3.45*Math.sqrt(Math.max(0,1-t*t)),room.z+z));
    }
-   mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(points),35,.14,7),M.beam,upper.group);
+   tube(root,points,.085,M.beam,42);
   }
+  // The keystone strip runs along the length of the vault.
+  box(root,M.edge,room.x,wallHeight+3.43,room.z,.16,.09,depth);
  }
- function makeVault(room){
-  const half=room.w/2-.9;
-  // Visible vault ribs, not a solid roof slab. The central well stays open
-  // so the camera never has an opaque ceiling in front of the visitor.
-  for(const z of [-room.d/2+1.1,-room.d/2+4.2,room.d/2-4.2,room.d/2-1.1]){
-   const curve=archCurve(half,vaultSpring,vaultRise,z,room.x,room.z);
-   mesh(new THREE.TubeGeometry(curve,36,.105,7,false),M.beam,root);
-  }
-  // Only narrow perimeter eaves are filled. They demonstrate the curved
-  // plaster vault, while the middle remains cut away for the player camera.
-  for(const dir of ['n','s']){
-   const g=new THREE.Group();root.add(g);overhead.push({group:g,roomId:room.id,dir});
-   const zEdge=room.z+(dir==='n'?-room.d/2:room.d/2);
-   const zBack=room.z+(dir==='n'?-room.d/2+1.65:room.d/2-1.65);
-   const vertices=[],uv=[],indices=[];
-   for(let i=0;i<=28;i++){
-    const t=-1+2*i/28;
-    const x=room.x+t*half,y=vaultSpring+vaultRise*Math.sqrt(Math.max(0,1-t*t));
-    vertices.push(x,y,zEdge,x,y,zBack);uv.push(i/28,0,i/28,1);
-    if(i<28){const n=i*2;indices.push(n,n+1,n+2,n+1,n+3,n+2);}
-   }
-   const geo=new THREE.BufferGeometry();
-   geo.setAttribute('position',new THREE.Float32BufferAttribute(vertices,3));
-   geo.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));
-   geo.setIndex(indices);geo.computeVertexNormals();
-   mesh(geo,M.vault,g);
-   // A narrow painted central ridge and brass edging define the roof line.
-   block(g,M.brass,room.x,vaultSpring+vaultRise+.018,(zEdge+zBack)/2,.05,.045,1.66);
-  }
+ function pilaster(x,z){
+  cylinder(root,stone,x,wallHeight/2,z,.24,wallHeight,18);
+  cylinder(root,M.edge,x,.18,z,.37,.28,18);
+  cylinder(root,M.edge,x,wallHeight-.2,z,.38,.22,18);
  }
- function wallSign(room){
-  const sign=label(room.name,Math.min(7.2,room.w-2),.82);
-  sign.position.set(room.x,5.9,room.z-room.d/2+.45);
-  root.add(sign);
-  // It belongs to the north upper wall and will hide when near that wall.
-  const group=cutaways.find(c=>c.roomId===room.id&&c.dir==='n');
-  if(group){root.remove(sign);group.group.add(sign);}
+ function lamp(room){
+  // Simple architectural pendant and actual warm fill light, not neon hoops.
+  const x=room.x,z=room.z,top=10.3;
+  metalBetween(root,[x,top,z],[x,7.3,z],.046,M.blackMetal);
+  cylinder(root,M.blackMetal,x,7.25,z,.62,.19,24);
+  cylinder(root,M.light,x,7.06,z,.45,.16,24);
+  const point=new THREE.PointLight(0xffe1ad,2.1,19,1.8);point.position.set(x,7,z);
+  root.add(point);lighting.push(point);
  }
- for(const corridor of HALLWAYS)floor(corridor.x,corridor.z,corridor.w,corridor.d,false);
+ function wallArt(room){
+  const caption=plaque(room.name,Math.min(5.8,room.w-2),.7);
+  caption.position.set(room.x,5.45,room.z-room.d/2+.25);
+  root.add(caption);
+  // Museum artwork and recessed frames are on the far wall.
+  const framed=box(root,M.wood,room.x,3.75,room.z-room.d/2+.22,4.2,2.3,.13);
+  box(root,M.edge,room.x,3.75,room.z-room.d/2+.32,4.0,2.14,.045);
+  box(root,M.velvet,room.x,3.75,room.z-room.d/2+.36,3.78,1.93,.04);
+  const title=plaque('HISTORY · CONTEXT · RECORD',3.3,.45);
+  title.position.set(room.x,3.8,room.z-room.d/2+.415);root.add(title);
+ }
  for(const room of ROOM_DEFS){
-  rooms[room.id]=room;floor(room.x,room.z,room.w,room.d,true);
+  rooms[room.id]=room;
+  addFloor(room.x,room.z,room.w,room.d,true);
   for(const dir of ['n','s','e','w'])wall(room,dir);
-  makeVault(room);wallSign(room);
-  for(const xx of [-1,1])for(const zz of [-1,1]){
-   const x=room.x+xx*(room.w/2-.65),z=room.z+zz*(room.d/2-.65);
-   // Tall columns only when they're along far walls; camera-facing ones cut away.
-   const g=cutaways.find(a=>a.roomId===room.id&&a.dir===(zz<0?'n':'s'));
-   column(g?.group||root,x,z);
-  }
-  if(room.role==='cases'){
-   for(const side of [-1,1]){
-    const x=room.x+side*(room.w/2-2),z=room.z+room.d/2-1.3;
-    cylinder(root,M.wood,x,1.2,z,.22,2.4,12);
-    mesh(new THREE.SphereGeometry(.23,12,10),M.light,root,x,2.47,z);
-    const lamp=new THREE.PointLight(0xffd8a5,.52,7,2);lamp.position.set(x,2.54,z);root.add(lamp);
-   }
+  roof(room);
+  for(const dx of [-1,1])for(const dz of [-1,1])
+   pilaster(room.x+dx*(room.w/2-.5),room.z+dz*(room.d/2-.5));
+  wallArt(room);lamp(room);
+ }
+ function collision(mesh,record,rad=1.0){
+  const hit=new THREE.Mesh(new THREE.CylinderGeometry(rad,rad,2.8,14),
+   new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:0,depthWrite:false,side:THREE.DoubleSide}));
+  hit.position.y=1.4;hit.userData.action=record;mesh.add(hit);
+  hit.castShadow=false;interactives.push(hit);
+  obstacles.push({x:mesh.position.x,z:mesh.position.z,r:rad*.84});
+ }
+ const documentPaper=new THREE.PlaneGeometry(.88,1.13);
+ function displayedDocument(parent,x=0,y=1.64,z=0,angle=-.11){
+  const backing=box(parent,wood,x,y,z,1.11,1.42,.075);
+  backing.rotation.y=angle;
+  const page=mesh(parent,documentPaper,M.page,x,y,z+.058);
+  page.rotation.y=angle;
+  for(let k=0;k<6;k++){
+   const line=box(parent,M.ink,x,y+.36-k*.134,z+.075,k===0?.46:.64,.014,.009);
+   line.rotation.y=angle;
   }
  }
- function register(exhibit,record,rad=1){
-  const hit=mesh(new THREE.CylinderGeometry(rad,rad,2.8,12),
-   new THREE.MeshBasicMaterial({visible:false,side:THREE.DoubleSide}),exhibit,0,1.5,0);
-  // Invisible raycastable area is retained, as with the original exhibit kit.
-  hit.material.visible=true;hit.material.transparent=true;hit.material.opacity=0;
-  hit.material.depthWrite=false;hit.userData.action=record;interactives.push(hit);
-  obstacles.push({x:exhibit.position.x,z:exhibit.position.z,r:rad*.83});
- }
- function framedDocument(g){
-  const frame=block(g,M.wood,0,1.72,0,1.06,1.18,.085);
-  frame.rotation.y=.10;
-  const sheet=block(g,M.page,0,1.72,.062,.89,.98,.025);
-  sheet.rotation.y=.10;
-  for(let i=0;i<5;i++){
-   const line=block(g,M.ink,0,1.94-i*.145,.087,i===0?.5:.65,.015,.01);
-   line.rotation.y=.10;
-  }
-  return frame;
- }
- function addExhibit(roomId,localX,localZ,record,type='case'){
+ function addExhibit(roomId,lx,lz,record,type='case'){
   const room=rooms[roomId];if(!room)throw new Error('Unknown room '+roomId);
-  const g=new THREE.Group();g.position.set(room.x+localX,0,room.z+localZ);root.add(g);
-  const display=type==='case'||type==='archive';
-  let moving=null;
-  if(display){
-   // A rectangular museum vitrine, not a floating round podium.
-   block(g,M.plinth,0,.28,0,1.55,.56,1.15,true);
-   block(g,M.brass,0,.57,0,1.6,.045,1.2);
-   block(g,M.wood,0,.76,0,1.48,.3,1.08,true);
-   block(g,M.velvet,0,.93,0,1.39,.045,.98);
-   framedDocument(g);
-   // Thin glass panes: no opaque box in front of the archival document.
-   for(const x of [-.73,.73])block(g,M.glass,x,1.59,0,.025,1.35,1.1);
-   for(const z of [-.53,.53])block(g,M.glass,0,1.59,z,1.5,1.35,.025);
-   for(const x of [-.74,.74])for(const z of [-.55,.55])
-    block(g,M.brass,x,1.57,z,.022,1.39,.022);
-   block(g,M.brass,0,2.27,0,1.55,.04,1.17);
-   block(g,M.wood,0,2.3,0,1.58,.08,1.2);
+  const group=new THREE.Group();group.position.set(room.x+lx,0,room.z+lz);root.add(group);
+  const isCase=type==='case'||type==='archive';
+  if(isCase){
+   // Museum-grade archival cabinet, nearly human height.
+   box(group,M.plinth,0,.28,0,1.65,.56,1.25,true);
+   box(group,M.wood,0,.69,0,1.56,.34,1.18,true);
+   box(group,M.velvet,0,.9,0,1.45,.05,1.06);
+   displayedDocument(group,0,1.68,0);
+   // Clear glass, slender black-bronze joints, gentle internal illumination.
+   for(const x of [-.765,.765])box(group,M.glass,x,1.65,0,.018,1.38,1.12);
+   for(const z of [-.56,.56])box(group,M.glass,0,1.65,z,1.56,1.38,.018);
+   for(const x of [-.78,.78])for(const z of [-.57,.57])
+    box(group,M.blackMetal,x,1.66,z,.032,1.46,.032);
+   box(group,M.wood,0,2.39,0,1.66,.12,1.27);
+   box(group,brass,0,.86,.64,1.47,.035,.055);
+   box(group,M.light,0,2.29,.45,.48,.035,.08);
   }else if(type==='directory'){
-   // Standing walnut information cabinet, with an angled ledger.
-   block(g,M.wood,0,.73,0,1.7,1.46,1.15,true);
-   block(g,M.brass,0,1.46,0,1.76,.045,1.2);
-   const book=block(g,M.page,0,1.55,.03,1.35,.11,.95);
-   book.rotation.x=-.19;block(g,M.brass,0,1.59,.12,.045,.07,1);
+   box(group,wood,0,.76,0,1.7,1.52,1.2,true);
+   box(group,brass,0,1.51,0,1.72,.04,1.22);
+   box(group,M.page,0,1.59,.08,1.25,.08,.85).rotation.x=-.19;
   }else if(type==='portal'){
-   block(g,M.plinth,0,.3,0,1.72,.6,1.25);
-   block(g,M.wood,0,.7,0,1.58,.2,1.1);
-   const opening=mesh(new THREE.TorusGeometry(.69,.095,10,38),M.beam,g,0,1.86,0);
-   moving=opening; // Gentle museum-themed motion, no neon effect.
-   cylinder(g,M.brass,0,1.12,0,.12,.6);
+   box(group,M.plinth,0,.22,0,1.7,.44,1.35);
+   box(group,M.wood,0,.5,0,1.64,.16,1.3);
+   const sign=box(group,M.page,0,1.48,0,1.12,1.43,.12);
+   box(group,brass,0,1.48,.08,1.25,.045,.045);
+   effects.push({object:sign,type:'portal'});
   }else if(type==='timeline'){
-   block(g,M.wood,0,.72,0,1.68,1.44,1.12);
-   const clockface=mesh(new THREE.CylinderGeometry(.57,.57,.07,40),M.brass,g,0,1.65,.23);
-   clockface.rotation.x=Math.PI/2;
-   const hand=block(g,M.ink,0,1.68,.29,.055,.53,.035);
-   moving=hand;
+   box(group,wood,0,.78,0,1.45,1.56,1.12);
+   cylinder(group,M.brass,0,1.52,.37,.43,.09,28).rotation.x=Math.PI/2;
+   const hand=box(group,M.blackMetal,0,1.58,.47,.05,.45,.03);
+   effects.push({object:hand,type:'timeline'});
   }else{
-   block(g,M.plinth,0,.54,0,1.6,1.08,1.1);
-   const lectern=block(g,M.wood,0,1.35,0,1.48,.12,1.12);
-   lectern.rotation.x=-.23;
-   block(g,M.page,0,1.44,.08,1.25,.028,.82).rotation.x=-.23;
+   box(group,M.plinth,0,.6,0,1.6,1.2,1.15);
+   box(group,wood,0,1.36,0,1.46,.1,1.08).rotation.x=-.18;
+   box(group,M.page,0,1.44,.1,1.2,.018,.73).rotation.x=-.18;
   }
-  const plaque=label(record.name||record.title||'Explore',1.56,.34);
-  plaque.position.set(0,display?.57:1.01,.6);g.add(plaque);
-  // A very subtle brass lamp to ground each display.
-  if(display){
-   block(g,M.light,0,2.26,.48,.68,.02,.018);
-  }
-  if(moving)effects.push({object:moving,type});
-  register(g,{...record,roomId,type},type==='directory'?1.22:.97);
-  return g;
+  const p=plaque(record.name||record.title||'Explore',isCase?1.46:1.5,.31);
+  p.position.set(0,isCase?.57:1.08,isCase?.66:.64);
+  group.add(p);
+  collision(group,{...record,roomId,type},type==='directory'?1.2:1.0);
+  return group;
  }
- function addCarpet(roomId){
-  const r=rooms[roomId];
-  block(root,M.rug,r.x,-.008,r.z,4.8,.024,8.25);
-  for(const sign of [-1,1])
-   block(root,M.edge,r.x,.008,r.z+sign*4.1,4.6,.017,.05);
+ function carpet(roomId){
+  const room=rooms[roomId];
+  box(root,M.rug,room.x,.015,room.z,3.8,.03,7.5);
+  for(const k of [-1,1])box(root,brass,room.x,.035,room.z+k*3.65,3.6,.018,.045);
  }
- addCarpet('rotunda');addCarpet('archive');
- const centerpiece=new THREE.Group();centerpiece.position.set(0,0,-2.8);root.add(centerpiece);
+ carpet('rotunda');carpet('archive');
+ const atrium=new THREE.Group();atrium.position.set(0,0,-2.8);root.add(atrium);
  obstacles.push({x:0,z:-2.8,r:1.6});
- cylinder(centerpiece,M.plinth,0,.22,0,1.34,.44,32);
- cylinder(centerpiece,M.wood,0,.65,0,.99,.43,32);
- const astrolabe=mesh(new THREE.TorusGeometry(.97,.065,9,48),M.beam,centerpiece,0,2.05,0);
- astrolabe.rotation.y=.28;
- mesh(new THREE.TorusGeometry(.75,.028,8,46),M.brass,centerpiece,0,2.05,0).rotation.x=.65;
- effects.push({object:astrolabe,type:'sculpture'});
+ cylinder(atrium,M.plinth,0,.32,0,1.12,.64,32);
+ cylinder(atrium,M.wood,0,.77,0,.86,.22,32);
+ const globe=mesh(atrium,new THREE.SphereGeometry(.65,28,20),M.darkStone,0,1.85,0);
+ const axis=metalBetween(atrium,[0,1.1,0],[0,2.6,0],.07);
+ const annulus=mesh(atrium,new THREE.TorusGeometry(.85,.04,8,48),brass,0,1.85,0);
+ annulus.rotation.y=.5;effects.push({object:globe,type:'sculpture'});
  function walkable(x,z){
-  const inside=floorRects.some(r=>Math.abs(x-r.x)<=r.w/2-.27&&Math.abs(z-r.z)<=r.d/2-.27);
-  return inside&&!obstacles.some(o=>Math.hypot(x-o.x,z-o.z)<o.r+.56);
+  return floorRects.some(r=>Math.abs(x-r.x)<=r.w/2-.27&&Math.abs(z-r.z)<=r.d/2-.27)
+   &&!obstacles.some(o=>Math.hypot(x-o.x,z-o.z)<o.r+.52);
  }
  function nearestWalkable(x,z){
   if(walkable(x,z))return new THREE.Vector3(x,0,z);
-  for(let radius=.65;radius<6.2;radius+=.5)for(let i=0;i<28;i++){
-   const a=i*Math.PI/14,px=x+Math.cos(a)*radius,pz=z+Math.sin(a)*radius;
-   if(walkable(px,pz))return new THREE.Vector3(px,0,pz);
-  }
+  for(let radius=.4;radius<=6.4;radius+=.36)
+   for(let k=0;k<36;k++){
+    const a=k*Math.PI/18,px=x+Math.cos(a)*radius,pz=z+Math.sin(a)*radius;
+    if(walkable(px,pz))return new THREE.Vector3(px,0,pz);
+   }
   return null;
  }
- function roomAt(x,z){return ROOM_DEFS.find(r=>Math.abs(x-r.x)<r.w/2&&Math.abs(z-r.z)<r.d/2)||rooms.rotunda;}
- // Cutaway state tracks the camera orientation. Even after rotating the view,
- // any intervening high walls and near roof eaves disappear automatically.
- function setCutaway(camera){
-  if(!camera)return;
-  for(const a of [...cutaways,...overhead]){
-   const r=rooms[a.roomId],dx=camera.position.x-r.x,dz=camera.position.z-r.z;
-   const near=(a.dir==='e'&&dx>2)||(a.dir==='w'&&dx<-2)||
-    (a.dir==='s'&&dz>2)||(a.dir==='n'&&dz<-2);
-   a.group.visible=!near;
-  }
+ function roomAt(x,z){
+  return ROOM_DEFS.find(r=>Math.abs(x-r.x)<r.w/2&&Math.abs(z-r.z)<r.d/2)||rooms.rotunda;
  }
- function update(t,dt,animated=true,camera=null){
-  setCutaway(camera);
+ function update(time,dt,animated=true){
   if(!animated)return;
   for(const e of effects){
-   if(e.type==='sculpture')e.object.rotation.y+=dt*.05;
-   if(e.type==='portal')e.object.rotation.y+=dt*.09;
-   if(e.type==='timeline')e.object.rotation.z+=dt*.15;
+   if(e.type==='sculpture')e.object.rotation.y+=dt*.1;
+   else if(e.type==='timeline')e.object.rotation.z+=dt*.13;
   }
  }
- return {group:root,rooms,floors,interactives,obstacles,walkable,nearestWalkable,roomAt,addExhibit,update};
+ return {group:root,rooms,floors,interactives,obstacles,cameraBlockers,walkable,nearestWalkable,roomAt,addExhibit,update};
 }

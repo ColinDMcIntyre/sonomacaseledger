@@ -58,3 +58,11 @@ Lighting and performance tuning, shadows, baked PBR textures, sound effects, adv
 - The heavily mottled external marble tile texture has been removed. The new **subtle cream marble texture is self-contained procedural artwork** with restrained veins and low-contrast grout.
 - The starting camera is closer and lower, with the Overview toggle retained. The visitor is larger. Performance and framing still need live playtesting across desktop and mobile.
 - The case directory is collapsed by default; **F** opens search, or use the top Cases & search button. No source documents or case records were changed.
+
+## Third-person rebuild — November 2026
+
+- The orthographic/isometric camera was replaced with a **perspective third-person follow camera** (FOV 62°, or 68° on narrow phones). It follows the visitor from behind at an adjustable ~10.7-unit default distance, aims slightly ahead, supports horizontal and vertical drag and stops before solid walls. Follow/Wide changes the camera distance.
+- Architecture was completely rebuilt using full-height stone galleries, real doorway gaps, barrel-vault plaster ceilings above the camera, warm pendant lighting, and walnut-trimmed archival display furniture. The building is no longer a cutaway/isometric diorama.
+- The Gobkit CC0 GLB loader previously hid the procedural model even when no usable Walk/Idle clips were found. The new loader **requires both recognizable animations** before enabling the external model. Otherwise the built-in articulated visitor rig visibly walks and idles. It reports the actual animation source, not a misleading generic "animated GLB" status.
+- No source data, case summaries or court outcomes were changed. The source-backed HTML articles remain the primary accessible reading experience.
+- This is a large art and camera redesign, not a claim that procedural models are photorealistic. Live browser playtesting is needed to validate proportions, animation quality and hardware performance.

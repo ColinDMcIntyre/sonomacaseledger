@@ -199,3 +199,20 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(-
  .hud-button{padding:7px 8px}
  .location-card strong{font-size:.75rem}
 }
+
+/* Third-person game HUD. Decorative interface stays secondary to the world. */
+.hud-top{top:12px;left:18px;right:18px}
+.hud-button{background:rgba(19,28,29,.78);border:1px solid rgba(204,181,138,.3);padding:9px 12px}
+.brand{font-size:.82rem}
+.hud-side{background:rgba(16,24,26,.94);max-height:68vh}
+.gallery-link.active{background:rgba(76,108,90,.6)}
+.location-card{background:rgba(15,23,26,.74);max-width:240px;padding:9px 12px}
+.location-card small{font-size:.54rem}
+.location-card strong{font-size:.91rem}
+.control-tray{background:rgba(15,23,26,.76)}
+.vignette{background:linear-gradient(to top,rgba(6,10,12,.22),transparent 20%)}
+@media(max-width:780px){
+ .hud-top-actions{max-width:72%}
+ .location-card{max-width:170px}
+ .location-card span{display:none}
+}

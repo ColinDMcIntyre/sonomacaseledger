@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#142734">
-<meta name="description" content="Explore Sonoma Case Ledger as an interactive, isometric 3D museum of documented Sonoma County cases.">
+<meta name="description" content="Explore Sonoma Case Ledger as an interactive third-person 3D museum of documented Sonoma County cases.">
 <title>Explore the Ledger Museum | Sonoma Case Ledger</title>
 <link rel="canonical" href="https://colindmcintyre.github.io/sonomacaseledger/museum/">
 <link rel="stylesheet" href="./museum.css">
@@ -40,10 +40,10 @@
   <p>Choose a gallery to travel there instantly.</p>
 </aside>
 <div class="hud-bottom">
-  <div class="location-card"><small>YOU ARE EXPLORING</small><strong id="location-name">The Grand Rotunda</strong><span id="location-hint">WASD move · E interact · F find cases · drag to rotate</span></div>
+  <div class="location-card"><small>YOU ARE EXPLORING</small><strong id="location-name">The Grand Rotunda</strong><span id="location-hint">WASD move · E interact · F find cases · drag to aim</span></div>
   <div id="interact-hint" class="interact-hint" hidden><button id="interact-button" type="button"><kbd>E</kbd><span id="interact-label">Interact</span></button></div>
   <div class="control-tray">
-    <button id="view-button" type="button" title="Toggle close / overview camera">Close view</button>
+    <button id="view-button" type="button" title="Toggle third-person follow and wide camera">Follow</button>
     <button id="zoom-in" type="button" aria-label="Zoom in">+</button>
     <button id="zoom-out" type="button" aria-label="Zoom out">−</button>
     <button id="reset-camera" type="button" title="Reset camera" aria-label="Reset camera">⌖</button>
@@ -66,7 +66,7 @@
     <div class="exhibit-content">
       <p><strong>WASD or arrow keys</strong> move relative to the camera. <strong>E</strong> opens the nearest exhibit when you are close enough.</p>
       <p><strong>Click or tap the floor</strong> to walk automatically. Click an exhibit to approach and open it; manual movement cancels an automatic route.</p>
-      <p><strong>Drag an empty area</strong> to rotate the view. Scroll or use the + / − buttons to zoom. The Close view button switches between a closer angle and a gallery overview.</p>
+      <p><strong>Drag an empty area</strong> to rotate the third-person camera horizontally and vertically. Scroll or use + / − to change follow distance; Follow/Wide changes the viewing distance.</p>
       <p><strong>Cases & search</strong> opens the collapsible case directory, or press <strong>F</strong> to find a case. Use Museum Wings to change galleries.</p>
       <p><strong>Use the Text Archive</strong> for direct, accessible access to every case page.</p>
       <p>This museum is an exploratory interface, not a court website. Exhibits reference documented legal records and linked reporting.</p>
