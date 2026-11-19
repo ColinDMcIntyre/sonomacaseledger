@@ -82,6 +82,7 @@ export function createVisitor(scene,onStatus){
   new THREE.MeshBasicMaterial({map:tex,transparent:true,depthWrite:false,opacity:.66}));
  shadow.rotation.x=-Math.PI/2;shadow.position.y=.018;root.add(shadow);
  let model=null,mixer=null,idleAction=null,walkAction=null,usingAsset=false;
+ const modelRestPosition=new THREE.Vector3();
  let walking=false,blend=0,phase=0;
  function setWalking(value){walking=Boolean(value);}
  function tick(dt){
@@ -92,7 +93,12 @@ export function createVisitor(scene,onStatus){
    idleAction.setEffectiveWeight(1-blend);
    walkAction.setEffectiveWeight(blend);
    mixer.update(dt);
-   if(model){model.position.x=0;model.position.z=0;}
+   // Preserve the imported model's measured local centering. Resetting X/Z
+   // to zero undid the GLB centering and shifted the visible avatar right.
+   if(model){
+    model.position.x=modelRestPosition.x;
+    model.position.z=modelRestPosition.z;
+   }
   }
   // The procedural rig always has genuine walk and idle animation.
   if(!usingAsset){
@@ -132,6 +138,7 @@ export function createVisitor(scene,onStatus){
    const scale=2.12/Math.max(.1,size.y);obj.scale.setScalar(scale);
    const next=new THREE.Box3().setFromObject(obj);
    obj.position.set(-(next.min.x+next.max.x)/2,-next.min.y,-(next.min.z+next.max.z)/2);
+   modelRestPosition.copy(obj.position);
    obj.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;}});
    mixer=new THREE.AnimationMixer(obj);
    idleAction=mixer.clipAction(idle);walkAction=mixer.clipAction(walk);

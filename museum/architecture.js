@@ -279,7 +279,7 @@ function vault(room,parent){
 }
 function column(parent,x,z,height){
  cylinder(parent,M.plinth,x,.24,z,.53,.48,20);
- cylinder(parent,M.stone,x,height/2,z,.29,height,18);
+ cylinder(parent,M.columnStone,x,height/2,z,.29,height,18);
  cylinder(parent,trim,x,height-.32,z,.5,.18,18);
  cylinder(parent,M.beam,x,height-.08,z,.59,.20,18);
 }

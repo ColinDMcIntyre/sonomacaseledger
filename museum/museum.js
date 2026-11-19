@@ -146,7 +146,10 @@ function setupThree(){
   camera=new THREE.PerspectiveCamera(60,window.innerWidth/window.innerHeight,.1,260);
   renderer=new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:'high-performance'});
   renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.65));
-  renderer.setSize(window.innerWidth,window.innerHeight,false);
+  // setSize(..., true) writes CSS dimensions in logical pixels; the backing
+  // buffer still uses devicePixelRatio. Otherwise the canvas becomes wider
+  // than the viewport on high-DPI displays and visually shifts the avatar.
+  renderer.setSize(window.innerWidth,window.innerHeight,true);
   renderer.outputColorSpace=THREE.SRGBColorSpace;
   renderer.toneMapping=THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure=1.1;
@@ -164,7 +167,7 @@ function setupThree(){
   visitor.root.position.set(ENTRY_POINT.x,0,ENTRY_POINT.z);
   visitor.root.rotation.y=Math.PI;
   camera.position.set(ENTRY_POINT.x,4.1,ENTRY_POINT.z+6.2);
-  camera.lookAt(ENTRY_POINT.x,1.7,ENTRY_POINT.z-3);
+  camera.lookAt(ENTRY_POINT.x,1.83,ENTRY_POINT.z);
   viewTarget.copy(visitor.root.position);
   clock=new THREE.Clock();
   resize();
@@ -172,16 +175,19 @@ function setupThree(){
 }
 function resize(){
  if(!camera||!renderer)return;
- const w=window.innerWidth,h=window.innerHeight;
+ const w=UI.viewport.clientWidth||window.innerWidth;
+ const h=UI.viewport.clientHeight||window.innerHeight;
  camera.aspect=w/h;
  camera.fov=w<650?67:60;
  camera.updateProjectionMatrix();
- renderer.setSize(w,h,false);
+ renderer.setSize(w,h,true);
 }
 function updateCamera(dt){
  const player=visitor.root.position;
- viewTarget.lerp(player,1-Math.exp(-dt*7));
- cameraAnchor.set(viewTarget.x,1.62,viewTarget.z);
+ // Frame the actual visitor immediately. Following a damped tracking point
+ // let the character slide toward the side of the screen while moving.
+ viewTarget.copy(player);
+ cameraAnchor.set(player.x,1.62,player.z);
  const distance=cameraDistance(),cp=Math.cos(state.pitch),sp=Math.sin(state.pitch);
  desiredCamera.set(
   cameraAnchor.x+Math.sin(state.yaw)*distance*cp,
@@ -207,7 +213,8 @@ function updateCamera(dt){
  // in free space, preventing wall-crossing and sudden through-stone shots.
  if(occluded)camera.position.copy(desiredCamera);
  else camera.position.lerp(desiredCamera,1-Math.exp(-dt*9));
- camera.lookAt(viewTarget.x,1.8,viewTarget.z);
+ // Keep the avatar at horizontal screen centre in every camera mode.
+ camera.lookAt(player.x,1.83,player.z);
 }
 
 const gridStep=.85;

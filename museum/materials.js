@@ -22,6 +22,30 @@ function plaster(c,n,r){
   c.fillRect(r()*n,r()*n,1+r()*5,1+r()*5);
  }
 }
+function sandstone(c,n,r){
+ // Visible coursed limestone blocks even when an image download fails.
+ // Each repeat spans about 2.35 m in world space.
+ c.fillStyle='#8f8472';c.fillRect(0,0,n,n);
+ const course=n/5;
+ for(let row=0;row<5;row++){
+  const offset=(row%2)*n/4;
+  for(let k=-1;k<4;k++){
+   const x=k*n/2-offset,y=row*course;
+   const warm=Math.floor(r()*20);
+   c.fillStyle='rgb('+(194+warm)+','+(183+warm)+','+(163+warm)+')';
+   c.fillRect(x+3,y+3,n/2-6,course-6);
+   c.fillStyle='rgba(255,247,230,.22)';
+   c.fillRect(x+4,y+4,n/2-8,3);
+   c.fillStyle='rgba(47,39,28,.14)';
+   c.fillRect(x+4,y+course-8,n/2-8,3);
+   for(let i=0;i<160;i++){
+    const xx=x+5+r()*(n/2-10),yy=y+5+r()*(course-10);
+    c.fillStyle=r()>.47?'rgba(70,62,49,.055)':'rgba(248,235,213,.08)';
+    c.fillRect(xx,yy,1+r()*3,1+r()*2);
+   }
+  }
+ }
+}
 function floor(c,n,r){
  c.fillStyle='#ece7db';c.fillRect(0,0,n,n);
  c.strokeStyle='rgba(132,120,106,.16)';c.lineWidth=2;
@@ -91,6 +115,7 @@ function brushed(c,n,r){
  c.putImageData(image,0,0);
 }
 const plasterMap=sample(plaster,130),floorMap=sample(floor,240);
+const sandstoneMap=sample(sandstone,711);
 const woodMap=sample(grain,40),rugMap=sample(weave,8),paperMap=sample(agedPaper,936,256);
 const heightFallback=sample(stoneHeight,391,256,false);
 const metalRoughness=sample(brushed,744,128,false);
@@ -104,8 +129,9 @@ function base(kind,material,normalXY,settings={}){
  return material;
 }
 export const M={
- stone:base('stone',mat(0xffffff,0,.88,{map:plasterMap}),[.53,.53]),
- darkStone:base('stone',mat(0xd9cbb8,0,.87,{map:plasterMap}),[.36,.36]),
+ stone:base('stone',mat(0xf9f4eb,0,.86,{map:sandstoneMap}),[.86,.86]),
+ darkStone:mat(0xd9cbb8,0,.87,{map:plasterMap}),
+ columnStone:mat(0xf0e5d2,0,.77,{map:plasterMap,bumpMap:heightFallback,bumpScale:.003}),
  edge:mat(0xc6b59b,.04,.76,{roughnessMap:metalRoughness,bumpMap:heightFallback,bumpScale:.0018}),
  // Keep the approved stone floor and corridor appearance unchanged.
  floor:base('floor',mat(0xffffff,0,.42,{map:floorMap,clearcoat:.13,clearcoatRoughness:.48,envMapIntensity:.7}),[1,1]),
@@ -122,7 +148,7 @@ export const M={
  vault:base('vault',mat(0xffffff,0,.94,{map:plasterMap,side:THREE.DoubleSide}),[.18,.18]),
  beam:mat(0xb3a089,.08,.76,{roughnessMap:metalRoughness}),
  blackMetal:mat(0x343d3b,.77,.57,{roughnessMap:metalRoughness}),
- plinth:base('stone',mat(0xf7f0e4,0,.59,{map:plasterMap}),[.31,.31]),
+ plinth:mat(0xf7f0e4,0,.59,{map:plasterMap,bumpMap:heightFallback,bumpScale:.002}),
  velvet:mat(0x36524c,0,.97)
 };
 const materials=[...Object.values(M).filter(x=>x?.isMaterial)];
@@ -200,6 +226,12 @@ export async function loadCathedralMaterials(onStatus=()=>{}){
  let maps=0,surfaces=0;
  const results=await Promise.all(Object.entries(sources).map(async ([role,id])=>{
   let complete=0;
+  // The old beige-wall photographs are visibly flat. Do not let their cached
+  // URLs overwrite the new coursed-sandstone fallback while the workflow runs.
+  if(role==='stone' && !String(manifest.stone?.map||'').includes('sandstone_blocks_04')){
+   console.info('Cathedral: waiting for sandstone-block PBR import; using masonry fallback');
+   return {role,maps:0};
+  }
   for(const key of keys){
    // The existing floor PBR remains byte-for-byte unchanged.
    if(role==='floor'&&(key==='aoMap'||key==='heightMap'))continue;

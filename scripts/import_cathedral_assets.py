@@ -17,7 +17,7 @@ ART=ROOT/"museum"/"assets"/"cathedral"
 MANIFEST=ROOT/"museum"/"assets"/"manifest.json"
 USER_AGENT="SonomaCaseLedgerCathedralImporter/1.0 (CC0 museum material build)"
 MATERIALS={
-    "stone":"beige_wall_001",
+    "stone":"sandstone_blocks_04",
     "floor":"tiled_floor_001",
     "wood":"walnut_veneer",
     "vault":"white_plaster_02",
@@ -105,7 +105,8 @@ def download_materials():
                 if not url:
                     continue
                 suffix="png" if urlsplit(url).path.lower().endswith(".png") else "jpg"
-                filename=f"{role}_{name}.{suffix}"
+                filename=(f"{role}_{asset_id}_{name}.{suffix}" if role=="stone"
+                    else f"{role}_{name}.{suffix}")
                 data=fetch(url,MAX_FILE,{"dl.polyhaven.org"})
                 (ART/filename).write_bytes(data)
                 maps[name]="./assets/cathedral/"+filename
