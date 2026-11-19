@@ -21,3 +21,5 @@ See evidence-table.csv and case-data.json for names, links, and case-specific ve
 ### November 19, 2026 PDF intake
 
 The user supplied 28 court-portal PDFs in a connected Drive folder. The current public register lists 13 matched criminal case numbers, including the preexisting Petros entry, but the underlying PDFs are **not yet hosted**. Several same-name results are actually civil/family proceedings or older unrelated offenses. They must not be used as criminal evidence for the listed news cases. See [COURT-PDF-AUDIT.md](COURT-PDF-AUDIT.md) for triage and preservation guidance. Individual case pages should be updated for matched numbers and any verified later orders, without representing a partial review as an exhaustive docket audit.
+
+Public status index: [../records/](../records/). It lists the 13 matched Sonoma criminal court case-detail exports and 18 unresolved profiles, and explains why raw PDFs have not been republished.

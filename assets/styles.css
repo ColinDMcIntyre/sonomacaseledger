@@ -103,3 +103,25 @@ summary{cursor:pointer;font-weight:750}
 .lookup-prompt{font-size:.95rem;margin:18px 0 22px}
 .unverified{font-weight:700}
 @media(max-width:700px){.record-audit,.grade-explainer{padding:16px}.archive-bottom{gap:5px}}
+
+/* Public source register: neutral, readable court-file verification status */
+.record-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:24px}
+.record-stats>div{background:#fff;border:1px solid var(--line);border-radius:8px;padding:20px}
+.record-stats strong{display:block;font-family:Georgia,serif;font-size:2rem;font-weight:500;color:var(--ink)}
+.record-stats span{display:block;color:var(--muted);font-size:.84rem;margin-top:3px}
+.record-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px;margin-top:22px}
+.record-entry{background:#fff;border:1px solid var(--line);border-radius:8px;padding:20px}
+.record-entry[hidden]{display:none}
+.record-entry-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.record-entry h3{font-family:Georgia,serif;font-size:1.2rem;margin:0 0 6px;font-weight:500}
+.record-entry h3 a{color:var(--ink);text-decoration:underline;text-decoration-color:#a7b7ba;text-underline-offset:3px}
+.record-entry p{margin:10px 0;line-height:1.5}
+.record-entry-top p{margin:0;color:var(--muted);font-size:.85rem}
+.record-entry .record-number{font-size:.92rem}
+.record-stage{font-size:.71rem;border:1px solid var(--line);border-radius:5px;color:#435660;padding:5px 7px;flex-shrink:0}
+.record-links{display:flex;flex-wrap:wrap;gap:15px;font-size:.86rem;margin-top:14px}
+.record-links a{font-weight:600}
+.docket-events{padding-left:1.4em}
+.docket-events li{margin-bottom:10px}
+@media(max-width:780px){.record-grid{grid-template-columns:1fr}.record-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.record-stats>div{padding:15px}}
+@media(max-width:430px){.record-entry-top{flex-wrap:wrap}}

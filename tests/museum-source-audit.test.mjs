@@ -59,3 +59,21 @@ test('matched criminal cases stay distinct from unrelated same-name files',()=>{
  }
  assert.ok(read('research/COURT-PDF-AUDIT.md').includes('28'));
 });
+
+test('court record status register matches JSON case-number coverage',()=>{
+ const html=read('records/index.html');
+ assert.match(html,/13<\/strong>/);
+ assert.match(html,/18<\/strong>/);
+ assert.match(html,/28<\/strong>/);
+ assert.match(read('sitemap.xml'),/\/records\//);
+ assert.equal((html.match(/class="record-entry"/g)||[]).length,31);
+ assert.equal((html.match(/Court match found/g)||[]).length,13);
+ for(const rec of data.county){
+  assert.ok(html.includes('id="'+rec.slug+'"'),rec.slug);
+  if(rec.caseNo)assert.ok(html.includes('<code>'+rec.caseNo+'</code>'),rec.slug);
+ }
+ assert.doesNotMatch(html,/drive\.google\.com\/file/);
+ assert.match(read('cases/elana-cohen-roth/index.html'),/August 7, 2026/);
+ assert.match(read('index.html'),/Read the court record, not just the headline/);
+ assert.doesNotMatch(read('index.html'),/class="kicker">Criminal case · Updated 2020 disposition/);
+});

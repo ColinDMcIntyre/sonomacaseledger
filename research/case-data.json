@@ -88,7 +88,7 @@
       "amount": "More than $1.5 million",
       "amountType": "Amount described in trial reporting",
       "outcome": "A Sonoma jury convicted Cohen-Roth on 23 felony financial-crime counts and reporting says she received a 12-year sentence in 2025.",
-      "details": "A published Sonoma Superior Court document identifies case SCR-751314-1 and describes the then-pending trust-related criminal matter. Later news coverage documents conviction and sentence; the earlier court document does not itself prove the later verdict.",
+      "details": "A published Sonoma Superior Court document identifies case SCR-751314-1 and describes the then-pending trust-related criminal matter. Later news coverage documents conviction and sentence; the earlier court document does not itself prove the later verdict. The supplied Sonoma Superior Court case-detail export records a notice of appeal on May 9, 2025, a restitution hearing on March 24, 2026 and an order on March 26, 2026 concerning funds preserved for restitution. It also lists an appellant's opening brief filed August 7, 2026. Those later entries do not establish reversal, dismissal, or the final result of appellate proceedings.",
       "verification": "A/B",
       "sources": [
         {
@@ -101,7 +101,7 @@
         }
       ],
       "caseNo": "SCR-751314-1",
-      "courtRecordStatus": "Portal case-detail export matched to defendant and relevant allegation; date of review 2026-11-19. Underlying PDF not yet publicly hosted. Full event history and any later relief still require a complete audit.",
+      "courtRecordStatus": "Sonoma court-portal case-detail export matched to this defendant and the 23 charged counts, with the May 2025 jury outcomes and subsequent 2025–2026 docket events reviewed in part. The export shows additional appellate and restitution proceedings; no final appellate result was established by this review. Original PDF not published pending full document and privacy review.",
       "courtRecordSourceFile": "Elena.CourtREcords.pdf",
       "courtRecordReviewedOn": "2026-11-19"
     },

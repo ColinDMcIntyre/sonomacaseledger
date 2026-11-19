@@ -21,3 +21,5 @@ Received **28** PDFs from the user-provided Google Drive folder named Constantin
 5. Maintain precise court-action dates and differentiate dismissal after conviction from acquittal.
 
 **Review status:** headers and relevant charge/disposition excerpts inspected; full page-by-page audit still pending for larger multi-decade dockets. This is not a certification of accuracy or completeness.
+## Supplemental docket review: Elana Cohen-Roth
+The 51-page portal export for case `SCR-751314-1` records a May 9, 2025 notice of appeal, a March 24, 2026 restitution hearing, a March 26, 2026 court order concerning funds preserved under Penal Code § 186.11, and an August 7, 2026 docket entry for an appellant's opening brief. The supplied export does **not** establish that the jury verdict was reversed or that the appellate proceeding is complete. These are separate procedural milestones after the May 2025 sentencing, not an acquittal or later dismissal. Public PDF publication still requires privacy clearance and review of complete docket context.
