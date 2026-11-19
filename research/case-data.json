@@ -1,5 +1,5 @@
 {
-  "researchDate": "2026-11-18",
+  "researchDate": "2026-11-19",
   "scope": "Curated Sonoma County and Sonoma-connected federal cases, no countywide largest-case claim",
   "county": [
     {
@@ -18,7 +18,8 @@
           "url": "https://oag.ca.gov/news/press-releases/attorney-general-kamala-d-harris-announces-20-year-prison-sentence-perpetrator"
         }
       ],
-      "caseNo": ""
+      "caseNo": "",
+      "courtRecordStatus": "Matching Sonoma criminal docket not established; do not use similarly named civil, family or unrelated criminal cases."
     },
     {
       "slug": "michael-rosen",
@@ -36,7 +37,8 @@
           "url": "https://www.sfgate.com/news/article/Developer-Pleads-Guilty-In-Pyramid-Scheme-Thefts-2841619.php"
         }
       ],
-      "caseNo": ""
+      "caseNo": "",
+      "courtRecordStatus": "Matching Sonoma criminal docket not established; do not use similarly named civil, family or unrelated criminal cases."
     },
     {
       "slug": "leona-schutte-robert-williams",
@@ -54,7 +56,8 @@
           "url": "https://www.sfgate.com/bayarea/article/Santa-Rosa-couple-get-prison-in-fraud-case-2771720.php"
         }
       ],
-      "caseNo": ""
+      "caseNo": "",
+      "courtRecordStatus": "Matching Sonoma criminal docket not established; do not use similarly named civil, family or unrelated criminal cases."
     },
     {
       "slug": "ryan-merman",
@@ -72,7 +75,10 @@
           "url": "https://lakeconews.com/news/13171-regional-embezzler-sentenced-agrees-to-repay-more-than-1-million-in-restitution"
         }
       ],
-      "caseNo": ""
+      "caseNo": "SCR-563322-1",
+      "courtRecordStatus": "Portal case-detail export matched to defendant and relevant allegation; date of review 2026-11-19. Underlying PDF not yet publicly hosted. Full event history and any later relief still require a complete audit.",
+      "courtRecordSourceFile": "MERMAN.CourtRecords.pdf",
+      "courtRecordReviewedOn": "2026-11-19"
     },
     {
       "slug": "elana-cohen-roth",
@@ -94,7 +100,10 @@
           "url": "https://www.sfchronicle.com/crime/article/tax-fraud-sonoma-county-20320734.php"
         }
       ],
-      "caseNo": "SCR-751314-1"
+      "caseNo": "SCR-751314-1",
+      "courtRecordStatus": "Portal case-detail export matched to defendant and relevant allegation; date of review 2026-11-19. Underlying PDF not yet publicly hosted. Full event history and any later relief still require a complete audit.",
+      "courtRecordSourceFile": "Elena.CourtREcords.pdf",
+      "courtRecordReviewedOn": "2026-11-19"
     },
     {
       "slug": "timothy-charles-webb-jr",
@@ -112,7 +121,8 @@
           "url": "https://lakeconews.com/news/13171-regional-embezzler-sentenced-agrees-to-repay-more-than-1-million-in-restitution"
         }
       ],
-      "caseNo": ""
+      "caseNo": "",
+      "courtRecordStatus": "Matching Sonoma criminal docket not established; do not use similarly named civil, family or unrelated criminal cases."
     },
     {
       "slug": "john-c-sheehan",
@@ -130,7 +140,8 @@
           "url": "https://patch.com/california/rohnertpark-cotati/rohnert-park-man-sentenced-to-9-years-in-prison-for-103a855feae"
         }
       ],
-      "caseNo": ""
+      "caseNo": "",
+      "courtRecordStatus": "Matching Sonoma criminal docket not established; do not use similarly named civil, family or unrelated criminal cases."
     },
     {
       "slug": "suede-lee-barganski",
@@ -148,7 +159,8 @@
           "url": "https://www.cbsnews.com/sanfrancisco/news/sonoma-auto-shop-owner-9-years-prison-stealing-350k-from-customers/"
         }
       ],
-      "caseNo": ""
+      "caseNo": "",
+      "courtRecordStatus": "Matching Sonoma criminal docket not established; do not use similarly named civil, family or unrelated criminal cases."
     },
     {
       "slug": "frances-farias",
@@ -166,7 +178,10 @@
           "url": "https://patch.com/california/sonomavalley/sonoma-senior-center-worker-sentenced-embezzling-250k"
         }
       ],
-      "caseNo": ""
+      "caseNo": "SCR-706951-1",
+      "courtRecordStatus": "Portal case-detail export matched to defendant and relevant allegation; date of review 2026-11-19. Underlying PDF not yet publicly hosted. Full event history and any later relief still require a complete audit.",
+      "courtRecordSourceFile": "FARIAS.CourtRecords.pdf",
+      "courtRecordReviewedOn": "2026-11-19"
     },
     {
       "slug": "christopher-ramos",
@@ -184,7 +199,10 @@
           "url": "https://www.insurance.ca.gov/0400-news/0100-press-releases/2023/release041-2023.cfm"
         }
       ],
-      "caseNo": ""
+      "caseNo": "SCR-728488-1",
+      "courtRecordStatus": "Portal case-detail export matched to defendant and relevant allegation; date of review 2026-11-19. Underlying PDF not yet publicly hosted. Full event history and any later relief still require a complete audit.",
+      "courtRecordSourceFile": "RAMOS.CourtRecords.pdf",
+      "courtRecordReviewedOn": "2026-11-19"
     },
     {
       "slug": "tina-cabudoy",
@@ -193,8 +211,8 @@
       "subject": "Business-manager theft",
       "amount": "$179,306.98",
       "amountType": "Reported restitution",
-      "outcome": "Reporting describes a plea and an aggregate five-year-four-month prison term that included a previous San Mateo County sentence.",
-      "details": "The combined term must not be characterized as entirely attributable to the Sonoma prosecution. Court dockets for both counties were not independently reviewed.",
+      "outcome": "Sonoma court case 24CR08926 records a no-contest plea to felony grand theft, a September 2025 state-prison sentence and an October 2026 amended sentence. The portal notes a five-year-four-month aggregate term.",
+      "details": "The Sonoma Superior Court portal export for 24CR08926 documents a no-contest plea on July 31, 2025, a September 3, 2025 state-prison sentence and restitution of $179,306.98 to Amaturo Media Group. The record describes a 3-year principal term and comments that the total aggregate term was 5 years, 4 months. An amended sentence was entered October 22, 2026. This archive does not attribute the entire aggregate term solely to the Sonoma case or claim it was fully served.",
       "verification": "B",
       "sources": [
         {
@@ -202,7 +220,10 @@
           "url": "https://www.sfgate.com/news/bayarea/article/sonoma-co-ex-business-manager-gets-over-5-years-21031608.php"
         }
       ],
-      "caseNo": ""
+      "caseNo": "24CR08926",
+      "courtRecordStatus": "Portal case-detail export matched to defendant and relevant allegation; date of review 2026-11-19. Underlying PDF not yet publicly hosted. Full event history and any later relief still require a complete audit.",
+      "courtRecordSourceFile": "Cabudoy.CourtRecords.pdf",
+      "courtRecordReviewedOn": "2026-11-19"
     },
     {
       "slug": "lisa-fatu",
@@ -220,7 +241,10 @@
           "url": "https://patch.com/california/petaluma/former-sonoma-county-nonprofit-director-sentenced-embezzlement"
         }
       ],
-      "caseNo": ""
+      "caseNo": "SCR-757420-1",
+      "courtRecordStatus": "Portal case-detail export matched to defendant and relevant allegation; date of review 2026-11-19. Underlying PDF not yet publicly hosted. Full event history and any later relief still require a complete audit.",
+      "courtRecordSourceFile": "FATU.CourtRecords.pdf",
+      "courtRecordReviewedOn": "2026-11-19"
     },
     {
       "slug": "daniel-broin",
@@ -238,7 +262,10 @@
           "url": "https://sonomasun.com/2018/03/28/two-years-in-slammer-for-sonoma-embezzler/"
         }
       ],
-      "caseNo": ""
+      "caseNo": "SCR-678074-1",
+      "courtRecordStatus": "Portal case-detail export matched to defendant and relevant allegation; date of review 2026-11-19. Underlying PDF not yet publicly hosted. Full event history and any later relief still require a complete audit.",
+      "courtRecordSourceFile": "BROIN.CourtRecords.pdf",
+      "courtRecordReviewedOn": "2026-11-19"
     },
     {
       "slug": "mary-katherine-david",
@@ -256,7 +283,8 @@
           "url": "https://patch.com/california/rohnertpark-cotati/former-treasurer-rancho-cotate-hs-program-sentenced"
         }
       ],
-      "caseNo": ""
+      "caseNo": "",
+      "courtRecordStatus": "Matching Sonoma criminal docket not established; do not use similarly named civil, family or unrelated criminal cases."
     },
     {
       "slug": "mohannad-halaweh",
@@ -274,7 +302,10 @@
           "url": "https://patch.com/california/petaluma/rohnert-park-man-sentenced-fraud-supported-luxury-lifestyle-0"
         }
       ],
-      "caseNo": ""
+      "caseNo": "SCR-651671-1",
+      "courtRecordStatus": "Portal case-detail export matched to defendant and relevant allegation; date of review 2026-11-19. Underlying PDF not yet publicly hosted. Full event history and any later relief still require a complete audit.",
+      "courtRecordSourceFile": "Halaweh.CourtRecords.pdf",
+      "courtRecordReviewedOn": "2026-11-19"
     },
     {
       "slug": "michael-alan-voorhees",
@@ -296,7 +327,8 @@
           "url": "https://patch.com/california/san-francisco/san-francisco-lawyer-disbarred-after-stealing-550k-ca-state-bar"
         }
       ],
-      "caseNo": ""
+      "caseNo": "",
+      "courtRecordStatus": "Matching Sonoma criminal docket not established; do not use similarly named civil, family or unrelated criminal cases."
     },
     {
       "slug": "jeffrey-holzworth",
@@ -318,7 +350,10 @@
           "url": "https://www.sfgate.com/crime/article/santa-rosa-campus-officer-sentenced-in-theft-of-5517929.php"
         }
       ],
-      "caseNo": ""
+      "caseNo": "SCR-627215-1",
+      "courtRecordStatus": "Portal case-detail export matched to defendant and relevant allegation; date of review 2026-11-19. Underlying PDF not yet publicly hosted. Full event history and any later relief still require a complete audit.",
+      "courtRecordSourceFile": "SCR-627215-1.pdf",
+      "courtRecordReviewedOn": "2026-11-19"
     },
     {
       "slug": "karen-holzworth",
@@ -328,7 +363,7 @@
       "amount": "Not quantified here",
       "amountType": "No independent loss assigned to this defendant",
       "outcome": "A jury convicted Karen Holzworth of accessory conduct and two misdemeanor receiving-stolen-property counts; she received probation and nine months county jail, and the judgment was affirmed.",
-      "details": "An appellate opinion identifies Sonoma Superior Court case SCR-627215. These convictions are distinct from the separate grand-theft counts against Jeffrey Holzworth.",
+      "details": "An appellate opinion identifies Sonoma Superior Court case SCR-627215. These convictions are distinct from the separate grand-theft counts against Jeffrey Holzworth. The court portal identifies Karen's separate defendant docket as SCR-627215-2; Jeffrey's is SCR-627215-1. The base case number SCR-627215 appears in appellate material.",
       "verification": "A",
       "sources": [
         {
@@ -336,7 +371,10 @@
           "url": "https://www.casemine.com/judgement/us/5914e3ecadd7b049348fdc68"
         }
       ],
-      "caseNo": "SCR-627215"
+      "caseNo": "SCR-627215-2",
+      "courtRecordStatus": "Portal case-detail export matched to defendant and relevant allegation; date of review 2026-11-19. Underlying PDF not yet publicly hosted. Full event history and any later relief still require a complete audit.",
+      "courtRecordSourceFile": "SCR-627215-2.pdf",
+      "courtRecordReviewedOn": "2026-11-19"
     },
     {
       "slug": "eileen-madayag",
@@ -354,7 +392,8 @@
           "url": "https://patch.com/california/petaluma/petaluma-solar-company-employee-gets-14-months-behind-bars-embezzlement-0"
         }
       ],
-      "caseNo": ""
+      "caseNo": "",
+      "courtRecordStatus": "Matching Sonoma criminal docket not established; do not use similarly named civil, family or unrelated criminal cases."
     },
     {
       "slug": "christopher-miranda-pamela-malfa",
@@ -372,7 +411,8 @@
           "url": "https://patch.com/california/healdsburg/sonoma-co-auto-shop-owner-wife-sentenced-scamming-customers"
         }
       ],
-      "caseNo": ""
+      "caseNo": "",
+      "courtRecordStatus": "Matching Sonoma criminal docket not established; do not use similarly named civil, family or unrelated criminal cases."
     },
     {
       "slug": "kim-louise-lemoine",
@@ -394,7 +434,10 @@
           "url": "https://oag.ca.gov/system/files/attachments/press_releases/n1764_lemoinecomplaint.pdf"
         }
       ],
-      "caseNo": ""
+      "caseNo": "SCR-556340-1",
+      "courtRecordStatus": "Portal case-detail export matched to defendant and relevant allegation; date of review 2026-11-19. Underlying PDF not yet publicly hosted. Full event history and any later relief still require a complete audit.",
+      "courtRecordSourceFile": "Lemoine.CourtRecords.pdf",
+      "courtRecordReviewedOn": "2026-11-19"
     },
     {
       "slug": "ana-carrillo",
@@ -412,7 +455,8 @@
           "url": "https://www.insurance.ca.gov/0400-news/0200-studies-reports/0700-commissioner-report/upload/2024-Annual-Report-of-the-Commissioner.pdf"
         }
       ],
-      "caseNo": ""
+      "caseNo": "",
+      "courtRecordStatus": "Matching Sonoma criminal docket not established; do not use similarly named civil, family or unrelated criminal cases."
     },
     {
       "slug": "mark-garcia-sleep-number",
@@ -430,7 +474,8 @@
           "url": "https://www.insurance.ca.gov/0400-news/0200-studies-reports/0700-commissioner-report/upload/2024-Annual-Report-of-the-Commissioner.pdf"
         }
       ],
-      "caseNo": ""
+      "caseNo": "",
+      "courtRecordStatus": "Matching Sonoma criminal docket not established; do not use similarly named civil, family or unrelated criminal cases."
     },
     {
       "slug": "casey-harding",
@@ -448,7 +493,8 @@
           "url": "https://www.insurance.ca.gov/0400-news/0200-studies-reports/0700-commissioner-report/upload/2024-Annual-Report-of-the-Commissioner.pdf"
         }
       ],
-      "caseNo": ""
+      "caseNo": "",
+      "courtRecordStatus": "Matching Sonoma criminal docket not established; do not use similarly named civil, family or unrelated criminal cases."
     },
     {
       "slug": "justin-mchale",
@@ -466,7 +512,8 @@
           "url": "https://www.insurance.ca.gov/0400-news/0200-studies-reports/0700-commissioner-report/upload/2024-Annual-Report-of-the-Commissioner.pdf"
         }
       ],
-      "caseNo": ""
+      "caseNo": "",
+      "courtRecordStatus": "Matching Sonoma criminal docket not established; do not use similarly named civil, family or unrelated criminal cases."
     },
     {
       "slug": "gabriel-desantos",
@@ -484,7 +531,8 @@
           "url": "https://www.insurance.ca.gov/0400-news/0200-studies-reports/0700-commissioner-report/upload/2021Annual-Report-of-the-Insurance-Commissioner.pdf"
         }
       ],
-      "caseNo": ""
+      "caseNo": "",
+      "courtRecordStatus": "Matching Sonoma criminal docket not established; do not use similarly named civil, family or unrelated criminal cases."
     },
     {
       "slug": "rogelio-robleto",
@@ -502,7 +550,8 @@
           "url": "https://www.insurance.ca.gov/0400-news/0200-studies-reports/0700-commissioner-report/upload/2021Annual-Report-of-the-Insurance-Commissioner.pdf"
         }
       ],
-      "caseNo": ""
+      "caseNo": "",
+      "courtRecordStatus": "Matching Sonoma criminal docket not established; do not use similarly named civil, family or unrelated criminal cases."
     },
     {
       "slug": "miguel-martinez-herrera",
@@ -520,7 +569,8 @@
           "url": "https://www.insurance.ca.gov/0400-news/0200-studies-reports/0700-commissioner-report/upload/2020-Annual-Report-of-the-Insurance-Commissioner.pdf"
         }
       ],
-      "caseNo": ""
+      "caseNo": "",
+      "courtRecordStatus": "Matching Sonoma criminal docket not established; do not use similarly named civil, family or unrelated criminal cases."
     },
     {
       "slug": "amanda-rodgers-graton-casino",
@@ -529,16 +579,19 @@
       "subject": "Insurance enforcement matter",
       "amount": "$36,369",
       "amountType": "Restitution reported paid in full",
-      "outcome": "California Department of Insurance listed 60 days jail, 36 months probation and full restitution.",
-      "details": "The report mentions a future misdemeanor reduction conditional on requirements. It does not establish that such a reduction or dismissal actually occurred.",
-      "verification": "A; later relief unverified",
+      "outcome": "A Sonoma court portal case-detail export records a no-contest plea followed by a dismissal under Penal Code § 1203.4 granted November 17, 2021. The insurer regulator's earlier summary reflects the original sentence, not that later dismissal.",
+      "details": "The 2020 California Department of Insurance report described 60 days of jail, 36 months of probation and full restitution. A subsequently supplied Sonoma court portal export for SCR-729817-1 shows a no-contest plea and an order granting a Penal Code § 1203.4 dismissal on November 17, 2021. The dismissal is post-conviction relief, not an acquittal or proof of factual innocence. The records do not establish time actually served.",
+      "verification": "A; subsequent dismissal documented",
       "sources": [
         {
           "label": "cdi2020",
           "url": "https://www.insurance.ca.gov/0400-news/0200-studies-reports/0700-commissioner-report/upload/2020-Annual-Report-of-the-Insurance-Commissioner.pdf"
         }
       ],
-      "caseNo": ""
+      "caseNo": "SCR-729817-1",
+      "courtRecordStatus": "Portal case-detail export matched to defendant and relevant allegation; date of review 2026-11-19. Underlying PDF not yet publicly hosted. Full event history and any later relief still require a complete audit.",
+      "courtRecordSourceFile": "SCR-729817-1.pdf",
+      "courtRecordReviewedOn": "2026-11-19"
     },
     {
       "slug": "isidro-vencez",
@@ -556,7 +609,8 @@
           "url": "https://www.insurance.ca.gov/0400-news/0200-studies-reports/0700-commissioner-report/upload/2020-Annual-Report-of-the-Insurance-Commissioner.pdf"
         }
       ],
-      "caseNo": ""
+      "caseNo": "",
+      "courtRecordStatus": "Matching Sonoma criminal docket not established; do not use similarly named civil, family or unrelated criminal cases."
     }
   ],
   "federal": [

@@ -13,7 +13,11 @@ See evidence-table.csv and case-data.json for names, links, and case-specific ve
 ## Court-record acquisition (phase 1)
 
 - Case-number tracker: [COURT-RECORDS-CHECKLIST.md](COURT-RECORDS-CHECKLIST.md) and [court-records-checklist.csv](court-records-checklist.csv).
-- Of 31 Sonoma County profiles, only three have documented case numbers in the current archive: Constantine Petros (`SCR-715528-1`), Elana Cohen-Roth (`SCR-751314-1`), and Karen Holzworth (`SCR-627215`). The other 28 are pending verification.
+- Of 31 Sonoma County profiles, **13** now have individually matched criminal case-detail headers (including Constantine Petros). **18** remain pending or have non-matching civil, family, old or otherwise unrelated records. See the updated intake audit.
 - Source grades (A, A/B, B) classify cited source types, **not** whether the complete docket was reviewed.
 - This register's last documented source review is November 18, 2026; not a live court-status check.
 - Review exact name, court jurisdiction, count-by-count disposition, later relief and document privacy before publishing court-record PDFs.
+
+### November 19, 2026 PDF intake
+
+The user supplied 28 court-portal PDFs in a connected Drive folder. The current public register lists 13 matched criminal case numbers, including the preexisting Petros entry, but the underlying PDFs are **not yet hosted**. Several same-name results are actually civil/family proceedings or older unrelated offenses. They must not be used as criminal evidence for the listed news cases. See [COURT-PDF-AUDIT.md](COURT-PDF-AUDIT.md) for triage and preservation guidance. Individual case pages should be updated for matched numbers and any verified later orders, without representing a partial review as an exhaustive docket audit.
