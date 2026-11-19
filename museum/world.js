@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import {ROOM_DEFS,HALLWAYS,ENTRY_POINT,zoneAt} from './layout.js';
-import {buildArchitecture} from './architecture.js';
-import {M} from './materials.js';
+import {buildArchitecture} from './architecture.js?v=floor-masonry-20261118';
+import {M} from './materials.js?v=floor-masonry-20261118';
 import {createNavigation} from './navigation.js';
 export {ROOM_DEFS,HALLWAYS};
 

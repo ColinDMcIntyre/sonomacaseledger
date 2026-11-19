@@ -151,26 +151,82 @@ export const M={
  plinth:mat(0xf7f0e4,0,.59,{map:plasterMap,bumpMap:heightFallback,bumpScale:.002}),
  velvet:mat(0x36524c,0,.97)
 };
+/*
+ * World-space, low-frequency patina. Breaks up the computer-perfect repetition
+ * without altering the approved floor albedo, polish or tile dimensions.
+ * Uses physical world coordinates so variations are continuous at room joins.
+ */
+function worldVariation(material,kind){
+ const isFloor=kind==='floor';
+ material.onBeforeCompile=shader=>{
+  shader.vertexShader=shader.vertexShader.replace('#include <common>',
+   '#include <common>\nvarying vec3 vCathedralWorld;');
+  shader.vertexShader=shader.vertexShader.replace('#include <begin_vertex>',
+   '#include <begin_vertex>\nvCathedralWorld=(modelMatrix*vec4(transformed,1.0)).xyz;');
+  const glsl=String.raw`
+varying vec3 vCathedralWorld;
+float museumHash21(vec2 p){
+ return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453123);
+}
+float museumValueNoise(vec2 p){
+ vec2 i=floor(p),f=fract(p);
+ f=f*f*(3.0-2.0*f);
+ float a=museumHash21(i),b=museumHash21(i+vec2(1.0,0.0));
+ float c=museumHash21(i+vec2(0.0,1.0)),d=museumHash21(i+vec2(1.0,1.0));
+ return mix(mix(a,b,f.x),mix(c,d,f.x),f.y);
+}
+`;
+  shader.fragmentShader=shader.fragmentShader.replace('#include <common>',
+   '#include <common>\n'+glsl);
+  const sample=isFloor
+   ?String.raw`
+vec2 mc=vCathedralWorld.xz;
+float large=museumValueNoise(mc*.077);
+float detail=museumValueNoise(mc*.37);
+diffuseColor.rgb*=.954+.095*large+.018*(detail-.5);
+`
+   :String.raw`
+vec2 mc=vec2(vCathedralWorld.x+vCathedralWorld.z*.63,
+ vCathedralWorld.y+vCathedralWorld.z*.27);
+float large=museumValueNoise(mc*.16);
+float grain=museumValueNoise(mc*.79);
+float lower=1.0-smoothstep(0.2,2.35,vCathedralWorld.y);
+diffuseColor.rgb*=.934+.11*large+.014*(grain-.5)-.025*lower*(1.0-grain);
+`;
+  shader.fragmentShader=shader.fragmentShader.replace('#include <map_fragment>',
+   '#include <map_fragment>\n'+sample);
+ };
+ material.customProgramCacheKey=()=> 'sonoma-patina-'+kind+'-v2';
+ return material;
+}
+worldVariation(M.stone,'stone');
 const materials=[...Object.values(M).filter(x=>x?.isMaterial)];
 const tiledInstances=[],sharedInstances=[];
-function tiledTexture(texture,x,y){
+function tiledTexture(texture,x,y,phase=[0,0]){
  const out=texture.clone();out.wrapS=out.wrapT=THREE.RepeatWrapping;
  out.repeat.set(Math.max(.1,x),Math.max(.1,y));
+ out.offset.set(phase[0],phase[1]);
  out.anisotropy=4;out.needsUpdate=true;return out;
 }
-export function createTiledMaterial(material,x=1,y=1){
- // This function remains for the existing *floor*, deliberately unchanged.
+export function createTiledMaterial(material,x=1,y=1,seed=0){
+ // Preserve the approved floor finish, break up its repetitive PBR imagery
+ // with a deterministic per-room phase, and apply continuous macro patina.
  const out=material.clone();
- out.userData={...material.userData,repeat:[x,y],tiled:true};
+ const phase=material.userData.kind==='floor'
+   ?[(Math.floor(seed*17)%5)*.143,(Math.floor(seed*23)%5)*.121]
+   :[0,0];
+ out.userData={...material.userData,repeat:[x,y],tiled:true,phase};
  for(const key of ['map','normalMap','roughnessMap','aoMap']){
-  if(material[key])out[key]=tiledTexture(material[key],x,y);
+  if(material[key])out[key]=tiledTexture(material[key],x,y,phase);
  }
+ if(material.userData.kind==='floor')worldVariation(out,'floor');
  tiledInstances.push(out);
  return out;
 }
 /** Shared 1K maps; geometry UVs, not copied textures, control tiling. */
 export function createSurfaceMaterial(material,{relief=false}={}){
  const out=material.clone();out.userData={...material.userData,sharedUV:true,relief};
+ if(material.userData.kind==='stone')worldVariation(out,'stone');
  if(relief){
   out.displacementMap=heightFallback;
   out.displacementScale=.012;
@@ -207,7 +263,7 @@ function setMap(target,key,texture){
  texture.wrapS=texture.wrapT=THREE.RepeatWrapping;texture.anisotropy=4;texture.needsUpdate=true;
  if(target.userData.tiled){
   const [x,y]=target.userData.repeat;
-  target[key]=tiledTexture(texture,x,y);
+  target[key]=tiledTexture(texture,x,y,target.userData.phase||[0,0]);
  }else target[key]=texture;
  target.needsUpdate=true;
 }

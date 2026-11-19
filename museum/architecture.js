@@ -1,7 +1,9 @@
 import * as THREE from 'three';
 import {ROOM_DEFS,VESTIBULE,HALLWAYS,PORTALS} from './layout.js';
-import {M,createTiledMaterial,createSurfaceMaterial,scaleBoxUV} from './materials.js';
+import {M,createTiledMaterial,createSurfaceMaterial,scaleBoxUV} from './materials.js?v=floor-masonry-20261118';
 import {createStainedWindow} from './stained-glass.js';
+import {visibleCorridorSections} from './floor-geometry.js';
+import {RoundedBoxGeometry} from 'three/addons/geometries/RoundedBoxGeometry.js';
 
 /**
  * Interior-scale basilica architecture. Real holes in thick masonry permit
@@ -168,7 +170,13 @@ function wall(room,dir,parent,blockers,windows){
  parent.add(wallGroup);
  const body=(u,fromY,w,h)=>{
   if(w<=.025||h<=.025)return null;
-  return masonry(wallGroup,M.stone,u,fromY+h/2,0,w,h,THICKNESS,blockers);
+  const solid=masonry(wallGroup,M.stone,u,fromY+h/2,0,w,h,THICKNESS,blockers);
+  // Real stone skirting hides the wall/floor junction. Never cross portals.
+  if(fromY<.022 && w>.16){
+   box(wallGroup,M.edge,u,.175,THICKNESS/2+.105,w-.022,.35,.16);
+   box(wallGroup,M.beam,u,.363,THICKNESS/2+.075,w-.025,.035,.19);
+  }
+  return solid;
  };
  let cursor=-width/2;
  for(const h of holes){
@@ -284,10 +292,44 @@ function column(parent,x,z,height){
  cylinder(parent,M.beam,x,height-.08,z,.59,.20,18);
 }
 function floorMesh(parent,x,z,w,d,material){
- const plane=object(parent,new THREE.PlaneGeometry(w,d),createTiledMaterial(material,w/5,d/5),x,0,z);
+ // Per-section tile offsets break cross-room repetition without changing the
+ // existing floor's PBR maps, finish, or physical scale.
+ const key=Math.abs(Math.sin(x*12.9898+z*78.233)*43758.5453)%1;
+ const plane=object(parent,new THREE.PlaneGeometry(w,d),
+  createTiledMaterial(material,w/5,d/5,key),x,0,z);
  plane.rotation.x=-Math.PI/2;
  plane.userData.walkable=true;
  return plane;
+}
+function cornerMasonry(parent){
+ // Beveled, interlocking corner quoins with visible mortar gaps. Only visual
+ // architecture: physics remains the stable, undisplaced wall outline.
+ const corners=new Map();
+ for(const room of rooms){
+  for(const dx of [-1,1])for(const dz of [-1,1]){
+   const x=room.x+dx*room.w/2,z=room.z+dz*room.d/2;
+   const key=x.toFixed(3)+','+z.toFixed(3);
+   corners.set(key,{x,z,height:Math.max(corners.get(key)?.height||0,room.height)});
+  }
+ }
+ const blocks=[];
+ for(const corner of corners.values()){
+  for(let y=.52;y<corner.height-.42;y+=.94)
+   blocks.push({x:corner.x,z:corner.z,y});
+ }
+ const geometry=new RoundedBoxGeometry(.75,.82,.75,3,.045);
+ const mesh=new THREE.InstancedMesh(geometry,M.edge,blocks.length);
+ const transform=new THREE.Object3D();
+ for(let i=0;i<blocks.length;i++){
+  const block=blocks[i];transform.position.set(block.x,block.y,block.z);
+  const variant=Math.sin(block.x*7.3+block.z*2.1+i*17.17);
+  transform.scale.set(1+(variant>0?.1:0),1,1+(variant<0?.1:0));
+  transform.updateMatrix();mesh.setMatrixAt(i,transform.matrix);
+ }
+ mesh.instanceMatrix.needsUpdate=true;
+ mesh.receiveShadow=true;mesh.castShadow=false;
+ parent.add(mesh);
+ return {uniqueCorners:corners.size,quoinBlocks:blocks.length};
 }
 export function buildArchitecture(scene){
  const group=new THREE.Group();scene.add(group);
@@ -299,7 +341,11 @@ export function buildArchitecture(scene){
   const f=floorMesh(group,x,z,w,d,material);
   floors.push(f);floorRects.push({x,z,w,d});
  };
- for(const r of HALLWAYS)addFloor(r.x,r.z,r.w,r.d,M.corridor);
+ // Subtract room footprints and previously placed corridor pieces from each
+ // hallway. This removes coplanar planes (z-fighting), not merely hiding it
+ // with arbitrary Y offsets. Navigation still uses the same building footprint.
+ const corridorSections=visibleCorridorSections(rooms,HALLWAYS);
+ for(const r of corridorSections)addFloor(r.x,r.z,r.w,r.d,M.corridor);
  for(const room of rooms){
   const tile=room.id==='archive'?M.corridor:M.floor;
   addFloor(room.x,room.z,room.w,room.d,tile);
@@ -317,6 +363,9 @@ export function buildArchitecture(scene){
    }
   }
  }
+ // Interlocking stone quoins soften square architectural intersections while
+ // keeping the original door aperture meshes and collision system untouched.
+ cornerMasonry(group);
  // A real wide aisle connects the southern entry to the federal apse.
  box(group,M.rug,0,.018,0,4.6,.035,54);
  for(const x of [-2.22,2.22])box(group,trim,x,.041,0,.05,.012,53.6);

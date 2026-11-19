@@ -1,9 +1,9 @@
 import * as THREE from 'three';
-import {makeMuseum,ROOM_DEFS} from './world.js';
+import {makeMuseum,ROOM_DEFS} from './world.js?v=floor-masonry-20261118';
 import {inspectDoorways} from './scene-diagnostics.js';
 import {exhibitSockets,ENTRY_POINT} from './layout.js';
-import {loadCathedralMaterials} from './materials.js';
-import {installCathedralLighting} from './lighting.js';
+import {loadCathedralMaterials} from './materials.js?v=floor-masonry-20261118';
+import {installCathedralLighting} from './lighting.js?v=floor-masonry-20261118';
 import {createVisitor} from './character.js';
 import {installMuseumAssets} from './asset-library.js';
 import {RoomEnvironment} from 'three/addons/environments/RoomEnvironment.js';

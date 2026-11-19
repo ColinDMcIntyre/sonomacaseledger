@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import {RGBELoader} from 'three/addons/loaders/RGBELoader.js';
 import {ROOM_DEFS,VESTIBULE} from './layout.js';
-import {M} from './materials.js';
+import {M} from './materials.js?v=floor-masonry-20261118';
 
 /**
  * Cathedral lighting: real HDR image-based lighting, restrained sunlight,
