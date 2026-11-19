@@ -7,7 +7,19 @@ import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
  * Otherwise the built-in articulated rig remains visible and animates every
  * frame. This prevents the previous motionless GLB bug.
  */
-const ASSET='https://gobkit.com/freebies/human001/OfficeLady.glb';
+const LEGACY_ASSET='https://gobkit.com/freebies/human001/OfficeLady.glb';
+async function characterSource(){
+ try{
+  const response=await fetch('./assets/manifest.json',{cache:'no-store'});
+  if(response.ok){
+   const config=(await response.json()).character;
+   if(typeof config?.path==='string' &&
+      /^\.\/assets\/characters\/[a-zA-Z0-9_\/-]+\.glb$/.test(config.path))
+    return {url:config.path,local:true};
+  }
+ }catch{}
+ return {url:LEGACY_ASSET,local:false};
+}
 const cyl=(r1,r2,h,n=14)=>new THREE.CylinderGeometry(r1,r2,h,n);
 export function createVisitor(scene,onStatus){
  const root=new THREE.Group();scene.add(root);
@@ -100,9 +112,10 @@ export function createVisitor(scene,onStatus){
   }
  }
  async function tryAnimatedModel(){
-  onStatus('Visitor: checking animated model');
+  onStatus('Visitor: checking installed Walk/Idle model');
   try{
-   const gltf=await new GLTFLoader().loadAsync(ASSET);
+   const selected=await characterSource();
+   const gltf=await new GLTFLoader().loadAsync(selected.url);
    const clips=(gltf.animations||[]).filter(c=>c.tracks?.length>0);
    const find=(rx)=>clips.find(c=>rx.test(c.name||''));
    const walk=find(/walk|walking|locomotion|run|stride/i);
@@ -124,7 +137,7 @@ export function createVisitor(scene,onStatus){
    idleAction=mixer.clipAction(idle);walkAction=mixer.clipAction(walk);
    idleAction.play();walkAction.play();idleAction.setEffectiveWeight(1);walkAction.setEffectiveWeight(0);
    root.add(obj);model=obj;usingAsset=true;proxy.visible=false;
-   onStatus('Visitor: GLB Walk + Idle animations active');
+   onStatus('Visitor: '+(selected.local?'installed realistic rig':'legacy placeholder')+' Walk/Idle');
   }catch(e){
    console.warn('Animated character unavailable. Using native Walk/Idle rig.',e);
    onStatus('Visitor: native Walk + Idle animation');

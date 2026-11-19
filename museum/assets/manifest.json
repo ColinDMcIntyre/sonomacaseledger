@@ -1,0 +1,59 @@
+{
+  "version": 1,
+  "status": "awaiting-asset-import",
+  "character": {
+    "path": null,
+    "expectedClips": [
+      "Idle",
+      "Walk"
+    ],
+    "source": "https://www.mixamo.com/",
+    "status": "requires vetted rigged model and Mixamo animation export"
+  },
+  "props": {
+    "displayCase": {
+      "path": null,
+      "source": "https://polyhaven.com/a/vintage_cabinet_01",
+      "license": "CC0",
+      "targetSize": [
+        1.75,
+        2.32,
+        1.4
+      ],
+      "yawDegrees": 0
+    },
+    "directoryDesk": {
+      "path": null,
+      "source": "https://polyhaven.com/a/ClassicConsole_01",
+      "license": "CC0",
+      "targetSize": [
+        1.9,
+        1.38,
+        1.25
+      ],
+      "yawDegrees": 0
+    },
+    "armchair": {
+      "path": null,
+      "source": "https://polyhaven.com/a/ArmChair_01",
+      "license": "CC0",
+      "targetSize": [
+        1.15,
+        1.27,
+        1.4
+      ],
+      "yawDegrees": 0
+    },
+    "gothicCabinet": {
+      "path": null,
+      "source": "https://polyhaven.com/a/GothicCabinet_01",
+      "license": "CC0",
+      "targetSize": [
+        1.8,
+        2.6,
+        1.35
+      ],
+      "yawDegrees": 0
+    }
+  }
+}

@@ -73,6 +73,7 @@ export function makeMuseum(scene){
  const root=new THREE.Group();scene.add(root);
  const rooms={},floors=[],floorRects=[],interactives=[],obstacles=[],effects=[],cameraBlockers=[];
  const lighting=[];
+ const assetSlots=[];
  // Ground beyond the building prevents a distracting empty black void at entrances.
  const under=mesh(root,new THREE.PlaneGeometry(165,165),mat(0x33383a,.03,.9),0,-.34,0);
  under.rotation.x=-Math.PI/2;
@@ -271,10 +272,16 @@ export function makeMuseum(scene){
    box(group,wood,0,1.36,0,1.46,.1,1.08).rotation.x=-.18;
    box(group,M.page,0,1.44,.1,1.2,.018,.73).rotation.x=-.18;
   }
+  // Keep the collision and nameplate when an imported GLB replaces the exhibit.
+  const fallback=new THREE.Group();
+  for(const child of [...group.children])fallback.add(child);
+  group.add(fallback);
+  const mount=new THREE.Group();group.add(mount);
   const p=plaque(record.name||record.title||'Explore',isCase?1.46:1.5,.31);
   p.position.set(0,isCase?.57:1.08,isCase?.66:.64);
   group.add(p);
   collision(group,{...record,roomId,type},type==='directory'?1.2:1.0);
+  assetSlots.push({kind:type,record,group,mount,fallback});
   return group;
  }
  function carpet(roomId){
@@ -314,5 +321,5 @@ export function makeMuseum(scene){
    else if(e.type==='timeline')e.object.rotation.z+=dt*.13;
   }
  }
- return {group:root,rooms,floors,interactives,obstacles,cameraBlockers,walkable,nearestWalkable,roomAt,addExhibit,update};
+ return {group:root,rooms,floors,interactives,obstacles,cameraBlockers,assetSlots,walkable,nearestWalkable,roomAt,addExhibit,update};
 }

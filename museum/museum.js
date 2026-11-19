@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import {makeMuseum,ROOM_DEFS} from './world.js';
 import {createVisitor} from './character.js';
+import {installMuseumAssets} from './asset-library.js';
 import {RoomEnvironment} from 'three/addons/environments/RoomEnvironment.js';
 
 /**
@@ -205,11 +206,8 @@ function updateCamera(dt){
  const damp=1-Math.exp(-dt*7);
  camera.position.lerp(desiredCamera,damp);
  // Aim just ahead of the visitor, keeping the character in the lower center.
- camera.lookAt(
-  viewTarget.x-Math.sin(state.yaw)*1.55,
-  1.78,
-  viewTarget.z-Math.cos(state.yaw)*1.55
- );
+ // Aim horizontally at the visitor, not past them: fixes right-edge framing.
+ camera.lookAt(viewTarget.x,1.72,viewTarget.z);
 }
 
 const gridStep=.85;
@@ -715,6 +713,10 @@ async function main(){
   populateMuseum();
   loadingProgress(77);
   setupUI();setupPointer();
+  // Install free third-party furniture only when the locally hosted model
+  // files are present. Case content and collision remain usable otherwise.
+  installMuseumAssets(world, status=>{UI.asset.textContent=status;})
+    .catch(error=>console.warn('Optional museum assets:',error));
   clock.start();animate();
   loadingProgress(100);
   setTimeout(()=>{UI.loading.classList.add('done');setTimeout(()=>UI.loading.remove(),800);},450);
