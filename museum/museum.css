@@ -216,3 +216,39 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(-
  .location-card{max-width:170px}
  .location-card span{display:none}
 }
+
+
+/* Cathedral Museum: basilica-plan map and unobtrusive third-person HUD */
+.map-grid{
+ display:grid;grid-template-columns:1fr 1.22fr 1fr;
+ grid-template-rows:repeat(4,64px);gap:7px;
+ grid-template-areas:
+   ". federal ."
+   "investment rotunda business"
+   "insurance rotunda trust"
+   ". . archive";
+}
+.map-grid button{
+ min-width:0;min-height:0;border-radius:7px;
+ font-size:.73rem;line-height:1.25;padding:8px 4px;
+ background:rgba(46,65,66,.85);border-color:rgba(209,184,133,.42);
+}
+.map-grid button[data-room="rotunda"]{
+ grid-area:rotunda;background:linear-gradient(145deg,#426359,#273f40);
+ border-color:#bb9b6b;font-family:Georgia,serif;font-size:.91rem;
+}
+.map-grid button[data-room="federal"]{grid-area:federal}
+.map-grid button[data-room="investment"]{grid-area:investment}
+.map-grid button[data-room="business"]{grid-area:business}
+.map-grid button[data-room="insurance"]{grid-area:insurance}
+.map-grid button[data-room="trust"]{grid-area:trust}
+.map-grid button[data-room="archive"]{grid-area:archive}
+.brand-mark{font-family:Georgia,serif;border-color:#ccb38c}
+.hud-top{gap:12px}
+.vignette{
+ background:radial-gradient(ellipse at 50% 55%,transparent 62%,rgba(9,14,16,.21) 100%);
+}
+@media(max-width:780px){
+ .map-grid{grid-template-rows:repeat(4,55px)}
+ .map-grid button{font-size:.63rem}
+}

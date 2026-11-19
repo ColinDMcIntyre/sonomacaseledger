@@ -1,5 +1,8 @@
 import * as THREE from 'three';
 import {makeMuseum,ROOM_DEFS} from './world.js';
+import {exhibitSockets,ENTRY_POINT} from './layout.js';
+import {loadCathedralMaterials} from './materials.js';
+import {installCathedralLighting} from './lighting.js';
 import {createVisitor} from './character.js';
 import {installMuseumAssets} from './asset-library.js';
 import {RoomEnvironment} from 'three/addons/environments/RoomEnvironment.js';
@@ -23,10 +26,10 @@ const UI={
 const MQ=window.matchMedia('(min-width:781px)');
 const state={
   cases:[],exhibits:[],gallery:'rotunda',fx:!window.matchMedia('(prefers-reduced-motion:reduce)').matches,
-  yaw:Math.PI/4,pitch:.35,zoom:1,cameraMode:'close',waypoints:[],onArrival:null,moving:false,openPanel:false
+  yaw:0,pitch:.19,zoom:1,cameraMode:'close',waypoints:[],onArrival:null,moving:false,openPanel:false
 };
 let scene,camera,renderer,world,visitor,clock,noticeTimer,rafId;
-let viewTarget=new THREE.Vector3(0,0,3);
+let viewTarget=new THREE.Vector3(ENTRY_POINT.x,0,ENTRY_POINT.z);
 const cameraCollisionRay=new THREE.Raycaster();
 const cameraAnchor=new THREE.Vector3();
 const cameraDirection=new THREE.Vector3();
@@ -35,7 +38,7 @@ let cameraEye=new THREE.Vector3();
 const heldKeys=new Set();
 const interactionPosition=new THREE.Vector3();
 let closestExhibit=null;
-const cameraDistance=()=>((state.cameraMode==='close')?10.7:16.4)/state.zoom;
+const cameraDistance=()=>((state.cameraMode==='close')?7.3:12.4)/state.zoom;
 const COLOR={gold:0xd1b37b,aqua:0x86d8c9};
 const clamp=THREE.MathUtils.clamp;
 function element(tag,text,cls){
@@ -90,34 +93,32 @@ function galleryFor(r){
   if(/nonprofit|association|trust|school|senior|community/.test(s))return 'trust';
   return 'business';
 }
-function positionsForExhibits(){
-  const xs=[-5.7,-1.9,1.9,5.7],zs=[-5.8,-1.95,1.95,5.8];
-  return zs.flatMap(z=>xs.map(x=>({x,z})));
-}
+function positionsForExhibits(roomId){return exhibitSockets(roomId);}
+
 function populateMuseum(){
   const clusters={investment:[],business:[],insurance:[],trust:[],federal:[]};
   for(const r of state.cases){r.roomId=galleryFor(r);clusters[r.roomId].push(r);}
   // A wing provides 16 reusable display sockets. If one fills, overflow
   // moves to the least-occupied county wing; cases are never dropped.
   for(const category of ['investment','business','insurance','trust']){
-    while(clusters[category].length>16){
+    while(clusters[category].length>11){
       const next=clusters[category].pop();
       const free=['investment','business','insurance','trust']
-        .filter(id=>id!==category&&clusters[id].length<16)
+        .filter(id=>id!==category&&clusters[id].length<11)
         .sort((a,b)=>clusters[a].length-clusters[b].length)[0];
       if(!free){clusters[category].push(next);break;}
       clusters[free].push(next);next.roomId=free;
     }
   }
   for(const [roomId,records] of Object.entries(clusters)){
-    const socket=positionsForExhibits();
+    const socket=positionsForExhibits(roomId);
     records.forEach((r,i)=>{
       const p=socket[i];
       if(!p){console.warn('No available exhibit socket for '+r.name);return;}
       const obj={id:'case:'+r.slug,type:'case',name:r.name,record:r,roomId};
       r.exhibit=obj;
       r.x=world.rooms[roomId].x+p.x;r.z=world.rooms[roomId].z+p.z;
-      world.addExhibit(roomId,p.x,p.z,obj,'case');
+      world.addExhibit(roomId,p.x,p.z,obj,'case',p.yaw||0);
       state.exhibits.push(obj);
     });
   }
@@ -139,15 +140,15 @@ function populateMuseum(){
 }
 function setupThree(){
   scene=new THREE.Scene();
-  scene.background=new THREE.Color(0x353d40);
-  scene.fog=new THREE.FogExp2(0x353d40,.002);
-  camera=new THREE.PerspectiveCamera(62,window.innerWidth/window.innerHeight,.12,275);
+  scene.background=new THREE.Color(0x252d33);
+  scene.fog=new THREE.FogExp2(0x252d33,.0019);
+  camera=new THREE.PerspectiveCamera(60,window.innerWidth/window.innerHeight,.1,260);
   renderer=new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:'high-performance'});
   renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.65));
   renderer.setSize(window.innerWidth,window.innerHeight,false);
   renderer.outputColorSpace=THREE.SRGBColorSpace;
   renderer.toneMapping=THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure=1.04;
+  renderer.toneMappingExposure=1.1;
   renderer.shadowMap.enabled=MQ.matches;
   renderer.shadowMap.type=THREE.PCFSoftShadowMap;
   const pmrem=new THREE.PMREMGenerator(renderer);
@@ -155,19 +156,13 @@ function setupThree(){
   scene.environment=pmrem.fromScene(environment,0.04).texture;
   environment.dispose();pmrem.dispose();
   UI.viewport.append(renderer.domElement);
-  scene.add(new THREE.HemisphereLight(0xfff1df,0x7d7370,1.9));
-  const key=new THREE.DirectionalLight(0xffedd1,1.65);
-  key.position.set(-12,29,18);key.castShadow=MQ.matches;
-  key.shadow.mapSize.set(2048,2048);
-  key.shadow.camera.left=-27;key.shadow.camera.right=27;
-  key.shadow.camera.top=27;key.shadow.camera.bottom=-27;
-  key.shadow.camera.near=.5;key.shadow.camera.far=95;
-  key.shadow.bias=-0.00022;key.shadow.normalBias=.02;
-  scene.add(key);
-  const fill=new THREE.DirectionalLight(0x9db5bb,.7);fill.position.set(28,20,-15);scene.add(fill);
+  installCathedralLighting(scene,renderer,status=>console.info(status));
   world=makeMuseum(scene);
   visitor=createVisitor(scene,status=>UI.asset.textContent=status);
-  visitor.root.position.set(0,0,3);
+  visitor.root.position.set(ENTRY_POINT.x,0,ENTRY_POINT.z);
+  visitor.root.rotation.y=Math.PI;
+  camera.position.set(ENTRY_POINT.x,4.1,ENTRY_POINT.z+6.2);
+  camera.lookAt(ENTRY_POINT.x,1.7,ENTRY_POINT.z-3);
   viewTarget.copy(visitor.root.position);
   clock=new THREE.Clock();
   resize();
@@ -177,14 +172,14 @@ function resize(){
  if(!camera||!renderer)return;
  const w=window.innerWidth,h=window.innerHeight;
  camera.aspect=w/h;
- camera.fov=w<650?68:62;
+ camera.fov=w<650?67:60;
  camera.updateProjectionMatrix();
  renderer.setSize(w,h,false);
 }
 function updateCamera(dt){
  const target=new THREE.Vector3(visitor.root.position.x,0,visitor.root.position.z);
  viewTarget.lerp(target,1-Math.exp(-dt*6));
- cameraAnchor.set(viewTarget.x,1.55,viewTarget.z);
+ cameraAnchor.set(viewTarget.x,1.61,viewTarget.z);
  const d=cameraDistance(),cp=Math.cos(state.pitch),sp=Math.sin(state.pitch);
  desiredCamera.set(
   cameraAnchor.x+Math.sin(state.yaw)*d*cp,
@@ -207,12 +202,12 @@ function updateCamera(dt){
  camera.position.lerp(desiredCamera,damp);
  // Aim just ahead of the visitor, keeping the character in the lower center.
  // Aim horizontally at the visitor, not past them: fixes right-edge framing.
- camera.lookAt(viewTarget.x,1.72,viewTarget.z);
+ camera.lookAt(viewTarget.x,1.82,viewTarget.z);
 }
 
 const gridStep=.85;
-const gridOrigin=-43;
-const gridSize=103;
+const gridOrigin=-62;
+const gridSize=148;
 function gridCoord(x){return clamp(Math.round((x-gridOrigin)/gridStep),0,gridSize-1);}
 function worldCoord(i){return gridOrigin+i*gridStep;}
 function gridIndex(x,z){return z*gridSize+x;}
@@ -590,7 +585,7 @@ function setupUI(){
  $('zoom-in').addEventListener('click',()=>{state.zoom=clamp(state.zoom*1.22,.65,2);resize();});
  $('zoom-out').addEventListener('click',()=>{state.zoom=clamp(state.zoom/1.22,.65,2);resize();});
  $('reset-camera').addEventListener('click',()=>{
-  state.yaw=Math.PI/4;state.pitch=.35;state.zoom=1;state.cameraMode='close';
+  state.yaw=0;state.pitch=.19;state.zoom=1;state.cameraMode='close';
   $('view-button').textContent='Follow';resize();report('Third-person camera reset.');
  });
  $('view-button').addEventListener('click',()=>{
@@ -670,7 +665,7 @@ function setupPointer(){
   if(!active)return;
   const delta=e.clientX-active.x,dy=e.clientY-active.y;
   if(Math.hypot(delta,dy)>7)moved=true;
-  if(moved){state.yaw=active.yaw-delta*.006;state.pitch=clamp(active.pitch+dy*.003,.17,.69);}
+  if(moved){state.yaw=active.yaw-delta*.006;state.pitch=clamp(active.pitch+dy*.0028,.08,.57);}
  });
  function end(e){
   const had=fingers.has(e.pointerId);fingers.delete(e.pointerId);
@@ -713,6 +708,8 @@ async function main(){
   populateMuseum();
   loadingProgress(77);
   setupUI();setupPointer();
+  loadCathedralMaterials(status=>console.info(status))
+    .catch(error=>console.warn('PBR loading:',error));
   // Install free third-party furniture only when the locally hosted model
   // files are present. Case content and collision remain usable otherwise.
   installMuseumAssets(world, status=>{UI.asset.textContent=status;})
