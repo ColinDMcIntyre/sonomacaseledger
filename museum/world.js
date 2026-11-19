@@ -179,6 +179,7 @@ export function makeMuseum(scene){
  addCarpet('rotunda');addCarpet('archive');
  // A sculptural clock in the rotunda, deliberately not a person or case-specific imagery.
  const center=new THREE.Group();center.position.set(0,0,-2.8);group.add(center);
+ obstacles.push({x:0,z:-2.8,r:1.6});
  round(center,M.wood,0,.13,0,1.5,.26,16);round(center,M.brass,0,.37,0,1.2,.27,16);
  const orb=mesh(new THREE.IcosahedronGeometry(.87,2),M.glass,0,2.05,0,center,false);
  const outer=mesh(new THREE.TorusGeometry(1.38,.065,9,56),M.brass,0,2.05,0,center,false);outer.rotation.y=.35;

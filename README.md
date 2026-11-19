@@ -40,3 +40,16 @@ If the site is later moved to a custom domain, update canonical URLs, Open Graph
 - Do not invent jail time served, acquittals, exonerations, monetary losses, or reasons for dismissal.
 - Disclose developer and commissioning connections to anyone featured.
 - The archive is not an official court website.
+
+
+## 3D Museum — phases 1–3
+
+The new **isometric Three.js museum** is at `museum/`, and is linked from the homepage. It uses seven connected rooms: Grand Rotunda, Investment & Banking, Business & Property, Insurance & Financial Services, Public Trust, Federal Wing and Records Library. The county and federal wing distinction is explicit.
+
+Visitors click the floor to walk, click exhibits to read a source-backed summary, and use the map/directory to jump between wings. The museum is generated from shared `world.js` components and the existing `research/case-data.json` register. New case records do not need custom 3D logic.
+
+The character attempts to load a free CC0 Gobkit GLB with Idle/Walk clips; a procedural visitor works if the GLB cannot be loaded. No third-party asset ZIP is required to build the museum shell. See [museum/ASSET-CREDITS.md](museum/ASSET-CREDITS.md) for exact sources and licenses.
+
+To test: publish GitHub Pages from `main` at root, then open `https://colindmcintyre.github.io/sonomacaseledger/museum/`. WebGL and the Three.js CDN are required for the 3D view. Full case articles remain accessible as normal HTML pages.
+
+**Phase 4 is deferred:** lighting/art polish, sound, advanced animation transitions, mobile optimization and accessibility testing.

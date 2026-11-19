@@ -24,7 +24,7 @@ const state={
   yaw:Math.PI/4,zoom:1,waypoints:[],onArrival:null,moving:false,openPanel:false
 };
 let scene,camera,renderer,world,visitor,clock,noticeTimer,rafId;
-let viewTarget=new THREE.Vector3(0,0,3.8);
+let viewTarget=new THREE.Vector3(0,0,7.5);
 let cameraEye=new THREE.Vector3();
 const cameraDefault=()=>MQ.matches?22:17;
 const COLOR={gold:0xd1b37b,aqua:0x86d8c9};
@@ -147,7 +147,7 @@ function setupThree(){
   const fill=new THREE.DirectionalLight(0x9fc6d0,.75);fill.position.set(28,20,-15);scene.add(fill);
   world=makeMuseum(scene);
   visitor=createVisitor(scene,status=>UI.asset.textContent=status);
-  visitor.root.position.set(0,0,3.9);
+  visitor.root.position.set(0,0,7.5);
   viewTarget.copy(visitor.root.position);
   clock=new THREE.Clock();
   resize();

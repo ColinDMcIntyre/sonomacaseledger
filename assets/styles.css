@@ -82,3 +82,9 @@ summary{cursor:pointer;font-weight:750}
 .home-archive-link strong{display:block;color:var(--ink)}
 .home-archive-link small{display:block;color:var(--muted);margin-top:5px}
 @media(max-width:700px){.archive-grid,.home-archive-actions{grid-template-columns:1fr}}
+
+/* Primary entrance to the interactive Three.js museum */
+.museum-hero-actions{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-top:30px}
+.museum-enter{display:inline-flex;align-items:center;justify-content:space-between;gap:32px;border-radius:7px;background:#dfbf85;color:#152d38!important;padding:13px 18px;text-decoration:none;font-weight:800;box-shadow:0 7px 22px #0002}
+.museum-enter:hover{background:#f1d39f}
+.museum-browse{font-size:.9rem;color:#d4e8e4;text-decoration:underline;text-underline-offset:3px}
