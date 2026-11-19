@@ -40,3 +40,13 @@ The museum provides no trophy or guilt-based ranking. It keeps the county and fe
 ## Known phase-4 items — deferred pending playtesting
 
 Lighting and performance tuning, shadows, baked PBR textures, sound effects, advanced visitor animation blending, optimization of touch gestures, accessibility audit, additional furnishing and custom art. These were deliberately not represented as completed.
+
+## Playtest graphics and controls update (November 2026)
+
+- **Controls:** WASD and arrow keys move relative to the camera; E interacts with a nearby exhibit; mouse/touch point-and-click still works. Manual movement cancels an automatic path. Nearby exhibits show a clickable E prompt.
+- **Camera:** The initial view is closer and lower. Visitors can toggle between Close view and Overview, rotate by dragging, and zoom using wheel/pinch/buttons.
+- **Character:** The Gobkit character and procedural fallback were scaled up. The fallback now has more detailed clothing, face features, shoes, and a soft alpha contact shadow. The existing CC0 pack remains low-poly, not photorealistic.
+- **Materials:** `materials.js` generates physically based walnut, brass, marble, archival paper, stained-glass-like material, and carpet. The renderer uses an indoor reflection environment and improved lighting and shadows on desktop. Panels, columns, display cases and lighting were refined.
+- **Verified free image textures:** Poly Haven [Marble 01](https://polyhaven.com/a/marble_01) and [Marble Tiles](https://polyhaven.com/a/marble_tiles) (CC0). The Three.js loader requests 1K JPG diffuse maps from `dl.polyhaven.org`; if the request fails or is blocked, procedural fallback textures remain visible. This approach doesn't require the user to buy or download textures manually.
+
+**Realism limit:** This is a higher-quality PBR pass on procedural architecture. It is **not a photorealistic museum yet**. That would require replacing the stylized character and simplified exhibit meshes with detailed scanned or professionally modeled assets, using full normal/roughness texture sets, and testing shadow and rendering performance on actual devices.
