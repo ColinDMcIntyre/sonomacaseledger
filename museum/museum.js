@@ -4,6 +4,7 @@ import {inspectDoorways} from './scene-diagnostics.js';
 import {exhibitSockets,ENTRY_POINT} from './layout.js';
 import {loadCathedralMaterials} from './materials.js?v=unified-vault-bays-20261119';
 import {installCathedralLighting} from './lighting.js?v=unified-vault-bays-20261119';
+import {installBakedDaylight} from './daylight.js';
 import {createVisitor} from './character.js';
 import {installMuseumAssets} from './asset-library.js?v=case-dioramas-20261119';
 import {caseIllustrationFor} from './case-dioramas.js?v=case-dioramas-20261119';
@@ -156,6 +157,10 @@ function setupThree(){
   renderer.toneMappingExposure=1.1;
   renderer.shadowMap.enabled=MQ.matches;
   renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+  // Architecture is static. Compute the costly directional shadow map once,
+  // then reuse it across camera movement and visitor animation.
+  renderer.shadowMap.autoUpdate=false;
+  renderer.shadowMap.needsUpdate=MQ.matches;
   const pmrem=new THREE.PMREMGenerator(renderer);
   const environment=new RoomEnvironment();
   scene.environment=pmrem.fromScene(environment,0.04).texture;
@@ -165,6 +170,8 @@ function setupThree(){
   world=makeMuseum(scene);
   inspectDoorways(world);
   visitor=createVisitor(scene,status=>UI.asset.textContent=status);
+  // The visitor has its own contact shadow; do not bake its silhouette at entry.
+  visitor.root.traverse(node=>{if(node.isMesh)node.castShadow=false;});
   visitor.root.position.set(ENTRY_POINT.x,0,ENTRY_POINT.z);
   visitor.root.rotation.y=Math.PI;
   camera.position.set(ENTRY_POINT.x,4.1,ENTRY_POINT.z+6.2);
@@ -740,6 +747,8 @@ async function main(){
   loadingProgress(38);
   state.cases=await getCases();
   populateMuseum();
+   const daylight=installBakedDaylight(world,scene,{beams:MQ.matches});
+   console.info('Static museum light:',daylight.pools+' stained-glass pools, '+daylight.shafts+' sun-shaft planes');
   loadingProgress(77);
   setupUI();setupPointer();
   loadCathedralMaterials(status=>console.info(status))
@@ -751,6 +760,8 @@ async function main(){
       // Imported chairs/cabinets can change obstacles; recompute any cached
       // navigation cells after optional furniture finishes loading.
       navCache.clear();
+       // Include newly loaded static furnishings in the frozen atlas.
+       if(renderer.shadowMap.enabled)renderer.shadowMap.needsUpdate=true;
     })
     .catch(error=>console.warn('Optional museum assets:',error));
   clock.start();animate();

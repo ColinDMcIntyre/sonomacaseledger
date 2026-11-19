@@ -139,7 +139,7 @@ export function createVisitor(scene,onStatus){
    const next=new THREE.Box3().setFromObject(obj);
    obj.position.set(-(next.min.x+next.max.x)/2,-next.min.y,-(next.min.z+next.max.z)/2);
    modelRestPosition.copy(obj.position);
-   obj.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;}});
+   obj.traverse(o=>{if(o.isMesh){o.castShadow=false;o.receiveShadow=true;}});
    mixer=new THREE.AnimationMixer(obj);
    idleAction=mixer.clipAction(idle);walkAction=mixer.clipAction(walk);
    idleAction.play();walkAction.play();idleAction.setEffectiveWeight(1);walkAction.setEffectiveWeight(0);

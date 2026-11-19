@@ -255,7 +255,7 @@ function wall(room,dir,parent,blockers,windows){
     z:vertical?room.z+h.at:z,
     axis:vertical?'x':'z',width:h.width,bottom:h.bottom,
     shoulder:h.shoulder,rise:h.rise,seed:Math.abs(seed),
-    lightPool:h.bottom<5,inside:(dir==='n'||dir==='w')?1:-1
+    lightPool:false,inside:dir==='n'?1:dir==='s'?-1:dir==='w'?-1:1
    });
    windows.push(glass);
   }

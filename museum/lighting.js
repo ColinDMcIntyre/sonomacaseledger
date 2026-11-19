@@ -15,7 +15,8 @@ export function installCathedralLighting(scene,renderer,onStatus=()=>{}){
  sun.position.set(-28,37,22);sun.target.position.set(0,0,-10);
  scene.add(sun,sun.target);
  sun.castShadow=window.innerWidth>780;
- sun.shadow.mapSize.set(2048,2048);
+ // One-time shadow atlas with a lower memory cost; fine detail comes from decals.
+ sun.shadow.mapSize.set(1536,1536);
  sun.shadow.camera.left=-61;sun.shadow.camera.right=61;
  sun.shadow.camera.top=74;sun.shadow.camera.bottom=-74;
  sun.shadow.camera.near=.3;sun.shadow.camera.far=155;

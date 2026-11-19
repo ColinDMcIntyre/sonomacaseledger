@@ -22,6 +22,10 @@ jobs:
       - name: Parse museum modules
         run: |
           node --check museum/case-dioramas.js
+          node --check museum/daylight.js
+          node --check museum/lighting.js
+          node --check museum/architecture.js
+          node --check museum/character.js
           node --check museum/asset-library.js
           node --check museum/museum.js
       - name: Verify level integrity, PBR materials, doors and case routes
