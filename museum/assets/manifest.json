@@ -59,7 +59,7 @@
   },
   "caseProps": {
     "coveredCar": {
-      "path": null,
+      "path": "./assets/models/covered_car/covered_car_1k.gltf",
       "source": "https://polyhaven.com/a/covered_car",
       "license": "CC0-1.0",
       "targetSize": [
@@ -70,7 +70,7 @@
       "description": "Contextual museum illustration; never presented as evidence"
     },
     "schoolDesk": {
-      "path": null,
+      "path": "./assets/models/SchoolDesk_01/SchoolDesk_01_1k.gltf",
       "source": "https://polyhaven.com/a/SchoolDesk_01",
       "license": "CC0-1.0",
       "targetSize": [
@@ -81,7 +81,7 @@
       "description": "Contextual museum illustration; never presented as evidence"
     },
     "notepads": {
-      "path": null,
+      "path": "./assets/models/office_notepads/office_notepads_1k.gltf",
       "source": "https://polyhaven.com/a/office_notepads",
       "license": "CC0-1.0",
       "targetSize": [
@@ -92,7 +92,7 @@
       "description": "Contextual museum illustration; never presented as evidence"
     },
     "binder": {
-      "path": null,
+      "path": "./assets/models/binder_notebook/binder_notebook_1k.gltf",
       "source": "https://polyhaven.com/a/binder_notebook",
       "license": "CC0-1.0",
       "targetSize": [
@@ -103,7 +103,7 @@
       "description": "Contextual museum illustration; never presented as evidence"
     },
     "officeDesk": {
-      "path": null,
+      "path": "./assets/models/metal_office_desk/metal_office_desk_1k.gltf",
       "source": "https://polyhaven.com/a/metal_office_desk",
       "license": "CC0-1.0",
       "targetSize": [
@@ -114,7 +114,7 @@
       "description": "Contextual museum illustration; never presented as evidence"
     },
     "stationery": {
-      "path": null,
+      "path": "./assets/models/stationery_supplies/stationery_supplies_1k.gltf",
       "source": "https://polyhaven.com/a/stationery_supplies",
       "license": "CC0-1.0",
       "targetSize": [
@@ -125,7 +125,7 @@
       "description": "Contextual museum illustration; never presented as evidence"
     },
     "cashRegister": {
-      "path": null,
+      "path": "./assets/models/CashRegister_01/CashRegister_01_1k.gltf",
       "source": "https://polyhaven.com/a/CashRegister_01",
       "license": "CC0-1.0",
       "targetSize": [
@@ -136,7 +136,7 @@
       "description": "Contextual museum illustration; never presented as evidence"
     },
     "stapler": {
-      "path": null,
+      "path": "./assets/models/vintage_stapler/vintage_stapler_1k.gltf",
       "source": "https://polyhaven.com/a/vintage_stapler",
       "license": "CC0-1.0",
       "targetSize": [
