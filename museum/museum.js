@@ -1,11 +1,11 @@
 import * as THREE from 'three';
-import {makeMuseum,ROOM_DEFS} from './world.js?v=floor-masonry-20261118';
+import {makeMuseum,ROOM_DEFS} from './world.js?v=timber-open-doors-20261119';
 import {inspectDoorways} from './scene-diagnostics.js';
 import {exhibitSockets,ENTRY_POINT} from './layout.js';
-import {loadCathedralMaterials} from './materials.js?v=floor-masonry-20261118';
-import {installCathedralLighting} from './lighting.js?v=floor-masonry-20261118';
+import {loadCathedralMaterials} from './materials.js?v=timber-open-doors-20261119';
+import {installCathedralLighting} from './lighting.js?v=timber-open-doors-20261119';
 import {createVisitor} from './character.js';
-import {installMuseumAssets} from './asset-library.js';
+import {installMuseumAssets} from './asset-library.js?v=timber-open-doors-20261119';
 import {RoomEnvironment} from 'three/addons/environments/RoomEnvironment.js';
 
 /**

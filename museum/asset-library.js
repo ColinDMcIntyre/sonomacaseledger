@@ -19,7 +19,27 @@ function load(path){
  }));
  return cache.get(path);
 }
-function normalize(original,config){
+function hashSeed(value){
+ let h=2166136261;
+ for(const c of String(value)){h^=c.charCodeAt(0);h=Math.imul(h,16777619);}
+ return (h>>>0)/4294967295;
+}
+/**
+ * Distinguish repeated cabinets without altering authored/atlased UVs or
+ * duplicating GPU image textures. Only physical finish and color vary.
+ */
+function variationMaterial(material,seed){
+ if(!material?.isMaterial||material.transparent||material.opacity<.97)return material;
+ if(!material.isMeshStandardMaterial&&!material.isMeshPhysicalMaterial)return material;
+ const clone=material.clone();
+ const tone=.944+hashSeed(String(seed)+'tone')*.11;
+ if(clone.color)clone.color.multiplyScalar(tone);
+ if(typeof clone.roughness==='number')
+  clone.roughness=Math.max(.13,Math.min(1,clone.roughness+
+   (hashSeed(String(seed)+'rough')-.5)*.075));
+ return clone;
+}
+function normalize(original,config,seed='museum'){
  const clone=skeletonClone(original);
  clone.updateMatrixWorld(true);
  const bounds=new THREE.Box3().setFromObject(clone);
@@ -32,16 +52,24 @@ function normalize(original,config){
   target[2]/Math.max(size.z,.01)
  );
  const scale=THREE.MathUtils.clamp(fit,.05,20);
- clone.scale.multiplyScalar(scale);
+ clone.scale.multiplyScalar(scale*(.987+hashSeed(String(seed)+'scale')*.026));
  clone.updateMatrixWorld(true);
  const fitted=new THREE.Box3().setFromObject(clone);
  const center=fitted.getCenter(new THREE.Vector3());
  clone.position.set(-center.x,-fitted.min.y,-center.z);
  clone.rotation.y=THREE.MathUtils.degToRad(config.yawDegrees||0);
  clone.traverse(object=>{
-  if(object.isMesh){
-   object.castShadow=true;object.receiveShadow=true;
-   object.material?.forEach?.(m=>{m.envMapIntensity=Math.min(1.5,m.envMapIntensity??1);});
+  if(!object.isMesh)return;
+  object.castShadow=true;object.receiveShadow=true;
+  if(object.material){
+   const tweak=(m,i)=>{
+    const result=variationMaterial(m,String(seed)+':'+object.name+':'+i);
+    if(result?.envMapIntensity!==undefined)
+     result.envMapIntensity=Math.min(1.5,result.envMapIntensity);
+    return result;
+   };
+   object.material=Array.isArray(object.material)
+    ?object.material.map(tweak):tweak(object.material,0);
   }
  });
  return clone;
@@ -74,7 +102,7 @@ export async function installMuseumAssets(world,onStatus=()=>{}){
   const config=props[role],model=loaded[role];
   if(!model||!config)continue;
   try{
-   const instance=normalize(model,config);
+   const instance=normalize(model,config,slot.record?.name||slot.group.position.toArray().join(':'));
    slot.mount.add(instance);
    slot.fallback.visible=false;
    installed++;
@@ -94,7 +122,8 @@ export async function installMuseumAssets(world,onStatus=()=>{}){
   try{
    const anchor=new THREE.Group();
    anchor.position.set(room.x+place.x,0,room.z+place.z);
-   const instance=normalize(model,config);
+   const instance=normalize(model,config,
+    place.role+':'+place.x+':'+place.z);
    instance.rotation.y+=THREE.MathUtils.degToRad(place.rot);
    anchor.add(instance);world.group.add(anchor);
    world.obstacles.push({x:anchor.position.x,z:anchor.position.z,r:place.r});

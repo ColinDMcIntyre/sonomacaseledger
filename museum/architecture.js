@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import {ROOM_DEFS,VESTIBULE,HALLWAYS,PORTALS} from './layout.js';
-import {M,createTiledMaterial,createSurfaceMaterial,scaleBoxUV} from './materials.js?v=floor-masonry-20261118';
+import {M,createTiledMaterial,createSurfaceMaterial,scaleBoxUV} from './materials.js?v=timber-open-doors-20261119';
 import {createStainedWindow} from './stained-glass.js';
 import {visibleCorridorSections} from './floor-geometry.js';
 import {RoundedBoxGeometry} from 'three/addons/geometries/RoundedBoxGeometry.js';
@@ -12,16 +12,24 @@ import {RoundedBoxGeometry} from 'three/addons/geometries/RoundedBoxGeometry.js'
  */
 const rooms=[...ROOM_DEFS,VESTIBULE];
 const slab=new THREE.BoxGeometry(1,1,1);
-const trim=M.edge;
+const trim=M.quoinStone;
 function object(parent,geo,material,x=0,y=0,z=0,cast=false){
  const obj=new THREE.Mesh(geo,material);obj.position.set(x,y,z);
  obj.castShadow=cast;obj.receiveShadow=true;parent.add(obj);return obj;
 }
 function box(parent,mat,x,y,z,w,h,d,cast=false){
- // Wood panels and doors use physical-world UVs instead of stretched cube UVs.
+ // Give each separately made wooden piece a unique grain phase while sharing
+ // the SAME PBR image files across all pieces. Never offset authored GLTF UVs.
  const textured=mat.userData?.kind==='wood';
- const geometry=textured
-  ?scaleBoxUV(new THREE.BoxGeometry(w,h,d),w,h,d,1.65):slab;
+ let geometry=slab;
+ if(textured){
+  parent.updateWorldMatrix(true,false);
+  const at=new THREE.Vector3(x,y,z).applyMatrix4(parent.matrixWorld);
+  const hash=n=>{const value=Math.sin(n)*43758.5453;return value-Math.floor(value);};
+  const seed=at.x*127.1+at.y*74.7+at.z*311.7;
+  const phase=[hash(seed)*.92,hash(seed+98.21)*.91];
+  geometry=scaleBoxUV(new THREE.BoxGeometry(w,h,d),w,h,d,1.65,phase);
+ }
  const o=object(parent,geometry,mat,x,y,z,cast);
  if(!textured)o.scale.set(w,h,d);
  return o;
@@ -43,7 +51,7 @@ function tube(parent,points,material=M.edge,radius=.09){
 }
 function cylinder(parent,mat,x,y,z,r,h,seg=16){
  const geo=new THREE.CylinderGeometry(r,r,h,seg);
- if(mat.userData?.kind==='stone'){
+ if(['stone','vault'].includes(mat.userData?.kind)){
   const uv=geo.getAttribute('uv');
   for(let i=0;i<uv.count;i++)uv.setY(i,uv.getY(i)*Math.max(1,h/2.35));
   uv.needsUpdate=true;
@@ -288,8 +296,8 @@ function vault(room,parent){
 function column(parent,x,z,height){
  cylinder(parent,M.plinth,x,.24,z,.53,.48,20);
  cylinder(parent,M.columnStone,x,height/2,z,.29,height,18);
- cylinder(parent,trim,x,height-.32,z,.5,.18,18);
- cylinder(parent,M.beam,x,height-.08,z,.59,.20,18);
+ cylinder(parent,M.quoinStone,x,height-.32,z,.5,.18,18);
+ cylinder(parent,M.quoinStone,x,height-.08,z,.59,.20,18);
 }
 function floorMesh(parent,x,z,w,d,material){
  // Per-section tile offsets break cross-room repetition without changing the
@@ -318,22 +326,30 @@ function cornerMasonry(parent){
    blocks.push({x:corner.x,z:corner.z,y});
  }
  const geometry=new RoundedBoxGeometry(.75,.82,.75,3,.045);
- const mesh=new THREE.InstancedMesh(geometry,M.edge,blocks.length);
+ const mesh=new THREE.InstancedMesh(geometry,M.quoinStone,blocks.length);
  const transform=new THREE.Object3D();
  for(let i=0;i<blocks.length;i++){
   const block=blocks[i];transform.position.set(block.x,block.y,block.z);
   const variant=Math.sin(block.x*7.3+block.z*2.1+i*17.17);
   transform.scale.set(1+(variant>0?.1:0),1,1+(variant<0?.1:0));
   transform.updateMatrix();mesh.setMatrixAt(i,transform.matrix);
+  // Quoins use subtle individual limestone tones; no two blocks are exact
+  // copies even though their geometry and texture remain shared.
+  const tone=.90+.17*(.5+.5*Math.sin(block.x*1.3+block.z*2.7+i*8.23));
+  mesh.setColorAt(i,new THREE.Color(0xffffff).multiplyScalar(tone));
  }
  mesh.instanceMatrix.needsUpdate=true;
+ if(mesh.instanceColor)mesh.instanceColor.needsUpdate=true;
  mesh.receiveShadow=true;mesh.castShadow=false;
  parent.add(mesh);
  return {uniqueCorners:corners.size,quoinBlocks:blocks.length};
 }
 export function buildArchitecture(scene){
  const group=new THREE.Group();scene.add(group);
- const floors=[],floorRects=[],cameraBlockers=[],windows=[];
+ // Corridor floor meshes are clipped to avoid z-fighting, but their ORIGINAL
+ // footprints must remain in navigation. Otherwise the walkability margin on
+ // each room floor creates an invisible barrier through every archway.
+ const floors=[],floorRects=[...HALLWAYS],cameraBlockers=[],windows=[];
  const ground=object(group,new THREE.PlaneGeometry(145,156),
   new THREE.MeshStandardMaterial({color:0x30363a,roughness:1}),0,-.48,0);
  ground.rotation.x=-Math.PI/2;

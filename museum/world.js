@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import {ROOM_DEFS,HALLWAYS,ENTRY_POINT,zoneAt} from './layout.js';
-import {buildArchitecture} from './architecture.js?v=floor-masonry-20261118';
-import {M} from './materials.js?v=floor-masonry-20261118';
+import {buildArchitecture} from './architecture.js?v=timber-open-doors-20261119';
+import {M,scaleBoxUV} from './materials.js?v=timber-open-doors-20261119';
 import {createNavigation} from './navigation.js';
 export {ROOM_DEFS,HALLWAYS};
 
@@ -11,7 +11,22 @@ function mesh(parent,geo,material,x=0,y=0,z=0){
  m.castShadow=false;m.receiveShadow=true;parent.add(m);return m;
 }
 function box(g,m,x,y,z,w,h,d){
- const o=mesh(g,cube,m,x,y,z);o.scale.set(w,h,d);return o;
+ // Physical UV density and seeded grain on built-in wooden furnishings.
+ // Original GLTF asset UV maps remain untouched by this fallback geometry.
+ const kind=m.userData?.kind;
+ const surface=kind==='wood'||kind==='stone'||kind==='vault';
+ let geo=cube;
+ if(surface){
+  g.updateWorldMatrix(true,false);
+  const at=new THREE.Vector3(x,y,z).applyMatrix4(g.matrixWorld);
+  const hash=n=>{const q=Math.sin(n)*43758.5453;return q-Math.floor(q);};
+  const seed=at.x*19.2+at.y*58.3+at.z*133.9;
+  geo=scaleBoxUV(new THREE.BoxGeometry(w,h,d),w,h,d,
+   kind==='wood'?1.65:2.4,[hash(seed)*.87,hash(seed+77.7)*.89]);
+ }
+ const o=mesh(g,geo,m,x,y,z);
+ if(!surface)o.scale.set(w,h,d);
+ return o;
 }
 function label(str,w=1.65,h=.35){
  const canvas=document.createElement('canvas');canvas.width=900;canvas.height=168;

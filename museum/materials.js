@@ -131,8 +131,11 @@ function base(kind,material,normalXY,settings={}){
 export const M={
  stone:base('stone',mat(0xf9f4eb,0,.86,{map:sandstoneMap}),[.86,.86]),
  darkStone:mat(0xd9cbb8,0,.87,{map:plasterMap}),
- columnStone:mat(0xf0e5d2,0,.77,{map:plasterMap,bumpMap:heightFallback,bumpScale:.003}),
- edge:mat(0xc6b59b,.04,.76,{roughnessMap:metalRoughness,bumpMap:heightFallback,bumpScale:.0018}),
+ // Structural columns remain limestone, while the previously flat tan trim is
+ // real walnut with its own color, normal, roughness, AO and height maps.
+ columnStone:base('vault',mat(0xe9dfcf,0,.79,{map:plasterMap,bumpMap:heightFallback,bumpScale:.0028}),[.35,.35]),
+ quoinStone:base('vault',mat(0xf1e6d5,0,.82,{map:plasterMap,bumpMap:heightFallback,bumpScale:.002}),[.3,.3]),
+ edge:base('wood',mat(0xd6b18a,0,.55,{map:woodMap}),[.35,.35],{bumpDepth:.0045}),
  // Keep the approved stone floor and corridor appearance unchanged.
  floor:base('floor',mat(0xffffff,0,.42,{map:floorMap,clearcoat:.13,clearcoatRoughness:.48,envMapIntensity:.7}),[1,1]),
  corridor:base('floor',mat(0xe9e3d6,0,.62,{map:floorMap,envMapIntensity:.7}),[1,1]),
@@ -146,9 +149,9 @@ export const M={
  ink:mat(0x344348,0,.91),
  rug:mat(0xffffff,0,.95,{map:rugMap}),
  vault:base('vault',mat(0xffffff,0,.94,{map:plasterMap,side:THREE.DoubleSide}),[.18,.18]),
- beam:mat(0xb3a089,.08,.76,{roughnessMap:metalRoughness}),
+ beam:base('wood',mat(0xc9a17d,0,.62,{map:woodMap}),[.42,.42],{bumpDepth:.006}),
  blackMetal:mat(0x343d3b,.77,.57,{roughnessMap:metalRoughness}),
- plinth:mat(0xf7f0e4,0,.59,{map:plasterMap,bumpMap:heightFallback,bumpScale:.002}),
+ plinth:base('vault',mat(0xf7f0e4,0,.66,{map:plasterMap,bumpMap:heightFallback,bumpScale:.002}),[.27,.27]),
  velvet:mat(0x36524c,0,.97)
 };
 /*
@@ -162,7 +165,12 @@ function worldVariation(material,kind){
   shader.vertexShader=shader.vertexShader.replace('#include <common>',
    '#include <common>\nvarying vec3 vCathedralWorld;');
   shader.vertexShader=shader.vertexShader.replace('#include <begin_vertex>',
-   '#include <begin_vertex>\nvCathedralWorld=(modelMatrix*vec4(transformed,1.0)).xyz;');
+   `#include <begin_vertex>
+#ifdef USE_INSTANCING
+ vCathedralWorld=(modelMatrix*instanceMatrix*vec4(transformed,1.0)).xyz;
+#else
+ vCathedralWorld=(modelMatrix*vec4(transformed,1.0)).xyz;
+#endif`);
   const glsl=String.raw`
 varying vec3 vCathedralWorld;
 float museumHash21(vec2 p){
@@ -185,6 +193,22 @@ float large=museumValueNoise(mc*.077);
 float detail=museumValueNoise(mc*.37);
 diffuseColor.rgb*=.954+.095*large+.018*(detail-.5);
 `
+   :kind==='wood'
+   ?String.raw`
+// Subtle world-space walnut color shifts on different panels and objects,
+// while normal and roughness stay aligned with their original UV maps.
+vec2 mc=vec2(vCathedralWorld.x+vCathedralWorld.z*.5,
+ vCathedralWorld.y+vCathedralWorld.z*.25);
+float longGrain=museumValueNoise(mc*.14);
+float fineVariation=museumValueNoise(mc*1.4);
+diffuseColor.rgb*=.91+.17*longGrain+.026*(fineVariation-.5);
+`
+   :kind==='plaster'
+   ?String.raw`
+vec2 mc=vCathedralWorld.xz*.24+vCathedralWorld.y*.15;
+float subtle=museumValueNoise(mc);
+diffuseColor.rgb*=.963+.074*subtle;
+`
    :String.raw`
 vec2 mc=vec2(vCathedralWorld.x+vCathedralWorld.z*.63,
  vCathedralWorld.y+vCathedralWorld.z*.27);
@@ -200,6 +224,10 @@ diffuseColor.rgb*=.934+.11*large+.014*(grain-.5)-.025*lower*(1.0-grain);
  return material;
 }
 worldVariation(M.stone,'stone');
+for(const m of [M.wood,M.woodHighlight,M.edge,M.beam])
+ worldVariation(m,'wood');
+for(const m of [M.columnStone,M.quoinStone,M.plinth])
+ worldVariation(m,'plaster');
 const materials=[...Object.values(M).filter(x=>x?.isMaterial)];
 const tiledInstances=[],sharedInstances=[];
 function tiledTexture(texture,x,y,phase=[0,0]){
@@ -236,7 +264,7 @@ export function createSurfaceMaterial(material,{relief=false}={}){
  return out;
 }
 /** Convert each BoxGeometry face from 0..1 UVs to real-world metre density. */
-export function scaleBoxUV(geometry,w,h,d,metersPerTile=2.35){
+export function scaleBoxUV(geometry,w,h,d,metersPerTile=2.35,phase=[0,0]){
  const uv=geometry.getAttribute('uv'),index=geometry.getIndex();
  const sizes=[
   [d,h],[d,h],
@@ -249,8 +277,8 @@ export function scaleBoxUV(geometry,w,h,d,metersPerTile=2.35){
   for(let k=group.start;k<group.start+group.count;k++){
    const i=index?index.getX(k):k;
    if(visited.has(i))continue;visited.add(i);
-   uv.setXY(i,uv.getX(i)*Math.max(.1,u/metersPerTile),
-     uv.getY(i)*Math.max(.1,v/metersPerTile));
+   uv.setXY(i,uv.getX(i)*Math.max(.1,u/metersPerTile)+phase[0],
+     uv.getY(i)*Math.max(.1,v/metersPerTile)+phase[1]);
   }
  }
  uv.needsUpdate=true;
@@ -273,7 +301,7 @@ async function manifestForMaterials(){
   return r.ok?await r.json():{};
  }catch{return{};}
 }
-const sources={stone:'beige_wall_001',floor:'tiled_floor_001',wood:'walnut_veneer',vault:'white_plaster_02'};
+const sources={stone:'sandstone_blocks_04',floor:'tiled_floor_001',wood:'walnut_veneer',vault:'white_plaster_02'};
 const keys=['map','normalMap','roughnessMap','aoMap','heightMap'];
 export async function loadCathedralMaterials(onStatus=()=>{}){
  const loader=new THREE.TextureLoader();loader.setCrossOrigin('anonymous');

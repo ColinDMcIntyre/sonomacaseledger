@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import {RGBELoader} from 'three/addons/loaders/RGBELoader.js';
 import {ROOM_DEFS,VESTIBULE} from './layout.js';
-import {M} from './materials.js?v=floor-masonry-20261118';
+import {M} from './materials.js?v=timber-open-doors-20261119';
 
 /**
  * Cathedral lighting: real HDR image-based lighting, restrained sunlight,
@@ -33,7 +33,7 @@ export function installCathedralLighting(scene,renderer,onStatus=()=>{}){
   shade.position.y=ceiling-length-.13;group.add(shade);
   const bottom=new THREE.Mesh(new THREE.SphereGeometry(.25,10,8),glass);
   bottom.position.y=ceiling-length-.33;group.add(bottom);
-  const ring=new THREE.Mesh(rim,M.edge);
+  const ring=new THREE.Mesh(rim,M.brass);
   ring.position.y=ceiling-length-.25;ring.rotation.x=Math.PI/2;group.add(ring);
   const light=new THREE.PointLight(0xffd7a1,1.65,12,2);
   light.position.set(x,ceiling-length-.62,z);scene.add(light);
