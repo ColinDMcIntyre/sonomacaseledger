@@ -395,7 +395,7 @@ function openInfo(a){
   para('Cases were selected for documentary value and Sonoma County relevance, not ranked by amount or severity. The county catalog is not an exhaustive list of all prosecutions.');
   para('Evidence A primarily uses government or court materials; A/B combines official documents and reporting; B relies on published reporting where complete trial-court dockets were not independently checked.');
   para('Financial values may describe restitution, alleged scheme value, regulator-reported loss or an attempted loan. They are not directly comparable.');
-  UI.caseLink.href='../research/README.md';UI.caseLink.textContent='Open research notes ↗';
+  UI.caseLink.href='https://github.com/ColinDMcIntyre/sonomacaseledger/blob/main/research/README.md';UI.caseLink.textContent='Open research notes ↗';
  }else if(a.action==='legal'){
   para('Guilty pleas, no-contest pleas, convictions, acquittals, dismissal before conviction, and post-conviction dismissal have different legal meanings.');
   para('A post-conviction dismissal under California Penal Code § 1203.4 is not an acquittal, a declaration of innocence or erasure of the historical plea and conviction.');
