@@ -5,7 +5,8 @@ import {exhibitSockets,ENTRY_POINT} from './layout.js';
 import {loadCathedralMaterials} from './materials.js?v=unified-vault-bays-20261119';
 import {installCathedralLighting} from './lighting.js?v=unified-vault-bays-20261119';
 import {createVisitor} from './character.js';
-import {installMuseumAssets} from './asset-library.js?v=unified-vault-bays-20261119';
+import {installMuseumAssets} from './asset-library.js?v=case-dioramas-20261119';
+import {caseIllustrationFor} from './case-dioramas.js?v=case-dioramas-20261119';
 import {RoomEnvironment} from 'three/addons/environments/RoomEnvironment.js';
 
 /**
