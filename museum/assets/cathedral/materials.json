@@ -1,0 +1,22 @@
+{
+  "stone": {
+    "map": "./assets/cathedral/stone_map.jpg",
+    "normalMap": "./assets/cathedral/stone_normalMap.jpg",
+    "roughnessMap": "./assets/cathedral/stone_roughnessMap.jpg"
+  },
+  "floor": {
+    "map": "./assets/cathedral/floor_map.jpg",
+    "normalMap": "./assets/cathedral/floor_normalMap.jpg",
+    "roughnessMap": "./assets/cathedral/floor_roughnessMap.jpg"
+  },
+  "wood": {
+    "map": "./assets/cathedral/wood_map.jpg",
+    "normalMap": "./assets/cathedral/wood_normalMap.jpg",
+    "roughnessMap": "./assets/cathedral/wood_roughnessMap.jpg"
+  },
+  "vault": {
+    "map": "./assets/cathedral/vault_map.jpg",
+    "normalMap": "./assets/cathedral/vault_normalMap.jpg",
+    "roughnessMap": "./assets/cathedral/vault_roughnessMap.jpg"
+  }
+}

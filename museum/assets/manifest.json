@@ -2,13 +2,14 @@
   "version": 1,
   "status": "imported",
   "character": {
-    "path": null,
+    "path": "./assets/characters/visitor.glb",
     "expectedClips": [
-      "Idle",
-      "Walk"
+      "idle",
+      "walk"
     ],
-    "source": "https://www.mixamo.com/",
-    "status": "requires vetted rigged model and Mixamo animation export"
+    "source": "https://tevy.dev/models/casual-walker",
+    "license": "CC0-1.0",
+    "status": "Installed pinned v1 LOD0; animations validated by runtime loader"
   },
   "props": {
     "displayCase": {
