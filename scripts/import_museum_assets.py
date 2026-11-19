@@ -14,12 +14,23 @@ ROOT = Path(__file__).resolve().parents[1]
 DEST = ROOT / "museum" / "assets"
 MANIFEST = DEST / "manifest.json"
 UA = "SonomaCaseLedgerMuseumImporter/1.0 (CC0 Poly Haven models)"
-ASSETS = {
+CORE_ASSETS = {
     "displayCase": "vintage_cabinet_01",
     "directoryDesk": "ClassicConsole_01",
     "armchair": "ArmChair_01",
     "gothicCabinet": "GothicCabinet_01",
 }
+CASE_ASSETS = {
+    "coveredCar": "covered_car",
+    "schoolDesk": "SchoolDesk_01",
+    "notepads": "office_notepads",
+    "binder": "binder_notebook",
+    "officeDesk": "metal_office_desk",
+    "stationery": "stationery_supplies",
+    "cashRegister": "CashRegister_01",
+    "stapler": "vintage_stapler",
+}
+ASSETS = {"props": CORE_ASSETS, "caseProps": CASE_ASSETS}
 TOTAL = 0
 MAX_TOTAL = 140 * 1024 * 1024
 MAX_FILE = 24 * 1024 * 1024
@@ -78,21 +89,34 @@ def main() -> None:
     manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
     failures = []
     successes = 0
-    for role, asset_id in ASSETS.items():
-        try:
-            path = import_model(asset_id)
-            manifest["props"][role]["path"] = path
-            print(f"{role}: {path}", flush=True)
-            successes += 1
-        except Exception as error:
-            manifest["props"][role]["path"] = None
-            failures.append(role)
-            print(f"{role}: {error}", flush=True)
+    total = sum(len(roles) for roles in ASSETS.values())
+    for section, roles in ASSETS.items():
+        manifest.setdefault(section, {})
+        for role, asset_id in roles.items():
+            item = manifest[section].setdefault(role, {})
+            previous = item.get("path")
+            if isinstance(previous, str) and previous.startswith("./assets/"):
+                existing = DEST / previous.removeprefix("./assets/")
+                if existing.is_file():
+                    print(f"{section}/{role}: already installed", flush=True)
+                    successes += 1
+                    continue
+            try:
+                path = import_model(asset_id)
+                item["path"] = path
+                print(f"{section}/{role}: {path}", flush=True)
+                successes += 1
+            except Exception as error:
+                item["path"] = None
+                failures.append(f"{section}/{role}")
+                print(f"{section}/{role}: {error}", flush=True)
     manifest["status"] = "imported" if successes else "awaiting-asset-import"
     MANIFEST.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
-    print(f"Downloaded {successes}/{len(ASSETS)} models; {TOTAL/1048576:.1f} MiB")
+    print(f"Available {successes}/{total} models; downloaded {TOTAL/1048576:.1f} MiB")
     if failures:
-        raise SystemExit("Some imports failed: " + ", ".join(failures))
+        print("Unresolved models (procedural fallbacks remain visible): " + ", ".join(failures))
+    if not successes:
+        raise SystemExit("No usable models were imported")
 
 
 if __name__ == "__main__":
