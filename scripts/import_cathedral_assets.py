@@ -26,6 +26,8 @@ ROLE_MAPS={
     "map":("diffuse","diff","basecolor","albedo"),
     "normalMap":("nor_gl","normalgl","normal"),
     "roughnessMap":("roughness","rough"),
+    "aoMap":("ambientocclusion","ambient_occlusion","ao"),
+    "heightMap":("displacement","disp","height"),
 }
 MAX_FILE=9_000_000
 MAX_TOTAL=88_000_000
@@ -57,8 +59,14 @@ def poly_meta(asset_id):
 def select_map(maps,possible):
     # Poly Haven uses keys such as Diffuse, Normal, Rough. API variants can
     # differ by texture generation; compare case-insensitively.
-    for label,variants in maps.items():
+    ordered=sorted(maps.items(), key=lambda item:
+        0 if "nor_gl" in possible and ("opengl" in item[0].casefold()
+        or "gl" in item[0].casefold()) else 1)
+    for label,variants in ordered:
         norm=label.casefold().replace("_","").replace(" ","")
+        # Never import DirectX normals into Three.js, which expects OpenGL Y.
+        if "nor_gl" in possible and ("directx" in norm or norm.endswith("dx")):
+            continue
         if not any(norm==p.replace("_","") or norm.startswith(p.replace("_","")) for p in possible):
             continue
         if not isinstance(variants,dict):
@@ -76,8 +84,19 @@ def select_map(maps,possible):
 
 def download_materials():
     ART.mkdir(parents=True,exist_ok=True)
-    result={}
+    previous=ART/"materials.json"
+    try:
+        result=json.loads(previous.read_text(encoding="utf-8"))
+        if not isinstance(result,dict):
+            result={}
+    except (ValueError,OSError):
+        result={}
     for role,asset_id in MATERIALS.items():
+        # Preserve the already-approved floor textures and their manifest.
+        # Avoid rewriting files, even when this workflow is run repeatedly.
+        if role=="floor" and result.get("floor",{}).get("map"):
+            print("PBR floor preserved (existing approved assets)",flush=True)
+            continue
         try:
             metadata=poly_meta(asset_id)
             maps={}

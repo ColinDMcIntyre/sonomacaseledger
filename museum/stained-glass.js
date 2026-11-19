@@ -5,7 +5,6 @@ import * as THREE from 'three';
  * silhouette; never a painted rectangle on a solid wall.
  */
 const metal=new THREE.MeshStandardMaterial({color:0x343a38,metalness:.68,roughness:.44});
-const trim=new THREE.MeshStandardMaterial({color:0xb7a28a,metalness:.08,roughness:.79});
 const palette=['#658d9b','#9bbaaf','#b89d68','#b97b63','#6f8b83','#b2a888','#6c7596','#bda477'];
 const seeded=(n)=>{let v=n>>>0;return()=>((v=(v*1664525+1013904223)>>>0)/4294967296);};
 function design(seed){
@@ -49,7 +48,12 @@ function materialFor(seed){
  const id=seed%7;
  if(!designs.has(id)){
   const t=design(id+42);
-  designs.set(id,new THREE.MeshBasicMaterial({map:t,transparent:true,opacity:.94,side:THREE.DoubleSide,depthWrite:false,toneMapped:true}));
+  designs.set(id,new THREE.MeshPhysicalMaterial({
+   map:t,color:0xffffff,metalness:0,roughness:.29,
+   transparent:true,opacity:.91,depthWrite:false,side:THREE.DoubleSide,
+   clearcoat:.48,clearcoatRoughness:.18,ior:1.47,
+   emissive:0x191916,emissiveMap:t,emissiveIntensity:.16,envMapIntensity:.34
+  }));
  }
  return designs.get(id);
 }

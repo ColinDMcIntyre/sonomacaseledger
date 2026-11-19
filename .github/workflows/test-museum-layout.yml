@@ -3,12 +3,12 @@ on:
   push:
     paths:
       - "museum/**"
-      - "tests/museum-navigation.test.mjs"
+      - "tests/museum-*.test.mjs"
       - ".github/workflows/test-museum-layout.yml"
   pull_request:
     paths:
       - "museum/**"
-      - "tests/museum-navigation.test.mjs"
+      - "tests/museum-*.test.mjs"
 permissions:
   contents: read
 jobs:
@@ -19,5 +19,5 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
-      - name: Verify game-level portals, collisions, and 37 case routes
-        run: node --test tests/museum-navigation.test.mjs
+      - name: Verify level integrity, PBR materials, doors and case routes
+        run: node --test tests/museum-*.test.mjs

@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import {ROOM_DEFS,VESTIBULE,HALLWAYS,PORTALS} from './layout.js';
-import {M,createTiledMaterial} from './materials.js';
+import {M,createTiledMaterial,createSurfaceMaterial,scaleBoxUV} from './materials.js';
 import {createStainedWindow} from './stained-glass.js';
 
 /**
@@ -16,13 +16,37 @@ function object(parent,geo,material,x=0,y=0,z=0,cast=false){
  obj.castShadow=cast;obj.receiveShadow=true;parent.add(obj);return obj;
 }
 function box(parent,mat,x,y,z,w,h,d,cast=false){
- const o=object(parent,slab,mat,x,y,z,cast);o.scale.set(w,h,d);return o;
+ // Wood panels and doors use physical-world UVs instead of stretched cube UVs.
+ const textured=mat.userData?.kind==='wood';
+ const geometry=textured
+  ?scaleBoxUV(new THREE.BoxGeometry(w,h,d),w,h,d,1.65):slab;
+ const o=object(parent,geometry,mat,x,y,z,cast);
+ if(!textured)o.scale.set(w,h,d);
+ return o;
+}
+function masonry(parent,material,x,y,z,w,h,d,blockers){
+ // Explicit world dimensions keep shader displacement in metres.
+ // Only front/back faces use relief. The caps remain flush at seams.
+ const sx=Math.min(28,Math.max(2,Math.ceil(w/.56)));
+ const sy=Math.min(26,Math.max(2,Math.ceil(h/.56)));
+ const geo=scaleBoxUV(new THREE.BoxGeometry(w,h,d,sx,sy,1),w,h,d,2.35);
+ const relief=createSurfaceMaterial(M.stone,{relief:true});
+ const mats=[M.stone,M.stone,M.stone,M.stone,relief,relief];
+ const solid=object(parent,geo,mats,x,y,z,false);
+ blockers.push(solid);
+ return solid;
 }
 function tube(parent,points,material=M.edge,radius=.09){
  return object(parent,new THREE.TubeGeometry(new THREE.CatmullRomCurve3(points),32,radius,7),material);
 }
 function cylinder(parent,mat,x,y,z,r,h,seg=16){
- return object(parent,new THREE.CylinderGeometry(r,r,h,seg),mat,x,y,z,true);
+ const geo=new THREE.CylinderGeometry(r,r,h,seg);
+ if(mat.userData?.kind==='stone'){
+  const uv=geo.getAttribute('uv');
+  for(let i=0;i<uv.count;i++)uv.setY(i,uv.getY(i)*Math.max(1,h/2.35));
+  uv.needsUpdate=true;
+ }
+ return object(parent,geo,mat,x,y,z,true);
 }
 function museumSign(title){
  const canvas=document.createElement('canvas');canvas.width=1024;canvas.height=256;
@@ -142,12 +166,9 @@ function wall(room,dir,parent,blockers,windows){
  wallGroup.position.set(x,0,z);
  if(vertical)wallGroup.rotation.y=-Math.PI/2;
  parent.add(wallGroup);
- const stoneMat=createTiledMaterial(M.stone,Math.max(1,width/4),Math.max(1,height/4));
- const body=(u,fromY,w,h,material=stoneMat)=>{
+ const body=(u,fromY,w,h)=>{
   if(w<=.025||h<=.025)return null;
-  const solid=box(wallGroup,material,u,fromY+h/2,0,w,h,THICKNESS,false);
-  if(material===stoneMat)blockers.push(solid);
-  return solid;
+  return masonry(wallGroup,M.stone,u,fromY+h/2,0,w,h,THICKNESS,blockers);
  };
  let cursor=-width/2;
  for(const h of holes){
@@ -230,7 +251,9 @@ function vault(room,parent){
   const px=room.x+span*t/2;
   const py=room.height-.17+high*Math.sqrt(Math.max(0,1-t*t));
   const pz=room.z-depth/2+depth*j/rows;
-  positions.push(px,py,pz);uv.push(i/strips,j/rows);
+  positions.push(px,py,pz);
+  // Physically consistent plaster texel density, independent of room size.
+  uv.push((i/strips)*span/2.75,(j/rows)*depth/2.75);
   if(j<rows&&i<strips){
    const n=j*(strips+1)+i;
    indices.push(n,n+1,n+strips+1,n+1,n+strips+2,n+strips+1);
@@ -240,8 +263,8 @@ function vault(room,parent){
  geometry.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));
  geometry.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));
  geometry.setIndex(indices);geometry.computeVertexNormals();
- const ceilingMat=M.vault.clone();ceilingMat.side=THREE.DoubleSide;
- object(parent,geometry,ceilingMat);
+ // Shared material receives the imported PBR maps asynchronously.
+ object(parent,geometry,M.vault);
  const spacing=room.id==='rotunda'?7.5:room.id==='federal'?6:5.2;
  for(let z=-depth/2+1.4;z<depth/2-.5;z+=spacing){
   const pts=[];

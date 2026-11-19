@@ -1,23 +1,25 @@
 import * as THREE from 'three';
 
-/*
- * Restrained, physically-based cathedral materials.
- * Poly Haven 1K base-color, OpenGL normal, and roughness maps are imported
- * by the build workflow or loaded from the official static CDN.
- * Procedural neutral materials render immediately if a map is unavailable.
+/**
+ * Cathedral PBR surfaces. Local Poly Haven assets take precedence.
+ * All meter-scaled architecture uses shared maps plus scaled geometry UVs:
+ * no duplicate 1K texture uploads per wall block.
+ * Floor/corridor settings are intentionally retained from the approved build.
  */
 const rand=s=>{let v=s>>>0;return()=>((v=(v*1664525+1013904223)>>>0)/4294967296)};
-function sample(draw,seed){
- const c=document.createElement('canvas');c.width=c.height=512;
- draw(c.getContext('2d'),512,rand(seed));
- const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;
- t.wrapS=t.wrapT=THREE.RepeatWrapping;t.anisotropy=4;return t;
+function sample(draw,seed,size=512,color=true){
+ const c=document.createElement('canvas');c.width=c.height=size;
+ draw(c.getContext('2d'),size,rand(seed));
+ const t=new THREE.CanvasTexture(c);
+ t.colorSpace=color?THREE.SRGBColorSpace:THREE.NoColorSpace;
+ t.wrapS=t.wrapT=THREE.RepeatWrapping;t.anisotropy=4;
+ return t;
 }
 function plaster(c,n,r){
  c.fillStyle='#e8dfd2';c.fillRect(0,0,n,n);
  for(let i=0;i<800;i++){
-  const color=r()>.6?'rgba(123,107,87,.035)':'rgba(255,255,255,.06)';
-  c.fillStyle=color;c.fillRect(r()*n,r()*n,1+r()*5,1+r()*5);
+  c.fillStyle=r()>.6?'rgba(123,107,87,.035)':'rgba(255,255,255,.06)';
+  c.fillRect(r()*n,r()*n,1+r()*5,1+r()*5);
  }
 }
 function floor(c,n,r){
@@ -50,85 +52,183 @@ function weave(c,n){
  c.strokeStyle='rgba(206,169,120,.25)';c.lineWidth=8;c.strokeRect(19,19,n-38,n-38);
  c.strokeStyle='rgba(215,176,135,.14)';c.lineWidth=3;c.strokeRect(39,39,n-78,n-78);
 }
-const plasterMap=sample(plaster,130),floorMap=sample(floor,240),woodMap=sample(grain,40),rugMap=sample(weave,8);
-export function mat(color,metalness=0,roughness=.7,extra={}){
- return new THREE.MeshPhysicalMaterial({color,metalness,roughness,envMapIntensity:.7,...extra});
+function agedPaper(c,n,r){
+ c.fillStyle='#f1ead8';c.fillRect(0,0,n,n);
+ for(let i=0;i<700;i++){
+  const x=r()*n,y=r()*n,v=r()>.48?'rgba(122,104,76,.065)':'rgba(255,255,255,.12)';
+  c.strokeStyle=v;c.lineWidth=.3+r()*.55;c.beginPath();
+  c.moveTo(x,y);c.lineTo(x+2+r()*15,y+r()*2-1);c.stroke();
+ }
 }
-function base(kind,material){material.userData.kind=kind;return material;}
+function stoneHeight(c,n,r){
+ const img=c.createImageData(n,n),grid=[];
+ for(let j=0;j<9;j++)grid.push(Array.from({length:9},()=>r()));
+ const smooth=t=>t*t*(3-2*t);
+ const noise=(x,y)=>{
+  const xx=x*8,yy=y*8,i=Math.floor(xx)%8,j=Math.floor(yy)%8;
+  const u=smooth(xx-i),v=smooth(yy-j);
+  return (grid[j][i]*(1-u)+grid[j][i+1]*u)*(1-v)+
+         (grid[j+1][i]*(1-u)+grid[j+1][i+1]*u)*v;
+ };
+ for(let y=0;y<n;y++)for(let x=0;x<n;x++){
+  const a=noise(x/n,y/n);
+  const bands=Math.sin((x/n)*15+(y/n)*9)*.05;
+  const shade=Math.round(113+85*a+23*bands);
+  const k=(y*n+x)*4;
+  img.data[k]=img.data[k+1]=img.data[k+2]=shade;
+  img.data[k+3]=255;
+ }
+ c.putImageData(img,0,0);
+}
+function brushed(c,n,r){
+ const image=c.createImageData(n,n);
+ for(let y=0;y<n;y++)for(let x=0;x<n;x++){
+  const band=Math.sin(y*.68)*5+Math.sin(y*.19)*4;
+  const v=Math.round(Math.max(172,Math.min(237,205+band+(r()-.5)*14)));
+  const i=(y*n+x)*4;
+  image.data[i]=image.data[i+1]=image.data[i+2]=v;image.data[i+3]=255;
+ }
+ c.putImageData(image,0,0);
+}
+const plasterMap=sample(plaster,130),floorMap=sample(floor,240);
+const woodMap=sample(grain,40),rugMap=sample(weave,8),paperMap=sample(agedPaper,936,256);
+const heightFallback=sample(stoneHeight,391,256,false);
+const metalRoughness=sample(brushed,744,128,false);
+
+export function mat(color,metalness=0,roughness=.7,extra={}){
+ return new THREE.MeshPhysicalMaterial({color,metalness,roughness,envMapIntensity:.8,...extra});
+}
+function base(kind,material,normalXY,settings={}){
+ material.userData={...material.userData,kind,...settings};
+ if(normalXY)material.normalScale.set(normalXY[0],normalXY[1]);
+ return material;
+}
 export const M={
- stone:base('stone',mat(0xffffff,0,.83,{map:plasterMap})),
- darkStone:base('stone',mat(0xd9cbb8,0,.85,{map:plasterMap})),
- edge:mat(0xbfa98b,.16,.63),
- floor:base('floor',mat(0xffffff,0,.42,{map:floorMap,clearcoat:.13,clearcoatRoughness:.48})),
- corridor:base('floor',mat(0xe9e3d6,0,.62,{map:floorMap})),
- wood:base('wood',mat(0xffffff,0,.54,{map:woodMap})),
- woodHighlight:base('wood',mat(0xd9b698,0,.47,{map:woodMap})),
- brass:mat(0xbf9e62,.75,.29),
- glass:mat(0xcadfda,.08,.17,{transparent:true,opacity:.22,side:THREE.DoubleSide,depthWrite:false}),
- aqua:mat(0x9ab9b1,.13,.37),
- light:new THREE.MeshStandardMaterial({color:0xffecbd,emissive:0xffcd8d,emissiveIntensity:1.2}),
- page:mat(0xf9f0e0,0,.86),
- ink:mat(0x354246,0,.92),
+ stone:base('stone',mat(0xffffff,0,.88,{map:plasterMap}),[.53,.53]),
+ darkStone:base('stone',mat(0xd9cbb8,0,.87,{map:plasterMap}),[.36,.36]),
+ edge:mat(0xc6b59b,.04,.76,{roughnessMap:metalRoughness,bumpMap:heightFallback,bumpScale:.0018}),
+ // Keep the approved stone floor and corridor appearance unchanged.
+ floor:base('floor',mat(0xffffff,0,.42,{map:floorMap,clearcoat:.13,clearcoatRoughness:.48,envMapIntensity:.7}),[1,1]),
+ corridor:base('floor',mat(0xe9e3d6,0,.62,{map:floorMap,envMapIntensity:.7}),[1,1]),
+ wood:base('wood',mat(0xffffff,0,.58,{map:woodMap}),[.43,.43],{bumpDepth:.007}),
+ woodHighlight:base('wood',mat(0xd9b698,0,.49,{map:woodMap,clearcoat:.12,clearcoatRoughness:.55}),[.32,.32],{bumpDepth:.005}),
+ brass:mat(0xc5a879,.83,.49,{roughnessMap:metalRoughness,clearcoat:.07,clearcoatRoughness:.72}),
+ glass:mat(0xe0f0e8,0,.19,{transparent:true,opacity:.20,side:THREE.DoubleSide,depthWrite:false,clearcoat:.35,clearcoatRoughness:.12,ior:1.48}),
+ aqua:mat(0x91bab2,.12,.46),
+ light:new THREE.MeshStandardMaterial({color:0xffeac7,emissive:0xffcf98,emissiveIntensity:1.17}),
+ page:mat(0xffffff,0,.88,{map:paperMap}),
+ ink:mat(0x344348,0,.91),
  rug:mat(0xffffff,0,.95,{map:rugMap}),
- vault:base('vault',mat(0xffffff,0,.89,{map:plasterMap,side:THREE.DoubleSide})),
- beam:mat(0xb4a089,.21,.61),
- blackMetal:mat(0x3b4140,.62,.43),
- plinth:base('stone',mat(0xf7f0e4,0,.55,{map:plasterMap})),
- velvet:mat(0x37524d,0,.94)
+ vault:base('vault',mat(0xffffff,0,.94,{map:plasterMap,side:THREE.DoubleSide}),[.18,.18]),
+ beam:mat(0xb3a089,.08,.76,{roughnessMap:metalRoughness}),
+ blackMetal:mat(0x343d3b,.77,.57,{roughnessMap:metalRoughness}),
+ plinth:base('stone',mat(0xf7f0e4,0,.59,{map:plasterMap}),[.31,.31]),
+ velvet:mat(0x36524c,0,.97)
 };
-const allMaterials=Object.values(M).filter(m=>m?.isMaterial);
-const instances=[];
-function repeatTexture(t,x,y){
- const c=t.clone();c.wrapS=c.wrapT=THREE.RepeatWrapping;
- c.repeat.set(Math.max(.1,x),Math.max(.1,y));c.anisotropy=4;c.needsUpdate=true;return c;
+const materials=[...Object.values(M).filter(x=>x?.isMaterial)];
+const tiledInstances=[],sharedInstances=[];
+function tiledTexture(texture,x,y){
+ const out=texture.clone();out.wrapS=out.wrapT=THREE.RepeatWrapping;
+ out.repeat.set(Math.max(.1,x),Math.max(.1,y));
+ out.anisotropy=4;out.needsUpdate=true;return out;
 }
 export function createTiledMaterial(material,x=1,y=1){
- const out=material.clone();out.userData.kind=material.userData.kind;
- out.userData.repeat=[x,y];
- for(const prop of ['map','normalMap','roughnessMap','aoMap'])
-  if(material[prop])out[prop]=repeatTexture(material[prop],x,y);
- instances.push(out);
+ // This function remains for the existing *floor*, deliberately unchanged.
+ const out=material.clone();
+ out.userData={...material.userData,repeat:[x,y],tiled:true};
+ for(const key of ['map','normalMap','roughnessMap','aoMap']){
+  if(material[key])out[key]=tiledTexture(material[key],x,y);
+ }
+ tiledInstances.push(out);
  return out;
 }
-function assign(material,name,texture){
- const reps=material.userData.repeat||[1,1];
- if(name==='map')texture.colorSpace=THREE.SRGBColorSpace;
- material[name]=repeatTexture(texture,reps[0],reps[1]);
- material.needsUpdate=true;
+/** Shared 1K maps; geometry UVs, not copied textures, control tiling. */
+export function createSurfaceMaterial(material,{relief=false}={}){
+ const out=material.clone();out.userData={...material.userData,sharedUV:true,relief};
+ if(relief){
+  out.displacementMap=heightFallback;
+  out.displacementScale=.012;
+  out.displacementBias=-.006;
+ }
+ sharedInstances.push(out);
+ return out;
 }
-async function readManifest(){
+/** Convert each BoxGeometry face from 0..1 UVs to real-world metre density. */
+export function scaleBoxUV(geometry,w,h,d,metersPerTile=2.35){
+ const uv=geometry.getAttribute('uv'),index=geometry.getIndex();
+ const sizes=[
+  [d,h],[d,h],
+  [w,d],[w,d],
+  [w,h],[w,h]
+ ];
+ for(let face=0;face<Math.min(geometry.groups.length,6);face++){
+  const group=geometry.groups[face],[u,v]=sizes[face];
+  const visited=new Set();
+  for(let k=group.start;k<group.start+group.count;k++){
+   const i=index?index.getX(k):k;
+   if(visited.has(i))continue;visited.add(i);
+   uv.setXY(i,uv.getX(i)*Math.max(.1,u/metersPerTile),
+     uv.getY(i)*Math.max(.1,v/metersPerTile));
+  }
+ }
+ uv.needsUpdate=true;
+ return geometry;
+}
+function setMap(target,key,texture){
+ // Maps are reused as one GPU texture for all sharedUV surfaces.
+ if(key==='map')texture.colorSpace=THREE.SRGBColorSpace;
+ else texture.colorSpace=THREE.NoColorSpace;
+ texture.wrapS=texture.wrapT=THREE.RepeatWrapping;texture.anisotropy=4;texture.needsUpdate=true;
+ if(target.userData.tiled){
+  const [x,y]=target.userData.repeat;
+  target[key]=tiledTexture(texture,x,y);
+ }else target[key]=texture;
+ target.needsUpdate=true;
+}
+async function manifestForMaterials(){
  try{
   const r=await fetch('./assets/cathedral/materials.json',{cache:'no-store'});
   return r.ok?await r.json():{};
  }catch{return{};}
 }
-const textureSets={
- stone:'beige_wall_001',
- floor:'tiled_floor_001',
- wood:'walnut_veneer',
- vault:'white_plaster_02'
-};
+const sources={stone:'beige_wall_001',floor:'tiled_floor_001',wood:'walnut_veneer',vault:'white_plaster_02'};
+const keys=['map','normalMap','roughnessMap','aoMap','heightMap'];
 export async function loadCathedralMaterials(onStatus=()=>{}){
  const loader=new THREE.TextureLoader();loader.setCrossOrigin('anonymous');
- const manifest=await readManifest(),result={materials:0,maps:0};
- const types=[['map','diff'],['normalMap','nor_gl'],['roughnessMap','rough']];
- const targets=[...allMaterials,...instances];
- await Promise.all(Object.entries(textureSets).map(async ([role,id])=>{
-  let success=0;
-  for(const [key,suffix] of types){
-   const local=manifest[role]?.[key];
-   const cdn='https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/'
-    +id+'/'+id+'_'+suffix+'_1k.jpg';
-   let texture=null;
-   for(const url of [local,cdn].filter(Boolean)){
-    try{texture=await loader.loadAsync(url);break;}catch{}
-   }
-   if(!texture)continue;
-   for(const material of targets.filter(m=>m.userData.kind===role))assign(material,key,texture);
-   success++;result.maps++;
+ const manifest=await manifestForMaterials();
+ const targets=[...materials,...tiledInstances,...sharedInstances];
+ let maps=0,surfaces=0;
+ const results=await Promise.all(Object.entries(sources).map(async ([role,id])=>{
+  let complete=0;
+  for(const key of keys){
+   // The existing floor PBR remains byte-for-byte unchanged.
+   if(role==='floor'&&(key==='aoMap'||key==='heightMap'))continue;
+   const url=manifest[role]?.[key];
+   // Do not guess Poly Haven filename variants for maps absent in the manifest.
+   if(!url)continue;
+   try{
+    const tex=await loader.loadAsync(url);
+    const relevant=targets.filter(m=>m.userData?.kind===role);
+    for(const m of relevant){
+     if(key==='heightMap'){
+      if(m.userData.relief){
+       m.displacementMap=tex;m.displacementScale=.012;
+       m.displacementBias=-.006;m.needsUpdate=true;
+      }else if(m.userData.bumpDepth){
+       setMap(m,'bumpMap',tex);m.bumpScale=m.userData.bumpDepth;
+      }
+     }else if(key==='aoMap'){
+      // Poly Haven ambient occlusion uses the SAME main UVs as other maps.
+      // In current Three.js, channel zero is the first uv attribute.
+      tex.channel=0;setMap(m,'aoMap',tex);m.aoMapIntensity=.65;
+     }else setMap(m,key,tex);
+    }
+    complete++;maps++;
+   }catch(error){console.warn('Cathedral PBR missing:',role,key,error);}
   }
-  if(success)result.materials++;
+  if(complete)surfaces++;
+  return {role,maps:complete};
  }));
- onStatus('Architectural PBR: '+result.materials+'/4 surfaces ('+result.maps+' maps)');
- return result;
+ onStatus('Architectural PBR: '+surfaces+'/4 materials, '+maps+' maps');
+ return {surfaces,maps,results};
 }
