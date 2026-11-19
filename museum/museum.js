@@ -486,10 +486,10 @@ function openCase(r){
  infoRow(root,'Source grade',r.verification||'Status not supplied');
  if(r.group==='county')infoRow(root,'Sonoma court number',r.caseNo||'Not yet independently confirmed');
  else infoRow(root,'Jurisdiction','Federal court (no Sonoma court number)');
- addParagraph(root,'Source grades classify source types, not completed court-docket reviews. Last documented source review: November 18, 2026.');
- addParagraph(root,r.slug==='constantine-petros'
-  ? 'A public Sonoma case-detail docket export was reviewed, but it is not hosted here. Check the court for later orders.'
-  : 'The complete trial-court docket has not been independently reviewed for this exhibit. Refer to the case page for source and docket-number status.');
+ addParagraph(root,'Source grades classify sources, not exhaustive docket reviews. Last documented source review: '+(r.courtRecordReviewedOn?'November 19, 2026':'November 18, 2026')+'.');
+ addParagraph(root,r.courtRecordStatus||(r.slug==='constantine-petros'
+  ? 'A Sonoma case-detail docket export was reviewed, but it is not hosted here. Check the court for later orders.'
+  : 'The full trial-court docket has not been independently reviewed. Refer to the case page for docket-number status.'));
  root.append(element('h3','Documented outcome'));
  addParagraph(root,r.outcome||'Read the full source-backed case page.');
  root.append(element('h3','Context and limitations'));
