@@ -1,6 +1,10 @@
 name: Import free museum props (CC0)
 on:
   workflow_dispatch:
+  push:
+    paths:
+      - 'scripts/import_museum_assets.py'
+      - '.github/workflows/import-museum-assets.yml'
 permissions:
   contents: write
 jobs:
