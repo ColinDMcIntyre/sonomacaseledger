@@ -19,5 +19,10 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
+      - name: Parse museum modules
+        run: |
+          node --check museum/case-dioramas.js
+          node --check museum/asset-library.js
+          node --check museum/museum.js
       - name: Verify level integrity, PBR materials, doors and case routes
         run: node --test tests/museum-*.test.mjs
