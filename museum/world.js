@@ -191,15 +191,20 @@ export function makeMuseum(scene){
   root.add(point);lighting.push(point);
  }
  function wallArt(room){
-  const caption=plaque(room.name,Math.min(5.8,room.w-2),.7);
-  caption.position.set(room.x,5.45,room.z-room.d/2+.25);
+  // Never cover the open north doorway with a gallery plaque.
+  const hasNorthDoor=room.doors.includes('n');
+  const atX=room.x+(hasNorthDoor?(room.w/2-3.7):0);
+  const titleWidth=hasNorthDoor?3.6:5.8;
+  const caption=plaque(room.name,Math.min(titleWidth,room.w-2),.6);
+  caption.position.set(atX,5.45,room.z-room.d/2+.25);
   root.add(caption);
-  // Museum artwork and recessed frames are on the far wall.
-  const framed=box(root,M.wood,room.x,3.75,room.z-room.d/2+.22,4.2,2.3,.13);
-  box(root,M.edge,room.x,3.75,room.z-room.d/2+.32,4.0,2.14,.045);
-  box(root,M.velvet,room.x,3.75,room.z-room.d/2+.36,3.78,1.93,.04);
-  const title=plaque('HISTORY · CONTEXT · RECORD',3.3,.45);
-  title.position.set(room.x,3.8,room.z-room.d/2+.415);root.add(title);
+  // Museum artwork and recessed frames on an actual solid wall bay.
+  box(root,M.wood,atX,3.75,room.z-room.d/2+.22,3.6,2.3,.13);
+  box(root,M.edge,atX,3.75,room.z-room.d/2+.32,3.46,2.14,.045);
+  box(root,M.velvet,atX,3.75,room.z-room.d/2+.36,3.3,1.93,.04);
+  const title=plaque('HISTORY · CONTEXT · RECORD',2.9,.38);
+  title.position.set(atX,3.8,room.z-room.d/2+.415);
+  root.add(title);
  }
  for(const room of ROOM_DEFS){
   rooms[room.id]=room;
