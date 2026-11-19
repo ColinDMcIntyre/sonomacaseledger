@@ -234,8 +234,9 @@ function illustrate(g,kind){
 export function installCaseDioramas(world,loaded,caseProps,normalize){
  let installed=0;
  for(const slot of world.assetSlots||[]){
-  if(slot.kind!=='case'||!slot.record?.slug)continue;
-  const recipe=caseIllustrationFor(slot.record.slug);
+  const record=slot.record?.record||slot.record;
+  if(slot.kind!=='case'||!record?.slug)continue;
+  const recipe=caseIllustrationFor(record.slug);
   if(!recipe)continue;
   const stage=new THREE.Group();
   stage.position.set(0,.985,.07);
@@ -245,11 +246,11 @@ export function installCaseDioramas(world,loaded,caseProps,normalize){
   const conf=caseProps?.[recipe.prop],source=loaded?.[recipe.prop];
   if(conf&&source){
    try{
-    const model=normalize(source,{...conf,targetSize:[1.04,.62,.60]},slot.record.slug);
+    const model=normalize(source,{...conf,targetSize:[1.04,.62,.60]},record.slug);
     model.position.y=.08;model.position.z=-.07;
     representation.add(model);
    }catch(error){
-    console.warn('Illustration fallback:',slot.record.slug,error);
+    console.warn('Illustration fallback:',record.slug,error);
     illustrate(representation,recipe.kind);
    }
   }else illustrate(representation,recipe.kind);
