@@ -88,3 +88,18 @@ summary{cursor:pointer;font-weight:750}
 .museum-enter{display:inline-flex;align-items:center;justify-content:space-between;gap:32px;border-radius:7px;background:#dfbf85;color:#152d38!important;padding:13px 18px;text-decoration:none;font-weight:800;box-shadow:0 7px 22px #0002}
 .museum-enter:hover{background:#f1d39f}
 .museum-browse{font-size:.9rem;color:#d4e8e4;text-decoration:underline;text-underline-offset:3px}
+
+/* Editorial source-grade and docket-review transparency */
+.grade-explainer{border:1px solid var(--line);background:var(--white);border-radius:10px;padding:18px 23px;margin:24px 0}
+.grade-explainer h3{font-family:Georgia,serif;font-size:1.34rem;font-weight:500;margin:0 0 11px}
+.grade-explainer p{margin:0 0 11px;line-height:1.6}
+.grade-explainer p:last-child{margin-bottom:0}
+.record-audit{border:1px solid var(--line);border-left:4px solid #8c989b;border-radius:8px;padding:18px 22px;margin:32px 0;background:#fff}
+.record-audit h2{font-family:Georgia,serif;font-size:1.5rem;line-height:1.3;font-weight:500;margin:0 0 12px}
+.record-audit p{margin:0 0 12px}
+.record-audit p:last-child{margin-bottom:0}
+.record-audit code{overflow-wrap:anywhere;font-size:.96em}
+.docket-label{font-size:.78rem;color:#4c5d68;font-weight:650;display:block;flex-basis:100%}
+.lookup-prompt{font-size:.95rem;margin:18px 0 22px}
+.unverified{font-weight:700}
+@media(max-width:700px){.record-audit,.grade-explainer{padding:16px}.archive-bottom{gap:5px}}

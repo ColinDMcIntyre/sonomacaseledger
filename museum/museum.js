@@ -476,8 +476,13 @@ function openCase(r){
  UI.kicker.textContent=r.group==='federal'?'FEDERAL CASE RECORD':'SONOMA COUNTY CASE FILE';
  UI.title.textContent=r.name;
  infoRow(root,'Reported period',r.era||'Not specified');
- infoRow(root,'Verification',r.verification||'Status not supplied');
- if(r.caseNo)infoRow(root,'Court reference',r.caseNo);
+ infoRow(root,'Source grade',r.verification||'Status not supplied');
+ if(r.group==='county')infoRow(root,'Sonoma court number',r.caseNo||'Not yet independently confirmed');
+ else infoRow(root,'Jurisdiction','Federal court (no Sonoma court number)');
+ addParagraph(root,'Source grades classify source types, not completed court-docket reviews. Last documented source review: November 18, 2026.');
+ addParagraph(root,r.slug==='constantine-petros'
+  ? 'A public Sonoma case-detail docket export was reviewed, but it is not hosted here. Check the court for later orders.'
+  : 'The complete trial-court docket has not been independently reviewed for this exhibit. Refer to the case page for source and docket-number status.');
  root.append(element('h3','Documented outcome'));
  addParagraph(root,r.outcome||'Read the full source-backed case page.');
  root.append(element('h3','Context and limitations'));
@@ -530,7 +535,7 @@ function openInfo(a){
  }else if(a.action==='corrections'){
   para('A public case record can change. If a linked source is missing, an article misstates a plea or conviction, or a later court order changes a disposition, the relevant page should be corrected with a dated source.');
   para('The repository provides a public issue tracker for documented corrections. Do not post private identifiers or confidential court records.');
-  UI.caseLink.href='https://github.com/ColinDMcIntyre/sonomacaseledger/issues/new';UI.caseLink.textContent='Request a correction ↗';
+  UI.caseLink.href='../corrections/';UI.caseLink.textContent='Corrections and source submissions ↗';
  }else if(a.action==='about'){
   para('Sonoma Case Ledger exists to make the full histories of selected Sonoma County criminal cases easier to understand, particularly how outcomes can differ from initial reports.');
   para('The collection is privately developed, not operated by any court or government agency. Its developer has also worked on Constantine Petros’s personal website.');
