@@ -113,3 +113,20 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(-
 }
 @media(max-width:410px){.hud-button{font-size:.63rem}.hud-top-actions .hud-button:nth-child(2){display:none}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important}}
+
+/* Playtest update: physical interaction prompt and switchable camera views */
+.interact-hint{pointer-events:auto;display:flex;max-width:260px;min-width:0;}
+.interact-hint[hidden]{display:none}
+.interact-hint button{border:1px solid #d7b982aa;background:#133e43e8;color:#f7f0df;padding:8px 12px;border-radius:9px;display:flex;align-items:center;gap:9px;max-width:100%;box-shadow:0 8px 22px #0004;backdrop-filter:blur(10px)}
+.interact-hint button:hover{background:#25665c;border-color:#a5dfd4}
+.interact-hint kbd{display:grid;place-items:center;min-width:28px;height:28px;border:1px solid #d5b77d;padding:2px 6px;border-radius:5px;background:#192e35;color:#f6da9b;font-weight:700;font-size:.77rem}
+#interact-label{font-size:.8rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#view-button{width:auto;min-width:93px;font-weight:650;font-size:.75rem;padding:0 9px}
+@media(max-width:780px){
+.hud-bottom{align-items:end}
+.interact-hint{max-width:125px}
+.interact-hint button{padding:6px}
+.interact-hint kbd{min-width:25px;height:25px}
+#interact-label{display:none}
+#view-button{min-width:57px;width:57px;font-size:.66rem}
+}

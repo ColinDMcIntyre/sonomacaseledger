@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import {makeMuseum,ROOM_DEFS} from './world.js';
 import {createVisitor} from './character.js';
+import {RoomEnvironment} from 'three/addons/environments/RoomEnvironment.js';
 
 /**
  * Sonoma Case Ledger / interactive museum.
@@ -21,12 +22,16 @@ const UI={
 const MQ=window.matchMedia('(min-width:781px)');
 const state={
   cases:[],exhibits:[],gallery:'rotunda',fx:!window.matchMedia('(prefers-reduced-motion:reduce)').matches,
-  yaw:Math.PI/4,zoom:1,waypoints:[],onArrival:null,moving:false,openPanel:false
+  yaw:Math.PI/4,zoom:1.06,cameraMode:'close',waypoints:[],onArrival:null,moving:false,openPanel:false
 };
 let scene,camera,renderer,world,visitor,clock,noticeTimer,rafId;
 let viewTarget=new THREE.Vector3(0,0,7.5);
 let cameraEye=new THREE.Vector3();
-const cameraDefault=()=>MQ.matches?22:17;
+const heldKeys=new Set();
+const interactionPosition=new THREE.Vector3();
+let closestExhibit=null;
+const cameraDefault=()=>state.cameraMode==='close'
+  ?(MQ.matches?13.8:12):(MQ.matches?23:19);
 const COLOR={gold:0xd1b37b,aqua:0x86d8c9};
 const clamp=THREE.MathUtils.clamp;
 function element(tag,text,cls){
@@ -130,21 +135,32 @@ function populateMuseum(){
 }
 function setupThree(){
   scene=new THREE.Scene();
-  scene.background=new THREE.Color(0x111f28);
-  scene.fog=new THREE.FogExp2(0x111f28,.009);
+  scene.background=new THREE.Color(0x28343a);
+  scene.fog=new THREE.FogExp2(0x28343a,.005);
   camera=new THREE.OrthographicCamera(-10,10,10,-10,.1,350);
   renderer=new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:'high-performance'});
   renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.65));
   renderer.setSize(window.innerWidth,window.innerHeight,false);
   renderer.outputColorSpace=THREE.SRGBColorSpace;
   renderer.toneMapping=THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure=1.48;
-  renderer.shadowMap.enabled=false; // Bake/optimize after playtesting, not phase 1–3.
+  renderer.toneMappingExposure=1.18;
+  renderer.shadowMap.enabled=MQ.matches;
+  renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+  const pmrem=new THREE.PMREMGenerator(renderer);
+  const environment=new RoomEnvironment();
+  scene.environment=pmrem.fromScene(environment,0.04).texture;
+  environment.dispose();pmrem.dispose();
   UI.viewport.append(renderer.domElement);
-  scene.add(new THREE.HemisphereLight(0xe7f4ff,0x766349,2.3));
-  const key=new THREE.DirectionalLight(0xffe6ba,3);
-  key.position.set(-16,35,25);scene.add(key);
-  const fill=new THREE.DirectionalLight(0x9fc6d0,.75);fill.position.set(28,20,-15);scene.add(fill);
+  scene.add(new THREE.HemisphereLight(0xf3eff1,0x827064,1.45));
+  const key=new THREE.DirectionalLight(0xffdfb4,2.7);
+  key.position.set(-12,29,18);key.castShadow=MQ.matches;
+  key.shadow.mapSize.set(2048,2048);
+  key.shadow.camera.left=-27;key.shadow.camera.right=27;
+  key.shadow.camera.top=27;key.shadow.camera.bottom=-27;
+  key.shadow.camera.near=.5;key.shadow.camera.far=95;
+  key.shadow.bias=-0.00022;key.shadow.normalBias=.02;
+  scene.add(key);
+  const fill=new THREE.DirectionalLight(0xa5d2d8,.85);fill.position.set(28,20,-15);scene.add(fill);
   world=makeMuseum(scene);
   visitor=createVisitor(scene,status=>UI.asset.textContent=status);
   visitor.root.position.set(0,0,7.5);
@@ -167,10 +183,11 @@ function updateCamera(dt){
   const smooth=1-Math.exp(-dt*4.5);
   const target=new THREE.Vector3(visitor.root.position.x,0,visitor.root.position.z);
   viewTarget.lerp(target,smooth);
-  const distance=33;
-  cameraEye.set(viewTarget.x+Math.sin(state.yaw)*distance,viewTarget.y+34,viewTarget.z+Math.cos(state.yaw)*distance);
+  const distance=state.cameraMode==='close'?25:33;
+  const elevation=state.cameraMode==='close'?24:34;
+  cameraEye.set(viewTarget.x+Math.sin(state.yaw)*distance,viewTarget.y+elevation,viewTarget.z+Math.cos(state.yaw)*distance);
   camera.position.lerp(cameraEye,1-Math.exp(-dt*5.5));
-  camera.lookAt(viewTarget.x,1.1,viewTarget.z);
+  camera.lookAt(viewTarget.x,1.25,viewTarget.z);
 }
 const gridStep=.85;
 const gridOrigin=-43;
@@ -285,6 +302,74 @@ function moveTo(point,onArrival){
  if(!state.moving&&state.onArrival){const fn=state.onArrival;state.onArrival=null;fn();}
  return true;
 }
+function manualAxes(){
+ if(state.openPanel||!UI.map.hidden)return null;
+ const active=document.activeElement;
+ if(active&&active.matches('input,textarea,select,[contenteditable="true"]'))return null;
+ const x=Number(heldKeys.has('KeyD')||heldKeys.has('ArrowRight'))
+   -Number(heldKeys.has('KeyA')||heldKeys.has('ArrowLeft'));
+ const forward=Number(heldKeys.has('KeyW')||heldKeys.has('ArrowUp'))
+   -Number(heldKeys.has('KeyS')||heldKeys.has('ArrowDown'));
+ if(!x&&!forward)return null;
+ const length=Math.hypot(x,forward);
+ return {x:x/length,forward:forward/length};
+}
+function tickManualMovement(dt,axes){
+ // Screen-relative WASD: W travels away from the current camera, D to screen right.
+ // Manual movement overrides any click-to-walk route immediately.
+ if(state.waypoints.length||state.onArrival){
+  state.waypoints=[];state.onArrival=null;state.moving=false;
+ }
+ const s=Math.sin(state.yaw),c=Math.cos(state.yaw);
+ const dx=(axes.x*c-axes.forward*s),dz=(-axes.x*s-axes.forward*c);
+ const distance=Math.min(.05,dt)*6.6;
+ const steps=Math.max(1,Math.ceil(distance/.085));
+ let moved=false;
+ for(let i=0;i<steps;i++){
+  const sx=dx*distance/steps,sz=dz*distance/steps;
+  const x=visitor.root.position.x,z=visitor.root.position.z;
+  if(world.walkable(x+sx,z+sz)){visitor.root.position.x+=sx;visitor.root.position.z+=sz;moved=true;}
+  else if(world.walkable(x+sx,z)){visitor.root.position.x+=sx;moved=true;}
+  else if(world.walkable(x,z+sz)){visitor.root.position.z+=sz;moved=true;}
+ }
+ if(moved){
+  const wanted=Math.atan2(dx,dz);
+  visitor.root.rotation.y+=Math.atan2(Math.sin(wanted-visitor.root.rotation.y),Math.cos(wanted-visitor.root.rotation.y))*Math.min(1,dt*13);
+ }
+ visitor.setWalking(moved);
+}
+function closestInteraction(){
+ const here=visitor.root.position;
+ let found=null,best=2.9;
+ for(const mesh of world.interactives){
+  mesh.getWorldPosition(interactionPosition);
+  const dist=Math.hypot(interactionPosition.x-here.x,interactionPosition.z-here.z);
+  if(dist<best){best=dist;found=mesh.userData.action;}
+ }
+ return found;
+}
+function refreshInteraction(){
+ if(state.openPanel){$('interact-hint').hidden=true;return;}
+ closestExhibit=closestInteraction();
+ const prompt=$('interact-hint');
+ prompt.hidden=!closestExhibit;
+ if(closestExhibit)$('interact-label').textContent=closestExhibit.name;
+}
+function interactNearby(){
+ if(state.openPanel||!UI.map.hidden)return;
+ const target=closestInteraction();
+ if(target)openExhibit(target);
+ else report('Walk closer to an exhibit to interact.');
+}
+function tickControls(dt){
+ const axes=manualAxes();
+ if(axes){tickManualMovement(dt,axes);}
+ else{
+  tickMovement(dt);
+  if(!state.waypoints.length)visitor.setWalking(false);
+ }
+}
+
 function tickMovement(dt){
  if(!state.waypoints.length){if(state.moving){state.moving=false;visitor.setWalking(false);}return;}
  let remaining=Math.min(.06,dt)*7.2;
@@ -476,16 +561,36 @@ function setupUI(){
  $('zoom-in').addEventListener('click',()=>{state.zoom=clamp(state.zoom*1.22,.65,2);resize();});
  $('zoom-out').addEventListener('click',()=>{state.zoom=clamp(state.zoom/1.22,.65,2);resize();});
  $('reset-camera').addEventListener('click',()=>{
-  state.yaw=Math.PI/4;state.zoom=1;resize();report('Camera view reset.');
+  state.yaw=Math.PI/4;state.zoom=1.06;state.cameraMode='close';
+  $('view-button').textContent='Close view';resize();report('Camera view reset.');
  });
+ $('view-button').addEventListener('click',()=>{
+  state.cameraMode=state.cameraMode==='close'?'overview':'close';
+  $('view-button').textContent=state.cameraMode==='close'?'Close view':'Overview';
+  resize();report(state.cameraMode==='close'?'Closer cinematic camera':'Wider gallery overview');
+ });
+ $('interact-button').addEventListener('click',interactNearby);
  $('graphics-button').addEventListener('click',()=>{
   state.fx=!state.fx;$('graphics-button').classList.toggle('selected',state.fx);
   report(state.fx?'Ambient exhibit animations enabled.':'Ambient exhibit animations paused.');
  });
  $('graphics-button').classList.toggle('selected',state.fx);
  window.addEventListener('keydown',e=>{
-  if(e.key==='Escape'){closeModal();UI.map.hidden=true;UI.mapButton.setAttribute('aria-expanded','false');}
+  if(e.key==='Escape'){
+   closeModal();UI.map.hidden=true;UI.mapButton.setAttribute('aria-expanded','false');
+   heldKeys.clear();return;
+  }
+  const active=document.activeElement;
+  if(active&&active.matches('input,textarea,select,[contenteditable="true"]'))return;
+  const movementKeys=['KeyW','KeyA','KeyS','KeyD','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'];
+  if(movementKeys.includes(e.code)){
+   e.preventDefault();heldKeys.add(e.code);return;
+  }
+  if(e.code==='KeyE'&&!e.repeat&&!state.openPanel){e.preventDefault();interactNearby();}
  });
+ window.addEventListener('keyup',e=>heldKeys.delete(e.code));
+ window.addEventListener('blur',()=>{heldKeys.clear();visitor.setWalking(false);});
+ document.addEventListener('visibilitychange',()=>{if(document.hidden)heldKeys.clear();});
  window.addEventListener('hashchange',routeHash);
 }
 function routeHash(){
@@ -557,11 +662,12 @@ function animate(){
  rafId=requestAnimationFrame(animate);
  const dt=Math.min(clock.getDelta(),.065);
  if(!state.openPanel){
-  tickMovement(dt);
+  tickControls(dt);
   const active=world.roomAt(visitor.root.position.x,visitor.root.position.z);
   if(active.id!==state.gallery)setActiveRoom(active.id);
  }
  visitor.tick(dt,clock.elapsedTime);
+ refreshInteraction();
  world.update(clock.elapsedTime,dt,state.fx);
  updateCamera(dt);
  renderer.render(scene,camera);
