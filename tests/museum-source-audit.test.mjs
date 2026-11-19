@@ -100,12 +100,14 @@ test('court PDF intake manifest blocks accidental raw-file publication',()=>{
 test('public redacted source PDFs are full printout reproductions, not original leaks',()=>{
  const fs=readFileSync;
  const manifest=JSON.parse(read('research/COURT-PDF-MANIFEST.json'));
- assert.equal(manifest.publicPDFsHosted,3);
- assert.equal(manifest.privacyReviewedOriginalPages,28);
+ assert.equal(manifest.publicPDFsHosted,5);
+ assert.equal(manifest.privacyReviewedOriginalPages,44);
  const sources={
   'constantine-petros':'SCR-715528-1_PublicCopy.pdf',
   'tina-cabudoy':'24CR08926_PublicCopy.pdf',
-  'amanda-rodgers-graton-casino':'SCR-729817-1_PublicCopy.pdf'
+  'amanda-rodgers-graton-casino':'SCR-729817-1_PublicCopy.pdf',
+  'lisa-fatu':'SCR-757420-1_PublicCopy.pdf',
+  'frances-farias':'SCR-706951-1_PublicCopy.pdf'
  };
  for(const [slug,filename] of Object.entries(sources)){
   const bytes=fs(new URL('../public-records/'+filename,import.meta.url));
@@ -117,5 +119,5 @@ test('public redacted source PDFs are full printout reproductions, not original 
  for(const doc of manifest.documents){
   assert.equal(doc.publicationStatus,'WITHHELD_PENDING_FULL_PAGE_PRIVACY_AND_DISPOSITION_REVIEW','originals remain withheld');
  }
- assert.equal(manifest.documents.filter(x=>x.publicRedactedCopy).length,3);
+ assert.equal(manifest.documents.filter(x=>x.publicRedactedCopy).length,5);
 });

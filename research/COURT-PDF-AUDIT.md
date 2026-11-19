@@ -31,3 +31,7 @@ The [28-PDF intake manifest](COURT-PDF-MANIFEST.md) records original filenames, 
 ## Public reviewed reproductions (November 19, 2026)
 
 Three full source printouts were inspected page by page and released as privacy-minimized raster copies with a new provenance cover: Petros (`SCR-715528-1`, 11 source pages), Cabudoy (`24CR08926`, 9), and Rodgers (`SCR-729817-1`, 8). The DOB fields were removed; rasterization eliminated the original metadata, hidden text and hyperlinks. The public copies are at `public-records/` and link from the three profiles. These public PDFs are **not certified court judgments**. The source originals remain withheld. All other original PDFs remain pending privacy and disposition review.
+
+### Added reviewed copies: Lisa Fatu and Frances Farias
+
+The court printouts for Lisa Marie Fatu (6 pages, `SCR-757420-1`) and Frances Farias (10 pages, `SCR-706951-1`) were inspected page by page and posted as full-length privacy-redacted raster reproductions. Five originals covering 44 pages have now been manually reviewed and published in redacted form. The unredacted originals remain withheld; the other court documents are not cleared.

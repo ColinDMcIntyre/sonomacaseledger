@@ -6,7 +6,7 @@
   "matchedCaseDetailPDFs": 14,
   "matchedCountyProfiles": 13,
   "matchedPages": 474,
-  "publicPDFsHosted": 3,
+  "publicPDFsHosted": 5,
   "reviewStage": "Header and selected event checks; full page-by-page privacy and disposition review incomplete.",
   "documents": [
     {
@@ -76,7 +76,10 @@
       "profileSlug": "frances-farias",
       "searchableTextLayer": false,
       "publicationStatus": "WITHHELD_PENDING_FULL_PAGE_PRIVACY_AND_DISPOSITION_REVIEW",
-      "notes": "Matching criminal case-detail export"
+      "notes": "Matching criminal case-detail export",
+      "publicRedactedCopy": "public-records/SCR-706951-1_PublicCopy.pdf",
+      "publicRedactedCopyPages": 11,
+      "reviewStatus": "VISUALLY_REVIEWED_PUBLIC_RASTER_COPY_PREPARED"
     },
     {
       "filename": "FATU.CourtRecords.pdf",
@@ -85,7 +88,10 @@
       "profileSlug": "lisa-fatu",
       "searchableTextLayer": false,
       "publicationStatus": "WITHHELD_PENDING_FULL_PAGE_PRIVACY_AND_DISPOSITION_REVIEW",
-      "notes": "Matching criminal case-detail export"
+      "notes": "Matching criminal case-detail export",
+      "publicRedactedCopy": "public-records/SCR-757420-1_PublicCopy.pdf",
+      "publicRedactedCopyPages": 7,
+      "reviewStatus": "VISUALLY_REVIEWED_PUBLIC_RASTER_COPY_PREPARED"
     },
     {
       "filename": "Garcia.List.CourtRecords.pdf",
@@ -272,6 +278,6 @@
     }
   ],
   "publicRecordsReleaseDate": "2026-11-19",
-  "privacyReviewedOriginalPages": 28,
-  "publicCopyNotes": "Three full-length rasterized reproductions of original court portal printouts were produced and checked. Each has a clearly marked provenance cover, with date-of-birth fields removed, and no original PDF objects, text layers, metadata or hyperlinks retained. Original source PDFs remain withheld. Other matched PDFs are not cleared."
+  "privacyReviewedOriginalPages": 44,
+  "publicCopyNotes": "Five complete public raster reproductions from 44 manually inspected source pages. DOB fields and original metadata removed; the 28 unredacted originals remain withheld. Remaining scans are not cleared."
 }

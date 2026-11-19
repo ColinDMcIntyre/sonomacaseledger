@@ -171,7 +171,7 @@
       "amountType": "Amount described by prosecutors",
       "outcome": "Reporting says Farias pleaded guilty to grand theft and received a four-year prison sentence in Sonoma Superior Court.",
       "details": "Local coverage concerns theft from a Sonoma senior center. This is a reported disposition; later court relief, if any, was not checked.",
-      "verification": "B",
+      "verification": "A/B",
       "sources": [
         {
           "label": "farias",
@@ -179,9 +179,10 @@
         }
       ],
       "caseNo": "SCR-706951-1",
-      "courtRecordStatus": "Portal case-detail export matched to defendant and relevant allegation; date of review 2026-11-19. Underlying PDF not yet publicly hosted. Full event history and any later relief still require a complete audit.",
+      "courtRecordStatus": "The complete 10-page Sonoma court-portal printout was visually reviewed on November 19, 2026; the public raster reproduction removes the date-of-birth field and original metadata. The unredacted source is withheld. This is not a certified court record or exhaustive check of underlying filings.",
       "courtRecordSourceFile": "FARIAS.CourtRecords.pdf",
-      "courtRecordReviewedOn": "2026-11-19"
+      "courtRecordReviewedOn": "2026-11-19",
+      "publicRedactedRecordPath": "public-records/SCR-706951-1_PublicCopy.pdf"
     },
     {
       "slug": "christopher-ramos",
@@ -235,7 +236,7 @@
       "amountType": "Police-estimated losses, per reporting",
       "outcome": "Reporting states Fatu admitted a grand-theft count and received four months in jail, three years of probation and full restitution.",
       "details": "The at-least-$53,000 figure is a police estimate reported by the press and should not be assumed to be the exact restitution judgment.",
-      "verification": "B",
+      "verification": "A/B",
       "sources": [
         {
           "label": "fatu",
@@ -243,9 +244,10 @@
         }
       ],
       "caseNo": "SCR-757420-1",
-      "courtRecordStatus": "Portal case-detail export matched to defendant and relevant allegation; date of review 2026-11-19. Underlying PDF not yet publicly hosted. Full event history and any later relief still require a complete audit.",
+      "courtRecordStatus": "The complete 6-page Sonoma court-portal printout was visually reviewed on November 19, 2026; the public raster reproduction removes the date-of-birth field and original metadata. The unredacted source is withheld. This is not a certified court record or exhaustive check of underlying filings.",
       "courtRecordSourceFile": "FATU.CourtRecords.pdf",
-      "courtRecordReviewedOn": "2026-11-19"
+      "courtRecordReviewedOn": "2026-11-19",
+      "publicRedactedRecordPath": "public-records/SCR-757420-1_PublicCopy.pdf"
     },
     {
       "slug": "daniel-broin",
