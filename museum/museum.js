@@ -482,6 +482,11 @@ function openCase(r){
  addParagraph(root,r.outcome||'Read the full source-backed case page.');
  root.append(element('h3','Context and limitations'));
  addParagraph(root,r.details||'Consult the source documents for context.');
+ const illustration=caseIllustrationFor(r.slug);
+ if(illustration){
+  root.append(element('h3','Illustrative 3D exhibit'));
+  addParagraph(root,illustration.description+'. This is an artistic reconstruction, not an object or document from the legal case.');
+ }
  if(r.amount&&r.amount!=='Not quantified here'){
   root.append(element('h3','Financial figure'));
   addParagraph(root,r.amount+' — '+(r.amountType||'See cited records')+'. Different case amounts may represent different measures.');
