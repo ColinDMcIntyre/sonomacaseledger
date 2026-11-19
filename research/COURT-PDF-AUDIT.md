@@ -27,3 +27,7 @@ The 51-page portal export for case `SCR-751314-1` records a May 9, 2025 notice o
 ## Original file manifest
 
 The [28-PDF intake manifest](COURT-PDF-MANIFEST.md) records original filenames, page counts, source matching and publication holds. The corpus contains 537 pages total. Fourteen case-detail PDFs (474 pages) correspond to 13 county case profiles; Jeffrey Holzworth has an additional matching copy. The remaining 14 PDFs (63 pages) are unmatched name-search output, civil/family records or unrelated historical criminal matters. No raw PDF was uploaded to the public GitHub repository. Since 24 of 28 local PDFs are image-only, automated text search alone cannot clear them for public release.
+
+## Public reviewed reproductions (November 19, 2026)
+
+Three full source printouts were inspected page by page and released as privacy-minimized raster copies with a new provenance cover: Petros (`SCR-715528-1`, 11 source pages), Cabudoy (`24CR08926`, 9), and Rodgers (`SCR-729817-1`, 8). The DOB fields were removed; rasterization eliminated the original metadata, hidden text and hyperlinks. The public copies are at `public-records/` and link from the three profiles. These public PDFs are **not certified court judgments**. The source originals remain withheld. All other original PDFs remain pending privacy and disposition review.

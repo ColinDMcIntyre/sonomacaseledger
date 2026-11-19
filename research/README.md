@@ -23,3 +23,7 @@ See evidence-table.csv and case-data.json for names, links, and case-specific ve
 The user supplied 28 court-portal PDFs in a connected Drive folder. The current public register lists 13 matched criminal case numbers, including the preexisting Petros entry, but the underlying PDFs are **not yet hosted**. Several same-name results are actually civil/family proceedings or older unrelated offenses. They must not be used as criminal evidence for the listed news cases. See [COURT-PDF-AUDIT.md](COURT-PDF-AUDIT.md) for triage and preservation guidance. Individual case pages should be updated for matched numbers and any verified later orders, without representing a partial review as an exhaustive docket audit.
 
 Public status index: [../records/](../records/). It lists the 13 matched Sonoma criminal court case-detail exports and 18 unresolved profiles, and explains why raw PDFs have not been republished.
+
+## Public reviewed reproductions (November 19, 2026)
+
+Three full source printouts were inspected page by page and released as privacy-minimized raster copies with a new provenance cover: Petros (`SCR-715528-1`, 11 source pages), Cabudoy (`24CR08926`, 9), and Rodgers (`SCR-729817-1`, 8). The DOB fields were removed; rasterization eliminated the original metadata, hidden text and hyperlinks. The public copies are at `public-records/` and link from the three profiles. These public PDFs are **not certified court judgments**. The source originals remain withheld. All other original PDFs remain pending privacy and disposition review.

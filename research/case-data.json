@@ -221,9 +221,10 @@
         }
       ],
       "caseNo": "24CR08926",
-      "courtRecordStatus": "Portal case-detail export matched to defendant and relevant allegation; date of review 2026-11-19. Underlying PDF not yet publicly hosted. Full event history and any later relief still require a complete audit.",
+      "courtRecordStatus": "The full 9-page Sonoma court-portal case-detail printout was visually reviewed for basic publication privacy and disposition context on November 19, 2026; a rasterized public copy without the date-of-birth field or original metadata is hosted. The underlying source original remains withheld. This is not a certified record or guarantee that the portal includes all later filings.",
       "courtRecordSourceFile": "Cabudoy.CourtRecords.pdf",
-      "courtRecordReviewedOn": "2026-11-19"
+      "courtRecordReviewedOn": "2026-11-19",
+      "publicRedactedRecordPath": "public-records/24CR08926_PublicCopy.pdf"
     },
     {
       "slug": "lisa-fatu",
@@ -589,9 +590,10 @@
         }
       ],
       "caseNo": "SCR-729817-1",
-      "courtRecordStatus": "Portal case-detail export matched to defendant and relevant allegation; date of review 2026-11-19. Underlying PDF not yet publicly hosted. Full event history and any later relief still require a complete audit.",
+      "courtRecordStatus": "The full 8-page Sonoma court-portal case-detail printout was visually reviewed for basic publication privacy and disposition context on November 19, 2026; a rasterized public copy without the date-of-birth field or original metadata is hosted. The underlying source original remains withheld. This is not a certified record or guarantee that the portal includes all later filings.",
       "courtRecordSourceFile": "SCR-729817-1.pdf",
-      "courtRecordReviewedOn": "2026-11-19"
+      "courtRecordReviewedOn": "2026-11-19",
+      "publicRedactedRecordPath": "public-records/SCR-729817-1_PublicCopy.pdf"
     },
     {
       "slug": "isidro-vencez",

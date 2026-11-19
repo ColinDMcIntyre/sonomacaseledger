@@ -25,7 +25,7 @@ test('all 37 case pages distinguish source grades from docket review',()=>{
  const petros=read('cases/constantine-petros/index.html');
  assert.match(petros,/SCR-715528-1/);
  assert.match(petros,/class="record-audit"/);
- assert.match(petros,/export itself is not hosted/);
+ assert.match(petros,/unredacted export itself is not hosted/);
 });
 test('every county profile is included in records-acquisition checklist',()=>{
  const csv=read('research/court-records-checklist.csv');
@@ -95,4 +95,27 @@ test('court PDF intake manifest blocks accidental raw-file publication',()=>{
  assert.equal(manifest.documents.filter(x=>x.publicationStatus!=='WITHHELD_PENDING_FULL_PAGE_PRIVACY_AND_DISPOSITION_REVIEW').length,0);
  for(const x of manifest.documents)assert.ok(data.county.some(y=>y.slug===x.profileSlug)||x.profileSlug==='constantine-petros');
  assert.match(read('records/index.html'),/COURT-PDF-MANIFEST.md/);
+});
+
+test('public redacted source PDFs are full printout reproductions, not original leaks',()=>{
+ const fs=readFileSync;
+ const manifest=JSON.parse(read('research/COURT-PDF-MANIFEST.json'));
+ assert.equal(manifest.publicPDFsHosted,3);
+ assert.equal(manifest.privacyReviewedOriginalPages,28);
+ const sources={
+  'constantine-petros':'SCR-715528-1_PublicCopy.pdf',
+  'tina-cabudoy':'24CR08926_PublicCopy.pdf',
+  'amanda-rodgers-graton-casino':'SCR-729817-1_PublicCopy.pdf'
+ };
+ for(const [slug,filename] of Object.entries(sources)){
+  const bytes=fs(new URL('../public-records/'+filename,import.meta.url));
+  assert.ok(bytes.length>100000,filename);
+  assert.ok(bytes.subarray(0,7).toString().startsWith('%PDF-'),filename);
+  assert.ok(read('cases/'+slug+'/index.html').includes('public-records/'+filename),slug);
+  assert.ok(read('records/index.html').includes('public-records/'+filename),slug);
+ }
+ for(const doc of manifest.documents){
+  assert.equal(doc.publicationStatus,'WITHHELD_PENDING_FULL_PAGE_PRIVACY_AND_DISPOSITION_REVIEW','originals remain withheld');
+ }
+ assert.equal(manifest.documents.filter(x=>x.publicRedactedCopy).length,3);
 });

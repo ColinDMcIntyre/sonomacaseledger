@@ -6,7 +6,7 @@
   "matchedCaseDetailPDFs": 14,
   "matchedCountyProfiles": 13,
   "matchedPages": 474,
-  "publicPDFsHosted": 0,
+  "publicPDFsHosted": 3,
   "reviewStage": "Header and selected event checks; full page-by-page privacy and disposition review incomplete.",
   "documents": [
     {
@@ -34,7 +34,10 @@
       "profileSlug": "tina-cabudoy",
       "searchableTextLayer": true,
       "publicationStatus": "WITHHELD_PENDING_FULL_PAGE_PRIVACY_AND_DISPOSITION_REVIEW",
-      "notes": "Matching case 24CR08926; 2026 amended sentencing entry"
+      "notes": "Matching case 24CR08926; 2026 amended sentencing entry",
+      "publicRedactedCopy": "public-records/24CR08926_PublicCopy.pdf",
+      "publicRedactedCopyPages": 10,
+      "reviewStatus": "VISUALLY_REVIEWED_PUBLIC_RASTER_COPY_PREPARED"
     },
     {
       "filename": "Cons.CourtRecords.pdf",
@@ -43,7 +46,10 @@
       "profileSlug": "constantine-petros",
       "searchableTextLayer": true,
       "publicationStatus": "WITHHELD_PENDING_FULL_PAGE_PRIVACY_AND_DISPOSITION_REVIEW",
-      "notes": "Matching case SCR-715528-1; post-conviction dismissal entry"
+      "notes": "Matching case SCR-715528-1; post-conviction dismissal entry",
+      "publicRedactedCopy": "public-records/SCR-715528-1_PublicCopy.pdf",
+      "publicRedactedCopyPages": 12,
+      "reviewStatus": "VISUALLY_REVIEWED_PUBLIC_RASTER_COPY_PREPARED"
     },
     {
       "filename": "David.List.CourtRecords.pdf",
@@ -223,7 +229,10 @@
       "profileSlug": "amanda-rodgers-graton-casino",
       "searchableTextLayer": false,
       "publicationStatus": "WITHHELD_PENDING_FULL_PAGE_PRIVACY_AND_DISPOSITION_REVIEW",
-      "notes": "Matching criminal case; November 2021 Penal Code 1203.4 dismissal"
+      "notes": "Matching criminal case; November 2021 Penal Code 1203.4 dismissal",
+      "publicRedactedCopy": "public-records/SCR-729817-1_PublicCopy.pdf",
+      "publicRedactedCopyPages": 9,
+      "reviewStatus": "VISUALLY_REVIEWED_PUBLIC_RASTER_COPY_PREPARED"
     },
     {
       "filename": "SCR-764953-1.pdf",
@@ -261,5 +270,8 @@
       "publicationStatus": "WITHHELD_PENDING_FULL_PAGE_PRIVACY_AND_DISPOSITION_REVIEW",
       "notes": "Name-search results; no corresponding 2010 offense established"
     }
-  ]
+  ],
+  "publicRecordsReleaseDate": "2026-11-19",
+  "privacyReviewedOriginalPages": 28,
+  "publicCopyNotes": "Three full-length rasterized reproductions of original court portal printouts were produced and checked. Each has a clearly marked provenance cover, with date-of-birth fields removed, and no original PDF objects, text layers, metadata or hyperlinks retained. Original source PDFs remain withheld. Other matched PDFs are not cleared."
 }

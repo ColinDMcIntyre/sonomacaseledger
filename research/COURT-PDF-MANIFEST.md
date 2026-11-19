@@ -40,3 +40,7 @@
 The following are **not completed**: full-page inspection of every PDF, checking for sensitive addresses and identifiers, separate verification of complete dispositions and later court orders, and preparation of genuinely redacted public copies. Search-list PDFs and unrelated cases must never appear as supporting documents for the named prosecution.
 
 Use the structured [JSON manifest](COURT-PDF-MANIFEST.json) as the editorial inventory for future redaction and source updates. The public [Court Record Status page](../records/) lists matched case numbers rather than posting unreviewed documents.
+
+## Public reviewed reproductions (November 19, 2026)
+
+Three full source printouts were inspected page by page and released as privacy-minimized raster copies with a new provenance cover: Petros (`SCR-715528-1`, 11 source pages), Cabudoy (`24CR08926`, 9), and Rodgers (`SCR-729817-1`, 8). The DOB fields were removed; rasterization eliminated the original metadata, hidden text and hyperlinks. The public copies are at `public-records/` and link from the three profiles. These public PDFs are **not certified court judgments**. The source originals remain withheld. All other original PDFs remain pending privacy and disposition review.
