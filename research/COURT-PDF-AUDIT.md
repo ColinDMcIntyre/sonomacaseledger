@@ -23,3 +23,7 @@ Received **28** PDFs from the user-provided Google Drive folder named Constantin
 **Review status:** headers and relevant charge/disposition excerpts inspected; full page-by-page audit still pending for larger multi-decade dockets. This is not a certification of accuracy or completeness.
 ## Supplemental docket review: Elana Cohen-Roth
 The 51-page portal export for case `SCR-751314-1` records a May 9, 2025 notice of appeal, a March 24, 2026 restitution hearing, a March 26, 2026 court order concerning funds preserved under Penal Code § 186.11, and an August 7, 2026 docket entry for an appellant's opening brief. The supplied export does **not** establish that the jury verdict was reversed or that the appellate proceeding is complete. These are separate procedural milestones after the May 2025 sentencing, not an acquittal or later dismissal. Public PDF publication still requires privacy clearance and review of complete docket context.
+
+## Original file manifest
+
+The [28-PDF intake manifest](COURT-PDF-MANIFEST.md) records original filenames, page counts, source matching and publication holds. The corpus contains 537 pages total. Fourteen case-detail PDFs (474 pages) correspond to 13 county case profiles; Jeffrey Holzworth has an additional matching copy. The remaining 14 PDFs (63 pages) are unmatched name-search output, civil/family records or unrelated historical criminal matters. No raw PDF was uploaded to the public GitHub repository. Since 24 of 28 local PDFs are image-only, automated text search alone cannot clear them for public release.

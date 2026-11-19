@@ -1,0 +1,265 @@
+{
+  "intakeDate": "2026-11-19",
+  "source": "User-provided Google Drive folder; exact original filenames preserved",
+  "documentCount": 28,
+  "totalPages": 537,
+  "matchedCaseDetailPDFs": 14,
+  "matchedCountyProfiles": 13,
+  "matchedPages": 474,
+  "publicPDFsHosted": 0,
+  "reviewStage": "Header and selected event checks; full page-by-page privacy and disposition review incomplete.",
+  "documents": [
+    {
+      "filename": "BARGANSKI.CourtRecords.pdf",
+      "pages": 4,
+      "classification": "search_result",
+      "profileSlug": "suede-lee-barganski",
+      "searchableTextLayer": false,
+      "publicationStatus": "WITHHELD_PENDING_FULL_PAGE_PRIVACY_AND_DISPOSITION_REVIEW",
+      "notes": "Name-search results show civil or other proceedings; reported 2024 felony not matched"
+    },
+    {
+      "filename": "BROIN.CourtRecords.pdf",
+      "pages": 36,
+      "classification": "criminal_match",
+      "profileSlug": "daniel-broin",
+      "searchableTextLayer": false,
+      "publicationStatus": "WITHHELD_PENDING_FULL_PAGE_PRIVACY_AND_DISPOSITION_REVIEW",
+      "notes": "Matching criminal case-detail export"
+    },
+    {
+      "filename": "Cabudoy.CourtRecords.pdf",
+      "pages": 9,
+      "classification": "criminal_match",
+      "profileSlug": "tina-cabudoy",
+      "searchableTextLayer": true,
+      "publicationStatus": "WITHHELD_PENDING_FULL_PAGE_PRIVACY_AND_DISPOSITION_REVIEW",
+      "notes": "Matching case 24CR08926; 2026 amended sentencing entry"
+    },
+    {
+      "filename": "Cons.CourtRecords.pdf",
+      "pages": 11,
+      "classification": "criminal_match",
+      "profileSlug": "constantine-petros",
+      "searchableTextLayer": true,
+      "publicationStatus": "WITHHELD_PENDING_FULL_PAGE_PRIVACY_AND_DISPOSITION_REVIEW",
+      "notes": "Matching case SCR-715528-1; post-conviction dismissal entry"
+    },
+    {
+      "filename": "David.List.CourtRecords.pdf",
+      "pages": 2,
+      "classification": "search_result",
+      "profileSlug": "mary-katherine-david",
+      "searchableTextLayer": false,
+      "publicationStatus": "WITHHELD_PENDING_FULL_PAGE_PRIVACY_AND_DISPOSITION_REVIEW",
+      "notes": "Name-search results; no identified matching criminal file"
+    },
+    {
+      "filename": "Elena.CourtREcords.pdf",
+      "pages": 51,
+      "classification": "criminal_match",
+      "profileSlug": "elana-cohen-roth",
+      "searchableTextLayer": true,
+      "publicationStatus": "WITHHELD_PENDING_FULL_PAGE_PRIVACY_AND_DISPOSITION_REVIEW",
+      "notes": "Matching case SCR-751314-1; 2025-2026 appellate and restitution docket entries"
+    },
+    {
+      "filename": "FARIAS.CourtRecords.pdf",
+      "pages": 10,
+      "classification": "criminal_match",
+      "profileSlug": "frances-farias",
+      "searchableTextLayer": false,
+      "publicationStatus": "WITHHELD_PENDING_FULL_PAGE_PRIVACY_AND_DISPOSITION_REVIEW",
+      "notes": "Matching criminal case-detail export"
+    },
+    {
+      "filename": "FATU.CourtRecords.pdf",
+      "pages": 6,
+      "classification": "criminal_match",
+      "profileSlug": "lisa-fatu",
+      "searchableTextLayer": false,
+      "publicationStatus": "WITHHELD_PENDING_FULL_PAGE_PRIVACY_AND_DISPOSITION_REVIEW",
+      "notes": "Matching criminal case-detail export"
+    },
+    {
+      "filename": "Garcia.List.CourtRecords.pdf",
+      "pages": 4,
+      "classification": "search_result",
+      "profileSlug": "mark-garcia-sleep-number",
+      "searchableTextLayer": false,
+      "publicationStatus": "WITHHELD_PENDING_FULL_PAGE_PRIVACY_AND_DISPOSITION_REVIEW",
+      "notes": "Name-search results do not establish the intended insurance matter"
+    },
+    {
+      "filename": "HOLZWORTH.CourtRecords.pdf",
+      "pages": 40,
+      "classification": "criminal_match",
+      "profileSlug": "jeffrey-holzworth",
+      "searchableTextLayer": true,
+      "publicationStatus": "WITHHELD_PENDING_FULL_PAGE_PRIVACY_AND_DISPOSITION_REVIEW",
+      "notes": "Additional court-portal copy of Jeffrey's defendant case SCR-627215-1"
+    },
+    {
+      "filename": "Halaweh.CourtRecords.pdf",
+      "pages": 54,
+      "classification": "criminal_match",
+      "profileSlug": "mohannad-halaweh",
+      "searchableTextLayer": false,
+      "publicationStatus": "WITHHELD_PENDING_FULL_PAGE_PRIVACY_AND_DISPOSITION_REVIEW",
+      "notes": "Matching criminal case-detail export"
+    },
+    {
+      "filename": "Lemoine.CourtRecords.pdf",
+      "pages": 35,
+      "classification": "criminal_match",
+      "profileSlug": "kim-louise-lemoine",
+      "searchableTextLayer": false,
+      "publicationStatus": "WITHHELD_PENDING_FULL_PAGE_PRIVACY_AND_DISPOSITION_REVIEW",
+      "notes": "Matching criminal case-detail export"
+    },
+    {
+      "filename": "MCR-398955-1.pdf",
+      "pages": 3,
+      "classification": "unrelated_criminal",
+      "profileSlug": "casey-harding",
+      "searchableTextLayer": false,
+      "publicationStatus": "WITHHELD_PENDING_FULL_PAGE_PRIVACY_AND_DISPOSITION_REVIEW",
+      "notes": "2002 theft case not matched to 2024 insurance-regulator entry"
+    },
+    {
+      "filename": "MERMAN.CourtRecords.pdf",
+      "pages": 63,
+      "classification": "criminal_match",
+      "profileSlug": "ryan-merman",
+      "searchableTextLayer": false,
+      "publicationStatus": "WITHHELD_PENDING_FULL_PAGE_PRIVACY_AND_DISPOSITION_REVIEW",
+      "notes": "Matching criminal case-detail export"
+    },
+    {
+      "filename": "Malfa.List.CourtRecords.pdf",
+      "pages": 4,
+      "classification": "search_result",
+      "profileSlug": "christopher-miranda-pamela-malfa",
+      "searchableTextLayer": false,
+      "publicationStatus": "WITHHELD_PENDING_FULL_PAGE_PRIVACY_AND_DISPOSITION_REVIEW",
+      "notes": "Name-search results do not establish listed criminal prosecution"
+    },
+    {
+      "filename": "RAMOS.CourtRecords.pdf",
+      "pages": 76,
+      "classification": "criminal_match",
+      "profileSlug": "christopher-ramos",
+      "searchableTextLayer": false,
+      "publicationStatus": "WITHHELD_PENDING_FULL_PAGE_PRIVACY_AND_DISPOSITION_REVIEW",
+      "notes": "Matching criminal case-detail export"
+    },
+    {
+      "filename": "RAMOS.List.CourtRecords.pdf",
+      "pages": 2,
+      "classification": "search_result",
+      "profileSlug": "christopher-ramos",
+      "searchableTextLayer": false,
+      "publicationStatus": "WITHHELD_PENDING_FULL_PAGE_PRIVACY_AND_DISPOSITION_REVIEW",
+      "notes": "Ancillary search results, not proof of disposition"
+    },
+    {
+      "filename": "ROSEN.CourtRecords.pdf",
+      "pages": 5,
+      "classification": "unrelated_civil",
+      "profileSlug": "michael-rosen",
+      "searchableTextLayer": false,
+      "publicationStatus": "WITHHELD_PENDING_FULL_PAGE_PRIVACY_AND_DISPOSITION_REVIEW",
+      "notes": "Family-law case rather than reported 1997 investment prosecution"
+    },
+    {
+      "filename": "SCHUTTE.CourtRecords.pdf",
+      "pages": 12,
+      "classification": "unrelated_civil",
+      "profileSlug": "leona-schutte-robert-williams",
+      "searchableTextLayer": false,
+      "publicationStatus": "WITHHELD_PENDING_FULL_PAGE_PRIVACY_AND_DISPOSITION_REVIEW",
+      "notes": "Civil judgment/enforcement rather than the cited criminal proceeding"
+    },
+    {
+      "filename": "SCR-523906-1.pdf",
+      "pages": 6,
+      "classification": "unrelated_criminal",
+      "profileSlug": "ana-carrillo",
+      "searchableTextLayer": false,
+      "publicationStatus": "WITHHELD_PENDING_FULL_PAGE_PRIVACY_AND_DISPOSITION_REVIEW",
+      "notes": "Older criminal accessory case; not tied to regulator report"
+    },
+    {
+      "filename": "SCR-547773-1.pdf",
+      "pages": 4,
+      "classification": "unrelated_criminal",
+      "profileSlug": "miguel-martinez-herrera",
+      "searchableTextLayer": false,
+      "publicationStatus": "WITHHELD_PENDING_FULL_PAGE_PRIVACY_AND_DISPOSITION_REVIEW",
+      "notes": "Older driver's-license case; does not match cited insurer report"
+    },
+    {
+      "filename": "SCR-627215-1.pdf",
+      "pages": 39,
+      "classification": "criminal_match",
+      "profileSlug": "jeffrey-holzworth",
+      "searchableTextLayer": false,
+      "publicationStatus": "WITHHELD_PENDING_FULL_PAGE_PRIVACY_AND_DISPOSITION_REVIEW",
+      "notes": "Jeffrey Holzworth defendant record; separate from Karen's"
+    },
+    {
+      "filename": "SCR-627215-2.pdf",
+      "pages": 36,
+      "classification": "criminal_match",
+      "profileSlug": "karen-holzworth",
+      "searchableTextLayer": false,
+      "publicationStatus": "WITHHELD_PENDING_FULL_PAGE_PRIVACY_AND_DISPOSITION_REVIEW",
+      "notes": "Karen Holzworth defendant record; separate from Jeffrey's"
+    },
+    {
+      "filename": "SCR-729817-1.pdf",
+      "pages": 8,
+      "classification": "criminal_match",
+      "profileSlug": "amanda-rodgers-graton-casino",
+      "searchableTextLayer": false,
+      "publicationStatus": "WITHHELD_PENDING_FULL_PAGE_PRIVACY_AND_DISPOSITION_REVIEW",
+      "notes": "Matching criminal case; November 2021 Penal Code 1203.4 dismissal"
+    },
+    {
+      "filename": "SCR-764953-1.pdf",
+      "pages": 8,
+      "classification": "unrelated_criminal",
+      "profileSlug": "miguel-martinez-herrera",
+      "searchableTextLayer": false,
+      "publicationStatus": "WITHHELD_PENDING_FULL_PAGE_PRIVACY_AND_DISPOSITION_REVIEW",
+      "notes": "2023 DUI matter, not the cited 2020 insurance report"
+    },
+    {
+      "filename": "SFL082454.pdf",
+      "pages": 2,
+      "classification": "unrelated_civil",
+      "profileSlug": "gabriel-desantos",
+      "searchableTextLayer": false,
+      "publicationStatus": "WITHHELD_PENDING_FULL_PAGE_PRIVACY_AND_DISPOSITION_REVIEW",
+      "notes": "Family-law matter not tied to the cited insurer report"
+    },
+    {
+      "filename": "SHEEHAN.CourtRecords.pdf",
+      "pages": 5,
+      "classification": "unrelated_criminal",
+      "profileSlug": "john-c-sheehan",
+      "searchableTextLayer": false,
+      "publicationStatus": "WITHHELD_PENDING_FULL_PAGE_PRIVACY_AND_DISPOSITION_REVIEW",
+      "notes": "Older receiving-stolen-property case not established as reported 2012 matter"
+    },
+    {
+      "filename": "WEBB.CourtRecords.pdf",
+      "pages": 2,
+      "classification": "search_result",
+      "profileSlug": "timothy-charles-webb-jr",
+      "searchableTextLayer": false,
+      "publicationStatus": "WITHHELD_PENDING_FULL_PAGE_PRIVACY_AND_DISPOSITION_REVIEW",
+      "notes": "Name-search results; no corresponding 2010 offense established"
+    }
+  ]
+}

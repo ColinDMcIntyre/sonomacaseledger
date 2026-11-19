@@ -82,3 +82,17 @@ test('every county case page links to its match status',()=>{
  for(const rec of data.county)assert.ok(read('cases/'+rec.slug+'/index.html').includes('../../records/#'+rec.slug),rec.slug);
  assert.ok(read('cases/constantine-petros/index.html').includes('../../records/#constantine-petros'));
 });
+
+test('court PDF intake manifest blocks accidental raw-file publication',()=>{
+ const manifest=JSON.parse(read('research/COURT-PDF-MANIFEST.json'));
+ assert.equal(manifest.documents.length,28);
+ assert.equal(manifest.documents.reduce((sum,x)=>sum+x.pages,0),537);
+ const matched=manifest.documents.filter(x=>x.classification==='criminal_match');
+ assert.equal(matched.length,14);
+ assert.equal(matched.reduce((sum,x)=>sum+x.pages,0),474);
+ assert.equal(new Set(matched.map(x=>x.profileSlug)).size,13);
+ assert.equal(manifest.documents.filter(x=>x.searchableTextLayer).length,4);
+ assert.equal(manifest.documents.filter(x=>x.publicationStatus!=='WITHHELD_PENDING_FULL_PAGE_PRIVACY_AND_DISPOSITION_REVIEW').length,0);
+ for(const x of manifest.documents)assert.ok(data.county.some(y=>y.slug===x.profileSlug)||x.profileSlug==='constantine-petros');
+ assert.match(read('records/index.html'),/COURT-PDF-MANIFEST.md/);
+});
