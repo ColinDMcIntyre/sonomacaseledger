@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "status": "imported",
   "character": {
     "path": "./assets/characters/visitor.glb",
@@ -55,6 +55,96 @@
         1.35
       ],
       "yawDegrees": 0
+    }
+  },
+  "caseProps": {
+    "coveredCar": {
+      "path": null,
+      "source": "https://polyhaven.com/a/covered_car",
+      "license": "CC0-1.0",
+      "targetSize": [
+        1.12,
+        0.59,
+        0.7
+      ],
+      "description": "Contextual museum illustration; never presented as evidence"
+    },
+    "schoolDesk": {
+      "path": null,
+      "source": "https://polyhaven.com/a/SchoolDesk_01",
+      "license": "CC0-1.0",
+      "targetSize": [
+        1.02,
+        0.68,
+        0.66
+      ],
+      "description": "Contextual museum illustration; never presented as evidence"
+    },
+    "notepads": {
+      "path": null,
+      "source": "https://polyhaven.com/a/office_notepads",
+      "license": "CC0-1.0",
+      "targetSize": [
+        0.94,
+        0.29,
+        0.62
+      ],
+      "description": "Contextual museum illustration; never presented as evidence"
+    },
+    "binder": {
+      "path": null,
+      "source": "https://polyhaven.com/a/binder_notebook",
+      "license": "CC0-1.0",
+      "targetSize": [
+        0.85,
+        0.43,
+        0.58
+      ],
+      "description": "Contextual museum illustration; never presented as evidence"
+    },
+    "officeDesk": {
+      "path": null,
+      "source": "https://polyhaven.com/a/metal_office_desk",
+      "license": "CC0-1.0",
+      "targetSize": [
+        1.04,
+        0.6,
+        0.66
+      ],
+      "description": "Contextual museum illustration; never presented as evidence"
+    },
+    "stationery": {
+      "path": null,
+      "source": "https://polyhaven.com/a/stationery_supplies",
+      "license": "CC0-1.0",
+      "targetSize": [
+        0.85,
+        0.42,
+        0.62
+      ],
+      "description": "Contextual museum illustration; never presented as evidence"
+    },
+    "cashRegister": {
+      "path": null,
+      "source": "https://polyhaven.com/a/CashRegister_01",
+      "license": "CC0-1.0",
+      "targetSize": [
+        0.87,
+        0.58,
+        0.64
+      ],
+      "description": "Contextual museum illustration; never presented as evidence"
+    },
+    "stapler": {
+      "path": null,
+      "source": "https://polyhaven.com/a/vintage_stapler",
+      "license": "CC0-1.0",
+      "targetSize": [
+        0.65,
+        0.27,
+        0.44
+      ],
+      "description": "Contextual museum illustration; never presented as evidence"
     }
   }
 }
