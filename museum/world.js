@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import {M,mat} from './materials.js';
 
 /*
  * Reusable architectural + exhibit factory.
@@ -19,14 +20,8 @@ export const HALLWAYS=[
  {x:0,z:-16,w:7,d:16},{x:0,z:16,w:7,d:16},
  {x:-29,z:-13.5,w:6,d:12},{x:29,z:-13.5,w:6,d:12}
 ];
-const M={};
 const boxGeo=new THREE.BoxGeometry(1,1,1);
-function material(color,metalness=0,roughness=.78,more={}){return new THREE.MeshStandardMaterial({color,metalness,roughness,...more});}
-M.stone=material(0xc0b29c);M.darkStone=material(0x87796b);M.edge=material(0xc4a779,.6,.3);
-M.floor=material(0x555b58,.15,.71);M.corridor=material(0x626660,.12,.7);M.wood=material(0x48362d,.06,.73);
-M.woodHighlight=material(0x74503b,.1,.56);M.brass=material(0xc2a168,.78,.25);M.glass=material(0x7ec5bb,.55,.15,{transparent:true,opacity:.72});
-M.aqua=material(0x70ecd0,.2,.4,{emissive:0x20635b,emissiveIntensity:.55});
-M.light=new THREE.MeshBasicMaterial({color:0xd8bd87});M.page=material(0xe6dac5,.03,.9);M.ink=material(0x20343c,.02,.6);
+const material=(color,metalness=0,roughness=.65,more={})=>mat(color,metalness,roughness,more);
 
 function mesh(geo,mat,x,y,z,parent,shadow=true){
  const o=new THREE.Mesh(geo,mat);o.position.set(x,y,z);o.castShadow=shadow;o.receiveShadow=shadow;parent.add(o);return o;
@@ -34,7 +29,7 @@ function mesh(geo,mat,x,y,z,parent,shadow=true){
 function block(parent,mat,x,y,z,w,h,d,shadow=true){
  const o=mesh(boxGeo,mat,x,y,z,parent,shadow);o.scale.set(w,h,d);return o;
 }
-function round(parent,mat,x,y,z,rad,height,segments=12){
+function round(parent,mat,x,y,z,rad,height,segments=24){
  return mesh(new THREE.CylinderGeometry(rad,rad,height,segments),mat,x,y,z,parent);
 }
 function makeText(str,w=3.8,h=.65,fg='#eddec1',bg='#253f42'){
@@ -54,11 +49,9 @@ function makeText(str,w=3.8,h=.65,fg='#eddec1',bg='#253f42'){
 export function makeMuseum(scene){
  const group=new THREE.Group();scene.add(group);
  const rooms={};const floors=[];const floorRects=[];const obstacles=[];const interactives=[];const effects=[];
- const roomMats=new Map();
- const floorTexture=(()=>{const c=document.createElement('canvas');c.width=c.height=256;const x=c.getContext('2d');x.fillStyle='#5b625e';x.fillRect(0,0,256,256);x.strokeStyle='#a3a18c';x.lineWidth=2;for(let k=0;k<=4;k++){let p=k*64;x.beginPath();x.moveTo(p,0);x.lineTo(p,256);x.moveTo(0,p);x.lineTo(256,p);x.stroke()}for(let i=0;i<220;i++){x.fillStyle='rgba(245,239,212,'+(Math.random()*.14)+')';x.fillRect(Math.random()*256,Math.random()*256,Math.random()*3+1,Math.random()*3+1)}const t=new THREE.CanvasTexture(c);t.wrapS=t.wrapT=THREE.RepeatWrapping;t.colorSpace=THREE.SRGBColorSpace;return t;})();
+
  function floor(x,z,w,d,wing=false){
-  let mat=wing?M.floor:M.corridor;
-  if(wing){mat=M.floor.clone();mat.map=floorTexture.clone();mat.map.needsUpdate=true;mat.map.repeat.set(w/6,d/6);mat.color.set(0xe5e1d9);}
+  const mat=wing?M.floor:M.corridor;
   const o=block(group,mat,x,-.24,z,w,.42,d,false);o.receiveShadow=true;o.userData.walkable=true;floors.push(o);floorRects.push({x,z,w,d});
   block(group,M.edge,x,-.04,z-d/2,w,.07,.13,false);
   block(group,M.edge,x,-.04,z+d/2,w,.07,.13,false);
@@ -72,11 +65,34 @@ export function makeMuseum(scene){
    block(group,dir==='s'?M.darkStone:M.stone,xx,height/2,zz,length,height,.4);
    block(group,M.brass,xx,height+.05,zz,length+.04,.1,.54);
    if(dir==='n')block(group,M.wood,xx,.56,zz+.23,length,1.1,.13);
+   if(height>3)decorateTallWall(dir,xx,zz,length,height);
   }else{
    const xx=x+(dir==='w'?-w/2:w/2),zz=z+offset;
    block(group,dir==='e'?M.darkStone:M.stone,xx,height/2,zz,.4,height,length);
    block(group,M.brass,xx,height+.05,zz,.54,.1,length+.04);
    if(dir==='w')block(group,M.wood,xx+.23,.56,zz,.13,1.1,length);
+   if(height>3)decorateTallWall(dir,xx,zz,length,height);
+  }
+ }
+ function decorateTallWall(dir,x,z,length,height){
+  const count=Math.max(1,Math.floor(length/3.25));
+  const spacing=length/count;
+  for(let i=0;i<count;i++){
+   const off=(i+.5-count/2)*spacing;
+   const w=Math.min(2.3,spacing-.38),panelHeight=1.68;
+   if(dir==='n'){
+    block(group,M.woodHighlight,x+off,2.08,z+.23,w,panelHeight,.055,false);
+    block(group,M.brass,x+off,2.98,z+.275,w+.08,.065,.085,false);
+    block(group,M.brass,x+off,1.2,z+.275,w+.08,.065,.085,false);
+    block(group,M.brass,x+off-w/2,2.07,z+.275,.06,panelHeight+.03,.075,false);
+    block(group,M.brass,x+off+w/2,2.07,z+.275,.06,panelHeight+.03,.075,false);
+   }else if(dir==='w'){
+    block(group,M.woodHighlight,x+.23,2.08,z+off,.055,panelHeight,w,false);
+    block(group,M.brass,x+.275,2.98,z+off,.085,.065,w+.08,false);
+    block(group,M.brass,x+.275,1.2,z+off,.085,.065,w+.08,false);
+    block(group,M.brass,x+.275,2.07,z+off-w/2,.075,panelHeight+.03,.06,false);
+    block(group,M.brass,x+.275,2.07,z+off+w/2,.075,panelHeight+.03,.06,false);
+   }
   }
  }
  function doorway(room,dir){
@@ -104,9 +120,11 @@ export function makeMuseum(scene){
   }else wallSegment(room,dir,0,len,height);
  }
  function column(x,z){
-  round(group,M.stone,x,1.8,z,.4,3.6,12);
-  round(group,M.brass,x,.2,z,.53,.21,12);
-  round(group,M.brass,x,3.5,z,.53,.23,12);
+  round(group,M.stone,x,1.8,z,.4,3.6,20);
+  round(group,M.brass,x,.22,z,.56,.19,20);
+  round(group,M.brass,x,.48,z,.44,.065,20);
+  round(group,M.brass,x,3.13,z,.44,.065,20);
+  round(group,M.brass,x,3.5,z,.56,.23,20);
   block(group,M.darkStone,x,3.75,z,1.05,.22,1.05);
  }
  for(const h of HALLWAYS)floor(h.x,h.z,h.w,h.d,false);
@@ -137,10 +155,13 @@ export function makeMuseum(scene){
   const g=new THREE.Group();g.position.set(room.x+localX,0,room.z+localZ);group.add(g);
   const accent=material(room.color,.28,.37);
   const lower=type==='portal'?1.05:type==='directory'?1.2:.92;
-  const base=round(g,M.wood,0,.2,0,lower,.4,8);
-  round(g,M.brass,0,.44,0,lower+.035,.12,8);
-  round(g,accent,0,.78,0,lower*.88,.55,8);
-  round(g,M.brass,0,1.08,0,lower*.9,.1,8);
+  const base=round(g,M.stone,0,.19,0,lower+.09,.38,24);
+  round(g,M.brass,0,.39,0,lower+.09,.045,24);
+  round(g,M.wood,0,.65,0,lower*.91,.49,24);
+  round(g,accent,0,.91,0,lower*.83,.075,24);
+  round(g,M.brass,0,1.08,0,lower*.9,.1,24);
+  const shadow=mesh(new THREE.CircleGeometry(lower+.36,30),new THREE.MeshBasicMaterial({color:0x1b1817,transparent:true,opacity:.18,depthWrite:false}),0,.005,0,g,false);
+  shadow.rotation.x=-Math.PI/2;
   let symbol;
   if(type==='directory'){
    symbol=mesh(new THREE.IcosahedronGeometry(.66,1),M.glass,0,2.06,0,g,false);
@@ -164,7 +185,13 @@ export function makeMuseum(scene){
    const strip=block(g,M.brass,0,1.49,.07,.6,.06,.1,false);
    for(let n=0;n<4;n++)block(g,M.ink,0,1.72+n*.16,.077,.65,.032,.012,false);
   }
-  const ring=mesh(new THREE.TorusGeometry(1,.026,6,35),M.aqua,0,.48,0,g,false);ring.rotation.x=Math.PI/2;
+  if(type==='case'||type==='archive'){
+   block(g,M.glass,0,1.85,0,1.49,1.48,.96,false);
+   for(const xx of [-.75,.75])for(const zz of [-.49,.49])
+    block(g,M.brass,xx,1.85,zz,.027,1.55,.027,false);
+   block(g,M.brass,0,2.61,0,1.58,.035,1.04,false);
+  }
+  const ring=mesh(new THREE.TorusGeometry(1,.017,6,48),M.aqua,0,.48,0,g,false);ring.rotation.x=Math.PI/2;
   effects.push({g,ring,symbol,type,seed:effects.length*1.38});
   const label=makeText(record.name||record.title||'Explore',2.75,.52,'#f5e7c8','#26373c');
   label.position.set(0,1.21,1.01);label.rotation.x=-Math.PI/4.6;g.add(label);
@@ -172,7 +199,7 @@ export function makeMuseum(scene){
   return g;
  }
  function addCarpet(roomId){
-  const room=rooms[roomId],rug=block(group,material(0x713f3b,0,.9),room.x,-.008,room.z,4.4,.026,8.2,false);
+  const room=rooms[roomId],rug=block(group,M.rug,room.x,-.008,room.z,4.4,.026,8.2,false);
   block(group,M.brass,room.x,.013,room.z-3.88,4.1,.018,.07,false);
   block(group,M.brass,room.x,.013,room.z+3.88,4.1,.018,.07,false);
  }
@@ -181,7 +208,7 @@ export function makeMuseum(scene){
  const center=new THREE.Group();center.position.set(0,0,-2.8);group.add(center);
  obstacles.push({x:0,z:-2.8,r:1.6});
  round(center,M.wood,0,.13,0,1.5,.26,16);round(center,M.brass,0,.37,0,1.2,.27,16);
- const orb=mesh(new THREE.IcosahedronGeometry(.87,2),M.glass,0,2.05,0,center,false);
+ const orb=mesh(new THREE.IcosahedronGeometry(.87,3),M.glass,0,2.05,0,center,false);
  const outer=mesh(new THREE.TorusGeometry(1.38,.065,9,56),M.brass,0,2.05,0,center,false);outer.rotation.y=.35;
  const inner=mesh(new THREE.TorusGeometry(1.12,.038,7,54),M.aqua,0,2.05,0,center,false);inner.rotation.x=.7;
  effects.push({g:center,ring:outer,symbol:orb,type:'sculpture',seed:1.4,extra:inner});
