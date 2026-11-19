@@ -1,3 +1,43 @@
+# 37 case-specific museum dioramas — November 2026
+
+## Current implementation
+
+The virtual cathedral now has a 3D contextual illustration for every one of the 37 case records. The visual catalog is in museum/case-dioramas.js; all 30 county and six federal cases, plus the separately added Constantine Petros record, have explicit case-slug recipes. The legal record in research/case-data.json and the individual HTML pages remains the source of truth.
+
+Each exhibit is labeled ILLUSTRATIVE · NOT EVIDENCE. The accessible HTML case panel also describes the contextual object and repeats the disclaimer. Motifs are symbolic and deliberately generic where verified factual detail is limited. No actual victim property, checks, account numbers, insignia or branded employer facilities have been recreated. Constantine Petros's legal timeline distinguishes 2017 count outcomes from the 2020 Penal Code §1203.4 post-conviction relief and does not represent it as an acquittal.
+
+## Optional locally imported CC0 models
+
+The diorama catalog can use eight additional Poly Haven models, hosted within GitHub Pages and cached by the loader. If a model has not been imported, fails to load or is unavailable, its original Three.js geometry substitute remains visible. The import script is scripts/import_museum_assets.py and its GitHub Action is .github/workflows/import-museum-assets.yml. A source listing below is not proof that the downloadable file has been committed: check the local path in museum/assets/manifest.json.
+
+| Role | Original source | License | Context |
+| --- | --- | --- | --- |
+| coveredCar | https://polyhaven.com/a/covered_car | CC0 1.0 | Classic-car restoration business |
+| schoolDesk | https://polyhaven.com/a/SchoolDesk_01 | CC0 1.0 | School-program treasurer |
+| notepads | https://polyhaven.com/a/office_notepads | CC0 1.0 | Claims and loan paperwork |
+| binder | https://polyhaven.com/a/binder_notebook | CC0 1.0 | Trust and investment records |
+| officeDesk | https://polyhaven.com/a/metal_office_desk | CC0 1.0 | Business/manager bookkeeping |
+| stationery | https://polyhaven.com/a/stationery_supplies | CC0 1.0 | Administrative context |
+| cashRegister | https://polyhaven.com/a/CashRegister_01 | CC0 1.0 | Revenue context |
+| stapler | https://polyhaven.com/a/vintage_stapler | CC0 1.0 | Secondary office prop |
+
+Poly Haven license and reuse: https://polyhaven.com/license . Models are artistic contextual illustrations and not items collected from these legal cases. They are fetched as official 1K glTF packages with companion textures; no third-party asset API is requested by a visitor's browser.
+
+The current locally imported animated visitor is Casual Walker v1 LOD0 (CC0; https://tevy.dev/models/casual-walker). Earlier Gobkit/remote-visitor references in the historical build notes below are superseded.
+
+## Technical approach
+
+- Case displays use original transparent vitrines, not an opaque imported display cabinet that might conceal the contextual object.
+- The asset-library loader normalizes any imported model to fit the vitrine. It caches source models and uses procedural fallback objects on failure.
+- The case modal and 3D objects use the same case-by-slug art catalog, while all court outcomes continue to come from the existing research source.
+- The import workflow can run on relevant script changes or by manual dispatch. Its source metadata is kept in the manifest.
+
+---
+
+## Superseded historical build notes
+
+Older text below describes the earlier phases and may contain outdated camera geometry, character provenance and imported-asset status. Current source code and manifest take precedence.
+
 # Sonoma Case Ledger — 3D Museum Asset & Animation Plan
 
 ## Implemented in phases 1–3
