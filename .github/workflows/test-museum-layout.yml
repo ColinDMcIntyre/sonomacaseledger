@@ -1,0 +1,23 @@
+name: Museum level integrity
+on:
+  push:
+    paths:
+      - "museum/**"
+      - "tests/museum-navigation.test.mjs"
+      - ".github/workflows/test-museum-layout.yml"
+  pull_request:
+    paths:
+      - "museum/**"
+      - "tests/museum-navigation.test.mjs"
+permissions:
+  contents: read
+jobs:
+  level-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Verify game-level portals, collisions, and 37 case routes
+        run: node --test tests/museum-navigation.test.mjs

@@ -92,60 +92,125 @@ function openings(room,dir){
    throw new Error('Overlapping openings: '+room.id+' '+dir);
  return combined;
 }
+/*
+ * A solid wall is built ONLY from disjoint masonry pieces.
+ *
+ * The previous THREE.Shape hole was filled by triangulation, leaving false
+ * doors that pathfinding believed were open. This kit has no full-height mesh
+ * spanning a doorway, even if the arch material or shading is broken.
+ */
+const THICKNESS=.48;
+function doorwayArch(parent,opening,top){
+ const r=opening.width/2;
+ const outline=new THREE.Shape();
+ // The spandrel is solid stone ABOVE the arch and open below it.
+ outline.moveTo(-r,opening.shoulder);
+ outline.lineTo(-r,top);
+ outline.lineTo(r,top);
+ outline.lineTo(r,opening.shoulder);
+ for(let i=0;i<=32;i++){
+  const a=i*Math.PI/32;
+  outline.lineTo(r*Math.cos(a),opening.shoulder+opening.rise*Math.sin(a));
+ }
+ outline.closePath();
+ const geo=new THREE.ExtrudeGeometry(outline,{
+  depth:THICKNESS,steps:1,bevelEnabled:false,curveSegments:14
+ });
+ // Geometry is in local wall space and spans the same thickness as the
+ // neighboring stone blocks. No coplanar duplicate full wall behind it.
+ const stone=new THREE.Mesh(geo,M.stone);
+ stone.position.set(opening.at,0,-THICKNESS/2);
+ stone.castShadow=false;stone.receiveShadow=true;
+ parent.add(stone);
+ return stone;
+}
 function wall(room,dir,parent,blockers,windows){
  const vertical=dir==='e'||dir==='w';
- const width=vertical?room.d:room.w,height=room.height,depth=.50;
+ const width=vertical?room.d:room.w;
+ const height=room.height;
  const x=vertical?room.x+(dir==='e'?room.w/2:-room.w/2):room.x;
  const z=vertical?room.z:room.z+(dir==='s'?room.d/2:-room.d/2);
- const holes=openings(room,dir),shape=new THREE.Shape();
- shape.moveTo(-width/2,0);shape.lineTo(width/2,0);
- shape.lineTo(width/2,height);shape.lineTo(-width/2,height);shape.closePath();
+ // Interior portal walls are shared. Build the nave wall ONCE, rather than
+ // two exactly overlapping stone walls that flicker and reseal openings.
+ if(room.id!=='rotunda'&&PORTALS.some(p=>
+  p.a==='rotunda'&&p.b===room.id&&
+  p.axis===(vertical?'x':'z')&&
+  Math.abs(p.value-(vertical?x:z))<.06
+ ))return;
+ const holes=openings(room,dir).sort((a,b)=>a.at-b.at);
+ const wallGroup=new THREE.Group();
+ wallGroup.position.set(x,0,z);
+ if(vertical)wallGroup.rotation.y=-Math.PI/2;
+ parent.add(wallGroup);
+ const stoneMat=createTiledMaterial(M.stone,Math.max(1,width/4),Math.max(1,height/4));
+ const body=(u,fromY,w,h,material=stoneMat)=>{
+  if(w<=.025||h<=.025)return null;
+  const solid=box(wallGroup,material,u,fromY+h/2,0,w,h,THICKNESS,false);
+  if(material===stoneMat)blockers.push(solid);
+  return solid;
+ };
+ let cursor=-width/2;
  for(const h of holes){
-  const hole=new THREE.Path();
-  archPath(hole,h.at,h.width/2,h.bottom,h.shoulder,h.rise);
-  shape.holes.push(hole);
+  const left=h.at-h.width/2,right=h.at+h.width/2;
+  if(left<cursor-.02||right>width/2+.02)
+   throw Error('Invalid opening bounds in '+room.id+' '+dir);
+  // No mesh at any height crosses an open portal span below the arch.
+  body((cursor+left)/2,0,left-cursor,height);
+  const top=h.shoulder+h.rise+.18;
+  if(h.type==='window'){
+   // Windows keep a real opening above the solid stone sill.
+   body(h.at,0,h.width,h.bottom);
+  }
+  body(h.at,top,h.width,height-top);
+  const spandrel=doorwayArch(wallGroup,h,top);
+  blockers.push(spandrel);
+  cursor=right;
  }
- const geo=new THREE.ExtrudeGeometry(shape,{depth,steps:1,bevelEnabled:false,curveSegments:12});
- const masonry=object(parent,geo,createTiledMaterial(M.stone,width/3.7,height/3.7),x,0,z,true);
- if(vertical)masonry.rotation.y=-Math.PI/2;
- masonry.position.add(new THREE.Vector3(vertical?-.25:0,0,vertical?0:-.25));
- blockers.push(masonry);
- const outer=new THREE.Group();outer.position.set(x,0,z);
- if(vertical)outer.rotation.y=-Math.PI/2;
- parent.add(outer);
- // Base course, chair rail, stone cornice and restrained walnut panel rhythm.
- const panels=holes.filter(h=>h.type==='door');
- const panelCount=Math.max(2,Math.floor(width/3.35));
- for(let i=0;i<panelCount;i++){
-  const u=(-.5+(i+.5)/panelCount)*width;
-  if(panels.some(h=>Math.abs(u-h.at)<h.width/2+.22))continue;
-  const span=width/panelCount-.25;
-  box(outer,M.wood, u,1.49,.32,span,2.7,.13);
-  box(outer,trim,u,2.95,.4,span+.07,.062,.14);
-  box(outer,M.woodHighlight,u,.17,.34,span,.2,.15);
+ body((cursor+width/2)/2,0,width/2-cursor,height);
+ // Ornament hangs on the wall, never across a door below its lintel.
+ const count=Math.max(2,Math.round(width/3.2));
+ for(let i=0;i<count;i++){
+  const u=-width/2+(i+.5)*width/count;
+  const span=width/count-.35;
+  if(holes.some(h=>Math.abs(u-h.at)<h.width/2+span/2+.17))continue;
+  box(wallGroup,M.wood,u,1.50,THICKNESS/2+.06,span,2.65,.13);
+  box(wallGroup,M.edge,u,2.91,THICKNESS/2+.12,span+.06,.07,.16);
+  box(wallGroup,M.woodHighlight,u,.26,THICKNESS/2+.08,span,.2,.14);
  }
- // Horizontal cornice at wall crown.
- box(outer,M.beam,0,height-.11,.25,width,.19,.58);
- // Rounded/pointed arch reveals. Their backs are offset from the wall.
+ // Pier rhythm, recessed paneling and stone arch jambs are non-colliding.
  for(const h of holes){
-  const r=h.width/2;const pts=[];
+  const r=h.width/2,pts=[];
   for(let i=0;i<=30;i++){
    const a=i*Math.PI/30;
-   pts.push(new THREE.Vector3(h.at+r*Math.cos(a),h.shoulder+h.rise*Math.sin(a),.36));
+   pts.push(new THREE.Vector3(h.at+r*Math.cos(a),h.shoulder+h.rise*Math.sin(a),THICKNESS/2+.04));
   }
-  tube(outer,pts,trim,.13);
-  for(const side of [-1,1]){
-   box(outer,M.beam,h.at+side*r,h.bottom+Math.max(0,h.shoulder-h.bottom)/2,.34,.16,h.shoulder-h.bottom,.2);
+  tube(wallGroup,pts,trim,.10);
+  for(const sign of [-1,1]){
+   const u=h.at+sign*(r+.14);
+   if(Math.abs(u)>=width/2-.1)continue;
+   box(wallGroup,M.beam,u,h.shoulder*.49,THICKNESS/2+.09,.21,h.shoulder-.08,.22);
+   box(wallGroup,trim,u,h.shoulder+.1,THICKNESS/2+.1,.35,.16,.35);
   }
-  if(h.type==='door' && room.id!=='rotunda' && room.id!=='vestibule'){
-   const sign=museumSign(room.name);
-   sign.position.set(h.at,Math.min(height-.65,h.shoulder+h.rise+.57),.47);
-   outer.add(sign);
+  if(h.type==='door'){
+   const portal=PORTALS.find(p=>
+    (p.a===room.id||p.b===room.id)
+    &&p.axis===(vertical?'x':'z')
+    &&Math.abs(p.value-(vertical?x:z))<.06
+    &&Math.abs(p.at-((vertical?room.z:room.x)+h.at))<.06);
+   const destination=portal&&(portal.a===room.id?portal.b:portal.a);
+   const destinationRoom=rooms.find(r=>r.id===destination);
+   if(destinationRoom&&destinationRoom.id!=='rotunda'){
+    const sign=museumSign(destinationRoom.name);
+    const archTop=h.shoulder+h.rise+.18;
+    sign.position.set(h.at,Math.min(height-.44,archTop+.42),THICKNESS/2+.13);
+    wallGroup.add(sign);
+   }
   }
   if(h.type==='window'){
    const seed=110+Math.round((room.x+room.z+h.at)*7);
    const glass=createStainedWindow(parent,{
-    x:vertical?x:room.x+h.at,z:vertical?room.z+h.at:z,
+    x:vertical?x:room.x+h.at,
+    z:vertical?room.z+h.at:z,
     axis:vertical?'x':'z',width:h.width,bottom:h.bottom,
     shoulder:h.shoulder,rise:h.rise,seed:Math.abs(seed),
     lightPool:h.bottom<5,inside:(dir==='n'||dir==='w')?1:-1
@@ -153,15 +218,8 @@ function wall(room,dir,parent,blockers,windows){
    windows.push(glass);
   }
  }
- // Pier capitals, bases, and regular stone pilasters between arches.
- const features=4;
- for(let i=0;i<=features;i++){
-  const u=-width/2+i*width/features;
-  if(holes.some(h=>Math.abs(u-h.at)<h.width/2+.14))continue;
-  box(outer,M.stone,u,height*.48,.38,.4,height*.95,.44);
-  box(outer,trim,u,height-.57,.41,.68,.18,.62);
-  box(outer,M.beam,u,.24,.46,.7,.25,.62);
- }
+ // Cornice is deliberately located above every door, not through it.
+ box(wallGroup,M.beam,0,height-.12,THICKNESS/2,width,.18,.4);
 }
 function vault(room,parent){
  const span=room.w-.8,depth=room.d-.6;

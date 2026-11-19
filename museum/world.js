@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import {ROOM_DEFS,HALLWAYS,ENTRY_POINT,zoneAt} from './layout.js';
 import {buildArchitecture} from './architecture.js';
 import {M} from './materials.js';
+import {createNavigation} from './navigation.js';
 export {ROOM_DEFS,HALLWAYS};
 
 const cube=new THREE.BoxGeometry(1,1,1);
@@ -100,18 +101,16 @@ export function makeMuseum(scene){
   for(const x of [-.62,.62])box(g,M.wood,x,.22,0,.11,.46,.55);
   obstacles.push({x:g.position.x,z:g.position.z,r:.72});
  }
- function walkable(x,z){
-  return floorRects.some(q=>Math.abs(x-q.x)<=q.w/2-.07&&Math.abs(z-q.z)<=q.d/2-.07)
-   &&!obstacles.some(o=>Math.hypot(x-o.x,z-o.z)<o.r+.53);
- }
- function nearestWalkable(x,z){
-  if(walkable(x,z))return new THREE.Vector3(x,0,z);
-  for(let r=.3;r<8.1;r+=.4)for(let k=0;k<36;k++){
-   const a=k*Math.PI/18,px=x+Math.cos(a)*r,pz=z+Math.sin(a)*r;
-   if(walkable(px,pz))return new THREE.Vector3(px,0,pz);
-  }
-  return null;
- }
+ // Architectural columns have a matching gameplay footprint. They are never
+ // invisible obstacles: the collision zone follows the real stone column.
+ for(const z of [-24,-6,6,24])for(const x of [-8.5,8.5])
+  obstacles.push({x,z,r:.31});
+ for(const room of ROOM_DEFS.filter(r=>r.id!=='rotunda'))
+  for(const sx of [-1,1])for(const sz of [-1,1])
+   obstacles.push({x:room.x+sx*(room.w/2-.7),z:room.z+sz*(room.d/2-.7),r:.31});
+ const navigation=createNavigation(floorRects,obstacles);
+ const {walkable,canMove,nearestWalkable}=navigation;
+
  function roomAt(x,z){return zoneAt(x,z)||rooms.rotunda;}
  function update(t,dt,animated=true){
   if(!animated)return;
@@ -121,6 +120,6 @@ export function makeMuseum(scene){
   }
  }
  return {group,rooms,floors,floorRects,interactives,obstacles,cameraBlockers,
-  assetSlots,windows:architecture.windows,walkable,nearestWalkable,roomAt,addExhibit,update,
+  assetSlots,windows:architecture.windows,walkable,canMove,nearestWalkable,roomAt,addExhibit,update,
   entry:ENTRY_POINT};
 }

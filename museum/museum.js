@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import {makeMuseum,ROOM_DEFS} from './world.js';
+import {inspectDoorways} from './scene-diagnostics.js';
 import {exhibitSockets,ENTRY_POINT} from './layout.js';
 import {loadCathedralMaterials} from './materials.js';
 import {installCathedralLighting} from './lighting.js';
@@ -158,6 +159,7 @@ function setupThree(){
   UI.viewport.append(renderer.domElement);
   installCathedralLighting(scene,renderer,status=>console.info(status));
   world=makeMuseum(scene);
+  inspectDoorways(world);
   visitor=createVisitor(scene,status=>UI.asset.textContent=status);
   visitor.root.position.set(ENTRY_POINT.x,0,ENTRY_POINT.z);
   visitor.root.rotation.y=Math.PI;
@@ -177,32 +179,35 @@ function resize(){
  renderer.setSize(w,h,false);
 }
 function updateCamera(dt){
- const target=new THREE.Vector3(visitor.root.position.x,0,visitor.root.position.z);
- viewTarget.lerp(target,1-Math.exp(-dt*6));
- cameraAnchor.set(viewTarget.x,1.61,viewTarget.z);
- const d=cameraDistance(),cp=Math.cos(state.pitch),sp=Math.sin(state.pitch);
+ const player=visitor.root.position;
+ viewTarget.lerp(player,1-Math.exp(-dt*7));
+ cameraAnchor.set(viewTarget.x,1.62,viewTarget.z);
+ const distance=cameraDistance(),cp=Math.cos(state.pitch),sp=Math.sin(state.pitch);
  desiredCamera.set(
-  cameraAnchor.x+Math.sin(state.yaw)*d*cp,
-  cameraAnchor.y+d*sp,
-  cameraAnchor.z+Math.cos(state.yaw)*d*cp
+  cameraAnchor.x+Math.sin(state.yaw)*distance*cp,
+  cameraAnchor.y+distance*sp,
+  cameraAnchor.z+Math.cos(state.yaw)*distance*cp
  );
  cameraDirection.copy(desiredCamera).sub(cameraAnchor);
- const fullDistance=cameraDirection.length();
+ const reach=cameraDirection.length();
  cameraDirection.normalize();
- // Stop the camera at a wall rather than hiding architectural geometry.
+ let occluded=false;
  if(world.cameraBlockers?.length){
   cameraCollisionRay.set(cameraAnchor,cameraDirection);
-  cameraCollisionRay.near=0.25;cameraCollisionRay.far=fullDistance;
+  cameraCollisionRay.near=.13;cameraCollisionRay.far=reach;
   const hits=cameraCollisionRay.intersectObjects(world.cameraBlockers,false);
-  if(hits.length&&hits[0].distance<fullDistance){
-   desiredCamera.copy(cameraAnchor).addScaledVector(cameraDirection,Math.max(1.6,hits[0].distance-.55));
+  if(hits.length&&hits[0].distance<reach){
+   // Never enforce a minimum follow distance *through* a wall.
+   const safe=Math.max(.20,hits[0].distance-.4);
+   desiredCamera.copy(cameraAnchor).addScaledVector(cameraDirection,safe);
+   occluded=true;
   }
  }
- const damp=1-Math.exp(-dt*7);
- camera.position.lerp(desiredCamera,damp);
- // Aim just ahead of the visitor, keeping the character in the lower center.
- // Aim horizontally at the visitor, not past them: fixes right-edge framing.
- camera.lookAt(viewTarget.x,1.82,viewTarget.z);
+ // Immediately retract the camera on collision. Smoothing is applied only
+ // in free space, preventing wall-crossing and sudden through-stone shots.
+ if(occluded)camera.position.copy(desiredCamera);
+ else camera.position.lerp(desiredCamera,1-Math.exp(-dt*9));
+ camera.lookAt(viewTarget.x,1.8,viewTarget.z);
 }
 
 const gridStep=.85;
@@ -344,9 +349,9 @@ function tickManualMovement(dt,axes){
  for(let i=0;i<steps;i++){
   const sx=dx*distance/steps,sz=dz*distance/steps;
   const x=visitor.root.position.x,z=visitor.root.position.z;
-  if(world.walkable(x+sx,z+sz)){visitor.root.position.x+=sx;visitor.root.position.z+=sz;moved=true;}
-  else if(world.walkable(x+sx,z)){visitor.root.position.x+=sx;moved=true;}
-  else if(world.walkable(x,z+sz)){visitor.root.position.z+=sz;moved=true;}
+  if(world.canMove(x,z,x+sx,z+sz)){visitor.root.position.x+=sx;visitor.root.position.z+=sz;moved=true;}
+  else if(world.canMove(x,z,x+sx,z)){visitor.root.position.x+=sx;moved=true;}
+  else if(world.canMove(x,z,x,z+sz)){visitor.root.position.z+=sz;moved=true;}
  }
  if(moved){
   const wanted=Math.atan2(dx,dz);
@@ -395,8 +400,15 @@ function tickMovement(dt){
   const distance=Math.hypot(dx,dz);
   if(distance<.045){state.waypoints.shift();continue;}
   const step=Math.min(remaining,distance);
-  visitor.root.position.x+=dx/distance*step;
-  visitor.root.position.z+=dz/distance*step;
+  const nx=visitor.root.position.x+dx/distance*step;
+  const nz=visitor.root.position.z+dz/distance*step;
+  if(!world.canMove(visitor.root.position.x,visitor.root.position.z,nx,nz)){
+   stopMovement();
+   report('Path interrupted by a wall. Choose another route.');
+   return;
+  }
+  visitor.root.position.x=nx;
+  visitor.root.position.z=nz;
   const wanted=Math.atan2(dx,dz);
   visitor.root.rotation.y+=Math.atan2(Math.sin(wanted-visitor.root.rotation.y),Math.cos(wanted-visitor.root.rotation.y))*Math.min(1,dt*12);
   remaining-=step;
@@ -631,17 +643,21 @@ const raycaster=new THREE.Raycaster();
 const pointer=new THREE.Vector2();
 function pickAt(clientX,clientY){
  const rect=renderer.domElement.getBoundingClientRect();
- pointer.set(((clientX-rect.left)/rect.width)*2-1,-((clientY-rect.top)/rect.height)*2+1);
+ pointer.set(((clientX-rect.left)/rect.width)*2-1,
+  -((clientY-rect.top)/rect.height)*2+1);
  raycaster.setFromCamera(pointer,camera);
  const selected=raycaster.intersectObjects(world.interactives,false)[0];
  const ground=raycaster.intersectObjects(world.floors,false)[0];
- if(selected&&(!ground||selected.distance<ground.distance))return {type:'exhibit',record:selected.object.userData.action};
- // A few transparent interaction surfaces can sit above the floor; prefer
- // the exhibit when directly clicked even if its invisible volume is low.
- if(selected)return {type:'exhibit',record:selected.object.userData.action};
- if(ground)return {type:'floor',point:ground.point};
+ const wall=raycaster.intersectObjects(world.cameraBlockers||[],false)[0];
+ // Basic game rule: no clicking/interacting through opaque architecture.
+ if(selected&&(!wall||wall.distance>selected.distance+.04)
+  &&(!ground||selected.distance<ground.distance+.14))
+  return {type:'exhibit',record:selected.object.userData.action};
+ if(ground&&(!wall||wall.distance>ground.distance+.04))
+  return {type:'floor',point:ground.point};
  return null;
 }
+
 function setupPointer(){
  const canvas=renderer.domElement;
  let active=null,moved=false,startDistance=null;
@@ -713,6 +729,11 @@ async function main(){
   // Install free third-party furniture only when the locally hosted model
   // files are present. Case content and collision remain usable otherwise.
   installMuseumAssets(world, status=>{UI.asset.textContent=status;})
+    .then(()=>{
+      // Imported chairs/cabinets can change obstacles; recompute any cached
+      // navigation cells after optional furniture finishes loading.
+      navCache.clear();
+    })
     .catch(error=>console.warn('Optional museum assets:',error));
   clock.start();animate();
   loadingProgress(100);
