@@ -247,7 +247,7 @@ export function installCaseDioramas(world,loaded,caseProps,normalize){
   if(conf&&source){
    try{
     const model=normalize(source,{...conf,targetSize:[1.04,.62,.60]},record.slug);
-    model.position.y=.08;model.position.z=-.07;
+    model.position.y+=.08;model.position.z-=.07;
     representation.add(model);
    }catch(error){
     console.warn('Illustration fallback:',record.slug,error);
