@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "status": "awaiting-asset-import",
+  "status": "imported",
   "character": {
     "path": null,
     "expectedClips": [
@@ -12,7 +12,7 @@
   },
   "props": {
     "displayCase": {
-      "path": null,
+      "path": "./assets/models/vintage_cabinet_01/vintage_cabinet_01_1k.gltf",
       "source": "https://polyhaven.com/a/vintage_cabinet_01",
       "license": "CC0",
       "targetSize": [
@@ -23,7 +23,7 @@
       "yawDegrees": 0
     },
     "directoryDesk": {
-      "path": null,
+      "path": "./assets/models/ClassicConsole_01/ClassicConsole_01_1k.gltf",
       "source": "https://polyhaven.com/a/ClassicConsole_01",
       "license": "CC0",
       "targetSize": [
@@ -34,7 +34,7 @@
       "yawDegrees": 0
     },
     "armchair": {
-      "path": null,
+      "path": "./assets/models/ArmChair_01/ArmChair_01_1k.gltf",
       "source": "https://polyhaven.com/a/ArmChair_01",
       "license": "CC0",
       "targetSize": [
@@ -45,7 +45,7 @@
       "yawDegrees": 0
     },
     "gothicCabinet": {
-      "path": null,
+      "path": "./assets/models/GothicCabinet_01/GothicCabinet_01_1k.gltf",
       "source": "https://polyhaven.com/a/GothicCabinet_01",
       "license": "CC0",
       "targetSize": [
