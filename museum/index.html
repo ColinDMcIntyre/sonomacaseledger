@@ -19,12 +19,13 @@
 <header class="hud-top">
   <a class="brand" href="../"><span class="brand-mark">SCL</span><span>SONOMA <b>CASE LEDGER</b><small>THE INTERACTIVE MUSEUM</small></span></a>
   <div class="hud-top-actions">
+    <button id="directory-toggle" type="button" class="hud-button" aria-expanded="false" aria-controls="directory-panel">Cases & search</button>
     <button id="map-button" type="button" class="hud-button" aria-expanded="false" aria-controls="map-panel">Museum map</button>
     <button id="help-button" type="button" class="hud-button">Controls</button>
     <a class="hud-button outline" href="../cases/">Text archive ↗</a>
   </div>
 </header>
-<aside class="hud-side" aria-label="Museum directory">
+<aside id="directory-panel" class="hud-side is-collapsed" aria-label="Museum directory">
   <div class="museum-section-label">MUSEUM WINGS</div>
   <div id="gallery-links" class="gallery-links"></div>
   <div class="side-divider"></div>
@@ -39,7 +40,7 @@
   <p>Choose a gallery to travel there instantly.</p>
 </aside>
 <div class="hud-bottom">
-  <div class="location-card"><small>YOU ARE EXPLORING</small><strong id="location-name">The Grand Rotunda</strong><span id="location-hint">WASD / arrow keys to walk · E or click to interact · drag to rotate</span></div>
+  <div class="location-card"><small>YOU ARE EXPLORING</small><strong id="location-name">The Grand Rotunda</strong><span id="location-hint">WASD move · E interact · F find cases · drag to rotate</span></div>
   <div id="interact-hint" class="interact-hint" hidden><button id="interact-button" type="button"><kbd>E</kbd><span id="interact-label">Interact</span></button></div>
   <div class="control-tray">
     <button id="view-button" type="button" title="Toggle close / overview camera">Close view</button>
@@ -66,7 +67,7 @@
       <p><strong>WASD or arrow keys</strong> move relative to the camera. <strong>E</strong> opens the nearest exhibit when you are close enough.</p>
       <p><strong>Click or tap the floor</strong> to walk automatically. Click an exhibit to approach and open it; manual movement cancels an automatic route.</p>
       <p><strong>Drag an empty area</strong> to rotate the view. Scroll or use the + / − buttons to zoom. The Close view button switches between a closer angle and a gallery overview.</p>
-      <p><strong>Use the Museum Wings directory</strong> to jump between galleries. Search a person's name to find their exhibit.</p>
+      <p><strong>Cases & search</strong> opens the collapsible case directory, or press <strong>F</strong> to find a case. Use Museum Wings to change galleries.</p>
       <p><strong>Use the Text Archive</strong> for direct, accessible access to every case page.</p>
       <p>This museum is an exploratory interface, not a court website. Exhibits reference documented legal records and linked reporting.</p>
       <p><a href="https://github.com/ColinDMcIntyre/sonomacaseledger/blob/main/museum/ASSET-CREDITS.md">Assets, animation licenses and implementation notes</a></p>

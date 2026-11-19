@@ -31,7 +31,7 @@ const heldKeys=new Set();
 const interactionPosition=new THREE.Vector3();
 let closestExhibit=null;
 const cameraDefault=()=>state.cameraMode==='close'
-  ?(MQ.matches?13.8:12):(MQ.matches?23:19);
+  ?(MQ.matches?9.5:10.5):(MQ.matches?20:18);
 const COLOR={gold:0xd1b37b,aqua:0x86d8c9};
 const clamp=THREE.MathUtils.clamp;
 function element(tag,text,cls){
@@ -136,7 +136,7 @@ function populateMuseum(){
 function setupThree(){
   scene=new THREE.Scene();
   scene.background=new THREE.Color(0x28343a);
-  scene.fog=new THREE.FogExp2(0x28343a,.005);
+  scene.fog=new THREE.FogExp2(0x28343a,.0035);
   camera=new THREE.OrthographicCamera(-10,10,10,-10,.1,350);
   renderer=new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:'high-performance'});
   renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.65));
@@ -183,11 +183,11 @@ function updateCamera(dt){
   const smooth=1-Math.exp(-dt*4.5);
   const target=new THREE.Vector3(visitor.root.position.x,0,visitor.root.position.z);
   viewTarget.lerp(target,smooth);
-  const distance=state.cameraMode==='close'?25:33;
-  const elevation=state.cameraMode==='close'?24:34;
+  const distance=state.cameraMode==='close'?24:31;
+  const elevation=state.cameraMode==='close'?16.6:26;
   cameraEye.set(viewTarget.x+Math.sin(state.yaw)*distance,viewTarget.y+elevation,viewTarget.z+Math.cos(state.yaw)*distance);
   camera.position.lerp(cameraEye,1-Math.exp(-dt*5.5));
-  camera.lookAt(viewTarget.x,1.25,viewTarget.z);
+  camera.lookAt(viewTarget.x,1.65,viewTarget.z);
 }
 const gridStep=.85;
 const gridOrigin=-43;
@@ -547,6 +547,14 @@ function searchCases(){
 }
 function setupUI(){
  setupDirectory();
+ const directory=$('directory-panel'),toggle=$('directory-toggle');
+ function setDirectory(open){
+  directory.classList.toggle('is-collapsed',!open);
+  toggle.setAttribute('aria-expanded',String(open));
+  toggle.textContent=open?'Hide directory':'Cases & search';
+ }
+ setDirectory(false);
+ toggle.addEventListener('click',()=>setDirectory(directory.classList.contains('is-collapsed')));
  UI.search.addEventListener('input',searchCases);searchCases();
  UI.mapButton.addEventListener('click',()=>{
   UI.map.hidden=!UI.map.hidden;UI.mapButton.setAttribute('aria-expanded',String(!UI.map.hidden));
@@ -578,7 +586,7 @@ function setupUI(){
  window.addEventListener('keydown',e=>{
   if(e.key==='Escape'){
    closeModal();UI.map.hidden=true;UI.mapButton.setAttribute('aria-expanded','false');
-   heldKeys.clear();return;
+   setDirectory(false);heldKeys.clear();return;
   }
   const active=document.activeElement;
   if(active&&active.matches('input,textarea,select,[contenteditable="true"]'))return;
@@ -587,6 +595,9 @@ function setupUI(){
    e.preventDefault();heldKeys.add(e.code);return;
   }
   if(e.code==='KeyE'&&!e.repeat&&!state.openPanel){e.preventDefault();interactNearby();}
+  if(e.code==='KeyF'&&!e.repeat&&!state.openPanel){
+   e.preventDefault();setDirectory(true);UI.search.focus();
+  }
  });
  window.addEventListener('keyup',e=>heldKeys.delete(e.code));
  window.addEventListener('blur',()=>{heldKeys.clear();visitor.setWalking(false);});
@@ -668,8 +679,8 @@ function animate(){
  }
  visitor.tick(dt,clock.elapsedTime);
  refreshInteraction();
- world.update(clock.elapsedTime,dt,state.fx);
  updateCamera(dt);
+ world.update(clock.elapsedTime,dt,state.fx,camera);
  renderer.render(scene,camera);
 }
 async function main(){

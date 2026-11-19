@@ -6,7 +6,7 @@ const VISITOR_URL = 'https://gobkit.com/freebies/human001/OfficeLady.glb';
 // The procedural visitor below is the fallback when a remote asset is unavailable.
 
 export function createVisitor(scene,onStatus){
- const root=new THREE.Group();root.scale.setScalar(1.19);scene.add(root);
+ const root=new THREE.Group();root.scale.setScalar(1.66);scene.add(root);
  const mat=(c,roughness=.65,metalness=0)=>new THREE.MeshPhysicalMaterial({color:c,roughness,metalness,clearcoat:.12,envMapIntensity:.75});
  const coat=mat(0x405867,.85),trousers=mat(0x252e37,.84),skin=mat(0xc99a78,.85);
  const trim=mat(0xc0a679,.37,.42),hair=mat(0x32251e,.9),shoe=mat(0x231b1a,.45);
@@ -76,7 +76,7 @@ export function createVisitor(scene,onStatus){
    if(!object)throw new Error('Character model missing');
    const bounds=new THREE.Box3().setFromObject(object);
    const size=bounds.getSize(new THREE.Vector3());
-   const scale=2.15/Math.max(1,size.y);
+   const scale=2.7/Math.max(1,size.y);
    object.scale.setScalar(scale);
    const adjusted=new THREE.Box3().setFromObject(object);
    object.position.y=-adjusted.min.y;

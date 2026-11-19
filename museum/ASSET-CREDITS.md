@@ -50,3 +50,11 @@ Lighting and performance tuning, shadows, baked PBR textures, sound effects, adv
 - **Verified free image textures:** Poly Haven [Marble 01](https://polyhaven.com/a/marble_01) and [Marble Tiles](https://polyhaven.com/a/marble_tiles) (CC0). The Three.js loader requests 1K JPG diffuse maps from `dl.polyhaven.org`; if the request fails or is blocked, procedural fallback textures remain visible. This approach doesn't require the user to buy or download textures manually.
 
 **Realism limit:** This is a higher-quality PBR pass on procedural architecture. It is **not a photorealistic museum yet**. That would require replacing the stylized character and simplified exhibit meshes with detailed scanned or professionally modeled assets, using full normal/roughness texture sets, and testing shadow and rendering performance on actual devices.
+
+## November 2026 vaulted architecture update
+
+- Rooms now use **tall architectural walls** and **cutaway barrel-vault ribs**. Curved plaster eaves remain visible near the walls; no opaque roof slab covers the playable floor. The camera-facing upper walls and eaves are hidden automatically, including when orbiting.
+- All exhibits are built from **rectangular marble, walnut, glass and brass vitrines** instead of round game-like pedestals. Informational exhibits use museum-style desks, lecterns and framed records.
+- The heavily mottled external marble tile texture has been removed. The new **subtle cream marble texture is self-contained procedural artwork** with restrained veins and low-contrast grout.
+- The starting camera is closer and lower, with the Overview toggle retained. The visitor is larger. Performance and framing still need live playtesting across desktop and mobile.
+- The case directory is collapsed by default; **F** opens search, or use the top Cases & search button. No source documents or case records were changed.

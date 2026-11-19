@@ -147,3 +147,55 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(-
  .control-tray button{width:25px;height:30px}
  #view-button{min-width:53px;width:53px;font-size:.6rem}
 }
+
+
+/* Vaulted gallery art pass: unobstructed display and compact museum controls */
+.hud-side{
+  width:min(320px,calc(100vw - 32px));
+  top:80px;bottom:auto;max-height:min(66vh,620px);
+  padding:14px;box-shadow:0 14px 40px #0007;
+  transition:transform .24s ease,opacity .2s ease,visibility .2s ease;
+}
+.hud-side.is-collapsed{
+  transform:translateX(calc(-100% - 44px));opacity:0;
+  visibility:hidden;pointer-events:none;
+}
+.gallery-links{max-height:235px;min-height:0;overflow:auto;scrollbar-width:none}
+.gallery-links::-webkit-scrollbar,.search-results::-webkit-scrollbar{display:none}
+.search-results{min-height:0;max-height:178px;scrollbar-width:none}
+.search-empty{padding:6px 2px}
+.side-footer{font-size:.67rem}
+.hud-bottom{
+  left:16px;right:16px;bottom:14px;
+  align-items:end;gap:12px;
+}
+.location-card{
+  padding:9px 13px;background:rgba(12,28,35,.8);
+  border-color:rgba(202,178,134,.28);
+  min-width:0;max-width:286px;
+}
+.location-card strong{font-size:.98rem}
+.location-card span{font-size:.63rem}
+.control-tray{padding:4px;background:rgba(12,28,35,.83)}
+.control-tray button{height:32px;width:32px}
+#view-button{width:auto;min-width:77px;font-size:.69rem}
+.vignette{background:radial-gradient(ellipse at center,transparent 58%,rgba(2,9,12,.19) 100%)}
+@media(max-width:780px){
+ .hud-top-actions{max-width:68%;flex-wrap:wrap;justify-content:flex-end}
+ .hud-side{left:10px;top:62px;bottom:auto;max-height:57vh}
+ .gallery-links{display:grid;max-height:145px}
+ .gallery-link{min-width:0}
+ .gallery-link small,.gallery-link .icon{display:inline}
+ .hud-bottom{left:8px;right:8px;bottom:8px;gap:6px}
+ .location-card{max-width:190px;padding:8px 9px}
+ .location-card span{display:none}
+ .location-card small{font-size:.52rem}
+ .control-tray button{width:28px;height:30px}
+ #view-button{width:56px;min-width:56px}
+ .interact-hint{max-width:135px}
+}
+@media(max-width:420px){
+ .hud-top-actions{max-width:75%}
+ .hud-button{padding:7px 8px}
+ .location-card strong{font-size:.75rem}
+}
