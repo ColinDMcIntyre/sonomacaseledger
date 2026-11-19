@@ -16,6 +16,7 @@ const navigationURL=asModule(read('museum/navigation.js').replace(
 ));
 const layout=await import(layoutURL);
 const nav=await import(navigationURL);
+const vault=await import(asModule(read('museum/vault-profile.js')));
 const rooms=[...layout.ROOM_DEFS,layout.VESTIBULE];
 const floors=[...rooms,...layout.HALLWAYS];
 
@@ -39,7 +40,7 @@ test('cathedral maintains distinct opaque wall pieces, not triangulated fake doo
  const source=read('museum/architecture.js');
  assert.match(source,/function doorwayArch/);
  assert.match(source,/stone\.position\.set\(opening\.at/);
- assert.match(source,/if\(room\.id!=='rotunda'&&PORTALS/);
+ assert.match(source,/function sharedNaveWall\(room,dir\)/);
  assert.doesNotMatch(source,/shape\.holes\.push/);
 });
 
@@ -71,11 +72,9 @@ test('all seven galleries and 37 cases remain reachable from the vestibule',()=>
  const obstacles=[{x:0,z:-14,r:1.44}];
  for(const z of [-23,-3,15])for(const x of [-7.55,7.55])
   obstacles.push({x,z,r:.72});
- for(const z of [-24,-6,6,24])for(const x of [-8.5,8.5])
-  obstacles.push({x,z,r:.31});
- for(const r of layout.ROOM_DEFS.filter(x=>x.id!=='rotunda'))
-  for(const sx of [-1,1])for(const sz of [-1,1])
-   obstacles.push({x:r.x+sx*(r.w/2-.7),z:r.z+sz*(r.d/2-.7),r:.31});
+ for(const room of rooms)for(const z of vault.ribStations(room))
+  for(const side of [-1,1])
+   obstacles.push({x:vault.columnX(room,side),z,r:.33});
  const exhibits=[];
  for(const [id,records] of Object.entries(groups)){
   const room=layout.ROOM_DEFS.find(x=>x.id===id);

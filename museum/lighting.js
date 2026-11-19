@@ -1,7 +1,8 @@
 import * as THREE from 'three';
 import {RGBELoader} from 'three/addons/loaders/RGBELoader.js';
 import {ROOM_DEFS,VESTIBULE} from './layout.js';
-import {M} from './materials.js?v=timber-open-doors-20261119';
+import {vaultProfile} from './vault-profile.js';
+import {M} from './materials.js?v=unified-vault-bays-20261119';
 
 /**
  * Cathedral lighting: real HDR image-based lighting, restrained sunlight,
@@ -27,6 +28,10 @@ export function installCathedralLighting(scene,renderer,onStatus=()=>{}){
  function fixture(x,z,ceiling){
   const group=new THREE.Group();group.position.set(x,0,z);scene.add(group);
   const length=Math.min(3.3,Math.max(.95,ceiling-6.6));
+  // The ceiling mount is anchored at the actual vault apex, not at a guessed
+  // height floating below the plaster.
+  const mount=new THREE.Mesh(new THREE.CylinderGeometry(.2,.2,.1,12),M.quoinStone);
+  mount.position.y=ceiling-.04;group.add(mount);
   const stem=new THREE.Mesh(new THREE.CylinderGeometry(.035,.035,length,9),metal);
   stem.position.y=ceiling-length/2-.14;group.add(stem);
   const shade=new THREE.Mesh(fixtureMesh,metal);
@@ -38,9 +43,11 @@ export function installCathedralLighting(scene,renderer,onStatus=()=>{}){
   const light=new THREE.PointLight(0xffd7a1,1.65,12,2);
   light.position.set(x,ceiling-length-.62,z);scene.add(light);
  }
- for(const z of [-23,-9,5,19])fixture(0,z,12.8);
- for(const room of ROOM_DEFS.filter(r=>r.id!=='rotunda'))fixture(room.x,room.z,room.height+1.5);
- fixture(0,VESTIBULE.z,VESTIBULE.height+1.1);
+ const nave=ROOM_DEFS.find(r=>r.id==='rotunda');
+ for(const z of [-23,-9,5,19])fixture(nave.x,z,vaultProfile(nave).apex);
+ for(const room of ROOM_DEFS.filter(r=>r.id!=='rotunda'))
+  fixture(room.x,room.z,vaultProfile(room).apex);
+ fixture(VESTIBULE.x,VESTIBULE.z,vaultProfile(VESTIBULE).apex);
  // Keep actual HDR local if imported; remote CC0 fallback is the publisher's
  // static CDN URL, never live API calls from visitors.
  async function loadHDR(){

@@ -23,7 +23,8 @@ test('approved stone floor style and its geometry remain unchanged',()=>{
  assert.match(materials,/floor:base\('floor',mat\(0xffffff,0,\.42,\{map:floorMap,clearcoat:\.13,clearcoatRoughness:\.48,envMapIntensity:\.7\}\),\[1,1\]\)/);
  assert.match(materials,/corridor:base\('floor',mat\(0xe9e3d6,0,\.62,\{map:floorMap,envMapIntensity:\.7\}\),\[1,1\]\)/);
  assert.match(architecture,/const tile=room\.id==='archive'\?M\.corridor:M\.floor/);
- assert.match(architecture,/for\(const r of HALLWAYS\)addFloor\(r\.x,r\.z,r\.w,r\.d,M\.corridor\)/);
+ assert.match(architecture,/const corridorSections=visibleCorridorSections\(rooms,HALLWAYS\)/);
+ assert.match(architecture,/for\(const r of corridorSections\)addFloor\(r\.x,r\.z,r\.w,r\.d,M\.corridor\)/);
  assert.match(materials,/if\(role==='floor'&&\(key==='aoMap'\|\|key==='heightMap'\)\)continue/);
 });
 

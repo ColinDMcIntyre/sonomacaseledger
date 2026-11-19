@@ -1,9 +1,10 @@
 import * as THREE from 'three';
 import {ROOM_DEFS,VESTIBULE,HALLWAYS,PORTALS} from './layout.js';
-import {M,createTiledMaterial,createSurfaceMaterial,scaleBoxUV} from './materials.js?v=timber-open-doors-20261119';
+import {M,createTiledMaterial,createSurfaceMaterial,scaleBoxUV} from './materials.js?v=unified-vault-bays-20261119';
 import {createStainedWindow} from './stained-glass.js';
 import {visibleCorridorSections} from './floor-geometry.js';
 import {RoundedBoxGeometry} from 'three/addons/geometries/RoundedBoxGeometry.js';
+import {WALL_THICKNESS,VAULT_SEGMENTS,vaultProfile,vaultSample,vaultY,ribStations,columnX} from './vault-profile.js';
 
 /**
  * Interior-scale basilica architecture. Real holes in thick masonry permit
@@ -133,7 +134,7 @@ function openings(room,dir){
  * doors that pathfinding believed were open. This kit has no full-height mesh
  * spanning a doorway, even if the arch material or shading is broken.
  */
-const THICKNESS=.48;
+const THICKNESS=WALL_THICKNESS;
 function doorwayArch(parent,opening,top){
  const r=opening.width/2;
  const outline=new THREE.Shape();
@@ -158,6 +159,14 @@ function doorwayArch(parent,opening,top){
  parent.add(stone);
  return stone;
 }
+function sharedNaveWall(room,dir){
+ const vertical=dir==='e'||dir==='w';
+ const boundary=vertical?room.x+(dir==='e'?room.w/2:-room.w/2):
+  room.z+(dir==='s'?room.d/2:-room.d/2);
+ return room.id!=='rotunda'&&PORTALS.some(p=>
+  p.a==='rotunda'&&p.b===room.id&&
+  p.axis===(vertical?'x':'z')&&Math.abs(p.value-boundary)<.06);
+}
 function wall(room,dir,parent,blockers,windows){
  const vertical=dir==='e'||dir==='w';
  const width=vertical?room.d:room.w;
@@ -166,11 +175,7 @@ function wall(room,dir,parent,blockers,windows){
  const z=vertical?room.z:room.z+(dir==='s'?room.d/2:-room.d/2);
  // Interior portal walls are shared. Build the nave wall ONCE, rather than
  // two exactly overlapping stone walls that flicker and reseal openings.
- if(room.id!=='rotunda'&&PORTALS.some(p=>
-  p.a==='rotunda'&&p.b===room.id&&
-  p.axis===(vertical?'x':'z')&&
-  Math.abs(p.value-(vertical?x:z))<.06
- ))return;
+ if(sharedNaveWall(room,dir))return;
  const holes=openings(room,dir).sort((a,b)=>a.at-b.at);
  const wallGroup=new THREE.Group();
  wallGroup.position.set(x,0,z);
@@ -181,8 +186,10 @@ function wall(room,dir,parent,blockers,windows){
   const solid=masonry(wallGroup,M.stone,u,fromY+h/2,0,w,h,THICKNESS,blockers);
   // Real stone skirting hides the wall/floor junction. Never cross portals.
   if(fromY<.022 && w>.16){
-   box(wallGroup,M.edge,u,.175,THICKNESS/2+.105,w-.022,.35,.16);
-   box(wallGroup,M.beam,u,.363,THICKNESS/2+.075,w-.025,.035,.19);
+   for(const face of [-1,1]){
+    box(wallGroup,M.edge,u,.175,face*(THICKNESS/2+.105),w-.022,.35,.16);
+    box(wallGroup,M.beam,u,.363,face*(THICKNESS/2+.075),w-.025,.035,.19);
+   }
   }
   return solid;
  };
@@ -210,23 +217,31 @@ function wall(room,dir,parent,blockers,windows){
   const u=-width/2+(i+.5)*width/count;
   const span=width/count-.35;
   if(holes.some(h=>Math.abs(u-h.at)<h.width/2+span/2+.17))continue;
-  box(wallGroup,M.wood,u,1.50,THICKNESS/2+.06,span,2.65,.13);
-  box(wallGroup,M.edge,u,2.91,THICKNESS/2+.12,span+.06,.07,.16);
-  box(wallGroup,M.woodHighlight,u,.26,THICKNESS/2+.08,span,.2,.14);
+  for(const face of [-1,1]){
+   box(wallGroup,M.wood,u,1.50,face*(THICKNESS/2+.06),span,2.65,.13);
+   box(wallGroup,M.edge,u,2.91,face*(THICKNESS/2+.12),span+.06,.07,.16);
+   box(wallGroup,M.woodHighlight,u,.26,face*(THICKNESS/2+.08),span,.2,.14);
+  }
  }
  // Pier rhythm, recessed paneling and stone arch jambs are non-colliding.
  for(const h of holes){
-  const r=h.width/2,pts=[];
-  for(let i=0;i<=30;i++){
-   const a=i*Math.PI/30;
-   pts.push(new THREE.Vector3(h.at+r*Math.cos(a),h.shoulder+h.rise*Math.sin(a),THICKNESS/2+.04));
-  }
-  tube(wallGroup,pts,trim,.10);
-  for(const sign of [-1,1]){
-   const u=h.at+sign*(r+.14);
-   if(Math.abs(u)>=width/2-.1)continue;
-   box(wallGroup,M.beam,u,h.shoulder*.49,THICKNESS/2+.09,.21,h.shoulder-.08,.22);
-   box(wallGroup,trim,u,h.shoulder+.1,THICKNESS/2+.1,.35,.16,.35);
+  const r=h.width/2;
+  for(const face of [-1,1]){
+   const pts=[];
+   for(let i=0;i<=30;i++){
+    const a=i*Math.PI/30;
+    pts.push(new THREE.Vector3(h.at+r*Math.cos(a),
+     h.shoulder+h.rise*Math.sin(a),face*(THICKNESS/2+.04)));
+   }
+   tube(wallGroup,pts,trim,.10);
+   for(const side of [-1,1]){
+    const u=h.at+side*(r+.14);
+    if(Math.abs(u)>=width/2-.1)continue;
+    box(wallGroup,M.quoinStone,u,h.shoulder*.49,
+     face*(THICKNESS/2+.09),.21,h.shoulder-.08,.22);
+    box(wallGroup,trim,u,h.shoulder+.1,
+     face*(THICKNESS/2+.1),.35,.16,.35);
+   }
   }
   if(h.type==='door'){
    const portal=PORTALS.find(p=>
@@ -256,48 +271,137 @@ function wall(room,dir,parent,blockers,windows){
   }
  }
  // Cornice is deliberately located above every door, not through it.
- box(wallGroup,M.beam,0,height-.12,THICKNESS/2,width,.18,.4);
+ // Both public sides of every shared wall receive identical stone cornices.
+ for(const face of [-1,1])
+  box(wallGroup,M.quoinStone,0,height-.12,face*(THICKNESS/2+.04),
+   width,.18,.19);
 }
-function vault(room,parent){
- const span=room.w-.8,depth=room.d-.6;
- const high=room.id==='rotunda'?3.3:room.id==='federal'?2.6:1.75;
- const strips=32,rows=Math.max(8,Math.ceil(depth/2)),positions=[],uv=[],indices=[];
- for(let j=0;j<=rows;j++)for(let i=0;i<=strips;i++){
-  const t=-1+2*i/strips;
-  const px=room.x+span*t/2;
-  const py=room.height-.17+high*Math.sqrt(Math.max(0,1-t*t));
-  const pz=room.z-depth/2+depth*j/rows;
-  positions.push(px,py,pz);
-  // Physically consistent plaster texel density, independent of room size.
-  uv.push((i/strips)*span/2.75,(j/rows)*depth/2.75);
-  if(j<rows&&i<strips){
-   const n=j*(strips+1)+i;
-   indices.push(n,n+1,n+strips+1,n+1,n+strips+2,n+strips+1);
+/**
+ * Fill the entire gable above each north/south end wall, rather than leaving
+ * triangular holes above a flat wall. Shares identical arch samples with
+ * the plaster vault, including its spring-line and apex vertices.
+ */
+function endGable(room,dir,parent,blockers){
+ if(sharedNaveWall(room,dir))return;
+ const profile=vaultProfile(room),shape=new THREE.Shape();
+ const points=Array.from({length:VAULT_SEGMENTS+1},(_,i)=>
+  vaultSample(profile,i,VAULT_SEGMENTS));
+ shape.moveTo(-profile.halfSpan,profile.spring-.025);
+ shape.lineTo(profile.halfSpan,profile.spring-.025);
+ for(let i=VAULT_SEGMENTS;i>=0;i--)
+  shape.lineTo(points[i].x-room.x,points[i].y);
+ shape.closePath();
+ const geometry=new THREE.ExtrudeGeometry(shape,{
+  depth:THICKNESS,bevelEnabled:false,steps:1,curveSegments:2
+ });
+ const uv=geometry.getAttribute('uv');
+ for(let i=0;i<uv.count;i++)
+  uv.setXY(i,uv.getX(i)/2.35,uv.getY(i)/2.35);
+ uv.needsUpdate=true;
+ const z=room.z+(dir==='n'?-room.d/2:room.d/2);
+ const gable=object(parent,geometry,M.stone,room.x,0,z-THICKNESS/2);
+ gable.name=room.id+'-'+dir+'-vault-end';
+ gable.userData.gable=true;
+ blockers.push(gable);
+ // End rib connects the gable to the vault with the same sampled profile.
+ const insideZ=z+(dir==='n'?THICKNESS/2:-THICKNESS/2);
+ const ribPoints=points.map(p=>new THREE.Vector3(p.x,p.y-.04,insideZ));
+ tube(parent,ribPoints,M.quoinStone,.115);
+}
+/**
+ * Single, continuous half-elliptical plaster ceiling, resting directly on the
+ * inner faces of the side masonry. All visible ribs use EXACTLY this profile.
+ */
+function vault(room,parent,blockers){
+ const profile=vaultProfile(room),span=profile.halfSpan*2,
+  depth=profile.halfDepth*2;
+ const strips=VAULT_SEGMENTS,rows=Math.max(12,Math.ceil(depth/1.6));
+ const positions=[],uv=[],indices=[];
+ for(let j=0;j<=rows;j++){
+  const z=room.z-profile.halfDepth+depth*j/rows;
+  for(let i=0;i<=strips;i++){
+   const point=vaultSample(profile,i,strips);
+   positions.push(point.x,point.y,z);
+   uv.push((i/strips)*span/2.75,(j/rows)*depth/2.75);
+   if(j<rows&&i<strips){
+    const n=j*(strips+1)+i;
+    indices.push(n,n+1,n+strips+1,n+1,n+strips+2,n+strips+1);
+   }
   }
  }
  const geometry=new THREE.BufferGeometry();
  geometry.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));
  geometry.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));
  geometry.setIndex(indices);geometry.computeVertexNormals();
- // Shared material receives the imported PBR maps asynchronously.
- object(parent,geometry,M.vault);
- const spacing=room.id==='rotunda'?7.5:room.id==='federal'?6:5.2;
- for(let z=-depth/2+1.4;z<depth/2-.5;z+=spacing){
-  const pts=[];
-  for(let i=0;i<=30;i++){
-   const t=-1+2*i/30;
-   pts.push(new THREE.Vector3(room.x+t*span/2,
-    room.height-.1+high*Math.sqrt(Math.max(0,1-t*t)),room.z+z));
+ const roof=object(parent,geometry,M.vault);
+ roof.name=room.id+'-continuous-vault';
+ roof.userData.vaultProfile=profile.roomId;
+ blockers.push(roof);
+ for(const z of ribStations(room)){
+  const points=[];
+  for(let i=0;i<=VAULT_SEGMENTS;i++){
+   const p=vaultSample(profile,i);
+   points.push(new THREE.Vector3(p.x,p.y-.04,z));
   }
-  tube(parent,pts,M.beam,.095);
+  tube(parent,points,M.quoinStone,.145);
  }
- box(parent,trim,room.x,room.height+high-.08,room.z,.10,.075,depth);
+ // A thin, continuous stone apex stringer visually ties the repeated ribs.
+ const ridge=[];
+ for(let j=0;j<=rows;j++)
+  ridge.push(new THREE.Vector3(room.x,profile.apex-.045,
+   room.z-profile.halfDepth+depth*j/rows));
+ tube(parent,ridge,M.quoinStone,.06);
 }
-function column(parent,x,z,height){
- cylinder(parent,M.plinth,x,.24,z,.53,.48,20);
- cylinder(parent,M.columnStone,x,height/2,z,.29,height,18);
- cylinder(parent,M.quoinStone,x,height-.32,z,.5,.18,18);
- cylinder(parent,M.quoinStone,x,height-.08,z,.59,.20,18);
+/**
+ * Consistent stone shaft and capital, fully joined to the vaulted rib at the
+ * spring line. The column center is inset so its capital intersects the wall.
+ */
+function column(parent,room,side,z,blockers){
+ const profile=vaultProfile(room),x=columnX(room,side),spring=profile.spring;
+ const base=cylinder(parent,M.plinth,x,.29,z,.54,.58,20);
+ const shaftHeight=spring-.89;
+ const shaft=cylinder(parent,M.columnStone,x,.57+shaftHeight/2,z,.33,
+  shaftHeight,20);
+ const neck=cylinder(parent,M.quoinStone,x,spring-.22,z,.45,.24,20);
+ const capital=cylinder(parent,M.quoinStone,x,spring-.055,z,.6,.24,20);
+ // The rib starts exactly at y=spring on the wall face. This capital extends
+ // across that point, so the column never ends in open air.
+ capital.userData.supportsVault=room.id;
+ // Camera, unlike walkable pathfinding, needs a real geometric pillar blocker.
+ blockers.push(shaft);
+ return {x,z,top:spring+.065};
+}
+/**
+ * Connect the only exposed inter-room corridor (vestibule to records library).
+ * No freestanding floor has an open sky above it. Walls sit outside the
+ * passage's collision footprint to avoid reintroducing invisible obstructions.
+ */
+function corridorShell(parent,sections,blockers){
+ for(const rect of sections){
+  if(rect.w<1.5||rect.d<1.5)continue;
+  const alongX=rect.w<rect.d;
+  const wallTop=6.45,thickness=.42,margin=.7;
+  if(alongX){
+   for(const side of [-1,1]){
+    const wallZ=rect.z+side*(rect.d/2+margin);
+    masonry(parent,M.stone,rect.x,wallTop/2,wallZ,
+     rect.w+.24,wallTop,thickness,blockers);
+    box(parent,M.quoinStone,rect.x,wallTop-.13,wallZ,
+     rect.w+.32,.23,.62);
+   }
+  }else{
+   for(const side of [-1,1]){
+    const wallX=rect.x+side*(rect.w/2+margin);
+    masonry(parent,M.stone,wallX,wallTop/2,rect.z,
+     thickness,wallTop,rect.d+.24,blockers);
+   }
+  }
+  const roofWidth=rect.w+1.0,roofDepth=rect.d+1.0;
+  const roofGeo=scaleBoxUV(new THREE.BoxGeometry(roofWidth,.24,roofDepth),
+   roofWidth,.24,roofDepth,2.75);
+  const roof=object(parent,roofGeo,M.vault,rect.x,wallTop+.12,rect.z);
+  blockers.push(roof);
+ }
 }
 function floorMesh(parent,x,z,w,d,material){
  // Per-section tile offsets break cross-room repetition without changing the
@@ -366,19 +470,13 @@ export function buildArchitecture(scene){
   const tile=room.id==='archive'?M.corridor:M.floor;
   addFloor(room.x,room.z,room.w,room.d,tile);
   for(const dir of ['n','s','e','w'])wall(room,dir,group,cameraBlockers,windows);
-  vault(room,group);
-  if(room.id==='rotunda'){
-   // Vertical masonry supports distinguish the basilica nave.
-   for(const z of [-24,-6,6,24])
-    for(const x of [-8.5,8.5])column(group,x,z,room.height-.5);
-  }else{
-   for(const sx of [-1,1])for(const sz of [-1,1]){
-    // Keep corners clear of actual doorway apertures.
-    const x=room.x+sx*(room.w/2-.7),z=room.z+sz*(room.d/2-.7);
-    column(group,x,z,room.height-.55);
-   }
-  }
+  // The lower wall, gable stone and ceiling now meet at the same spring line.
+  for(const dir of ['n','s'])endGable(room,dir,group,cameraBlockers);
+  vault(room,group,cameraBlockers);
+  for(const z of ribStations(room))
+   for(const side of [-1,1])column(group,room,side,z,cameraBlockers);
  }
+ corridorShell(group,corridorSections,cameraBlockers);
  // Interlocking stone quoins soften square architectural intersections while
  // keeping the original door aperture meshes and collision system untouched.
  cornerMasonry(group);

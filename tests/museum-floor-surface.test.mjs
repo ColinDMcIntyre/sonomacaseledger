@@ -36,7 +36,7 @@ test('wall boundaries remain real portals and bevels do not change collision',()
  assert.match(arch,/new RoundedBoxGeometry/);
  assert.match(arch,/cornerMasonry\(group\)/);
  assert.match(arch,/fromY<\.022 && w>\.16/);
- assert.match(arch,/if\(room\.id!=='rotunda'&&PORTALS/);
+ assert.match(arch,/function sharedNaveWall\(room,dir\)/);
  assert.doesNotMatch(arch,/shape\.holes\.push/);
 });
 test('floor uses continuous world-space variation and phase-aligned maps',()=>{

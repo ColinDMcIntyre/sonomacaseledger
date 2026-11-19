@@ -1,8 +1,9 @@
 import * as THREE from 'three';
 import {ROOM_DEFS,HALLWAYS,ENTRY_POINT,zoneAt} from './layout.js';
-import {buildArchitecture} from './architecture.js?v=timber-open-doors-20261119';
-import {M,scaleBoxUV} from './materials.js?v=timber-open-doors-20261119';
+import {buildArchitecture} from './architecture.js?v=unified-vault-bays-20261119';
+import {M,scaleBoxUV} from './materials.js?v=unified-vault-bays-20261119';
 import {createNavigation} from './navigation.js';
+import {ribStations,columnX} from './vault-profile.js';
 export {ROOM_DEFS,HALLWAYS};
 
 const cube=new THREE.BoxGeometry(1,1,1);
@@ -116,13 +117,13 @@ export function makeMuseum(scene){
   for(const x of [-.62,.62])box(g,M.wood,x,.22,0,.11,.46,.55);
   obstacles.push({x:g.position.x,z:g.position.z,r:.72});
  }
- // Architectural columns have a matching gameplay footprint. They are never
- // invisible obstacles: the collision zone follows the real stone column.
- for(const z of [-24,-6,6,24])for(const x of [-8.5,8.5])
-  obstacles.push({x,z,r:.31});
- for(const room of ROOM_DEFS.filter(r=>r.id!=='rotunda'))
-  for(const sx of [-1,1])for(const sz of [-1,1])
-   obstacles.push({x:room.x+sx*(room.w/2-.7),z:room.z+sz*(room.d/2-.7),r:.31});
+ // Gameplay collision follows the actual structural pilasters, not obsolete
+ // prototype coordinates. Both the visible columns and their footprints use
+ // the same shared vault-profile.js construction stations.
+ for(const room of [...ROOM_DEFS,VESTIBULE])
+  for(const z of ribStations(room))
+   for(const side of [-1,1])
+    obstacles.push({x:columnX(room,side),z,r:.33});
  const navigation=createNavigation(floorRects,obstacles);
  const {walkable,canMove,nearestWalkable}=navigation;
 

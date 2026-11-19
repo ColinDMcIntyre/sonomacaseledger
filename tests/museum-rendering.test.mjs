@@ -39,7 +39,7 @@ test('approved floor and structural doorways remain intact',()=>{
  const a=read('museum/architecture.js');
  const m=read('museum/materials.js');
  assert.match(a,/const tile=room\.id==='archive'\?M\.corridor:M\.floor/);
- assert.match(a,/if\(room\.id!=='rotunda'&&PORTALS/);
+ assert.match(a,/function sharedNaveWall\(room,dir\)/);
  assert.doesNotMatch(a,/shape\.holes\.push/);
  assert.match(m,/floor:base\('floor',mat\(0xffffff,0,\.42/);
  assert.match(m,/corridor:base\('floor',mat\(0xe9e3d6,0,\.62/);
