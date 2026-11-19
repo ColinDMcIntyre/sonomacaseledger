@@ -72,10 +72,11 @@ test('end-wall infill, roof, ribs, piers and corridor have actual solid geometry
  assert.doesNotMatch(src,/shape\.holes\.push/);
 });
 
-test('walls have the same stone cornices and walnut treatment on both sides',()=>{
+test('walls keep symmetrical thin skirting and stone cornices without square wall panels',()=>{
  const src=read('museum/architecture.js');
  assert.match(src,/for\(const face of \[-1,1\]\)/);
- assert.match(src,/box\(wallGroup,M\.wood/);
+ assert.doesNotMatch(src,/box\(wallGroup,M\.wood/);
+ assert.match(src,/box\(wallGroup,M\.edge,u,\.175/);
  assert.match(src,/box\(wallGroup,M\.quoinStone/);
  assert.match(src,/const floors=\[\],floorRects=\[\.\.\.HALLWAYS\]/);
  assert.match(src,/visibleCorridorSections\(rooms,HALLWAYS\)/);

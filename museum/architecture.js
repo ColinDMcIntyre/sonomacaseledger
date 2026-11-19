@@ -211,18 +211,8 @@ function wall(room,dir,parent,blockers,windows){
   cursor=right;
  }
  body((cursor+width/2)/2,0,width/2-cursor,height);
- // Ornament hangs on the wall, never across a door below its lintel.
- const count=Math.max(2,Math.round(width/3.2));
- for(let i=0;i<count;i++){
-  const u=-width/2+(i+.5)*width/count;
-  const span=width/count-.35;
-  if(holes.some(h=>Math.abs(u-h.at)<h.width/2+span/2+.17))continue;
-  for(const face of [-1,1]){
-   box(wallGroup,M.wood,u,1.50,face*(THICKNESS/2+.06),span,2.65,.13);
-   box(wallGroup,M.edge,u,2.91,face*(THICKNESS/2+.12),span+.06,.07,.16);
-   box(wallGroup,M.woodHighlight,u,.26,face*(THICKNESS/2+.08),span,.2,.14);
-  }
- }
+ // Leave the dressed sandstone visible. The continuous low skirting and
+ // stone cornice already finish each solid wall segment without box panels.
  // Pier rhythm, recessed paneling and stone arch jambs are non-colliding.
  for(const h of holes){
   const r=h.width/2;

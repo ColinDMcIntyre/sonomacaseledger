@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import {ROOM_DEFS,VESTIBULE,HALLWAYS,ENTRY_POINT,zoneAt} from './layout.js';
-import {buildArchitecture} from './architecture.js?v=unified-vault-bays-20261119';
+import {buildArchitecture} from './architecture.js?v=clean-walls-20261119';
 import {M,scaleBoxUV} from './materials.js?v=unified-vault-bays-20261119';
 import {createNavigation} from './navigation.js';
 import {ribStations,columnX} from './vault-profile.js';
