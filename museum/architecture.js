@@ -257,6 +257,11 @@ function wall(room,dir,parent,blockers,windows){
     shoulder:h.shoulder,rise:h.rise,seed:Math.abs(seed),
     lightPool:false,inside:dir==='n'?1:dir==='s'?-1:dir==='w'?-1:1
    });
+   // Baked pools follow the existing stained-glass apertures, never guessed positions.
+   glass.userData.museumDaylight={
+    roomId:room.id,side:dir,axis:vertical?'x':'z',
+    width:h.width,bottom:h.bottom,shoulder:h.shoulder
+   };
    windows.push(glass);
   }
  }
