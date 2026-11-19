@@ -48,9 +48,11 @@ function archiveCase(g){
  box(g,M.plinth,0,.28,0,1.63,.56,1.24);
  box(g,M.wood,0,.69,0,1.51,.30,1.14);
  box(g,M.velvet,0,.89,0,1.43,.042,1.06);
- box(g,M.wood,0,1.64,0,1.08,1.32,.09);
- box(g,M.page,0,1.65,.062,.87,1.11,.029);
- for(let i=0;i<5;i++)box(g,M.ink,0,1.9-i*.147,.089,i===0?.42:.65,.018,.009);
+ // Keep the archival panel against the back glass so 3D objects can occupy
+ // the central display volume without intersecting an opaque backboard.
+ box(g,M.wood,0,1.64,-.49,1.08,1.32,.065);
+ box(g,M.page,0,1.65,-.448,.87,1.11,.029);
+ for(let i=0;i<5;i++)box(g,M.ink,0,1.9-i*.147,-.422,i===0?.42:.65,.018,.009);
  for(const x of [-.77,.77]){
   box(g,M.glass,x,1.62,0,.018,1.4,1.13);
   for(const z of [-.58,.58])box(g,M.blackMetal,x,1.62,z,.027,1.43,.027);
