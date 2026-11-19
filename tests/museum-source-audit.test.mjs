@@ -77,3 +77,8 @@ test('court record status register matches JSON case-number coverage',()=>{
  assert.match(read('index.html'),/Read the court record, not just the headline/);
  assert.doesNotMatch(read('index.html'),/class="kicker">Criminal case · Updated 2020 disposition/);
 });
+
+test('every county case page links to its match status',()=>{
+ for(const rec of data.county)assert.ok(read('cases/'+rec.slug+'/index.html').includes('../../records/#'+rec.slug),rec.slug);
+ assert.ok(read('cases/constantine-petros/index.html').includes('../../records/#constantine-petros'));
+});
