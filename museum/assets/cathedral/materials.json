@@ -1,10 +1,10 @@
 {
   "stone": {
-    "map": "./assets/cathedral/stone_map.jpg",
-    "normalMap": "./assets/cathedral/stone_normalMap.jpg",
-    "roughnessMap": "./assets/cathedral/stone_roughnessMap.jpg",
-    "aoMap": "./assets/cathedral/stone_aoMap.jpg",
-    "heightMap": "./assets/cathedral/stone_heightMap.jpg"
+    "map": "./assets/cathedral/stone_sandstone_blocks_04_map.jpg",
+    "normalMap": "./assets/cathedral/stone_sandstone_blocks_04_normalMap.jpg",
+    "roughnessMap": "./assets/cathedral/stone_sandstone_blocks_04_roughnessMap.jpg",
+    "aoMap": "./assets/cathedral/stone_sandstone_blocks_04_aoMap.jpg",
+    "heightMap": "./assets/cathedral/stone_sandstone_blocks_04_heightMap.jpg"
   },
   "floor": {
     "map": "./assets/cathedral/floor_map.jpg",

@@ -1,5 +1,5 @@
 Poly Haven: https://polyhaven.com/our-api - CC0 1.0
-https://polyhaven.com/a/beige_wall_001
+https://polyhaven.com/a/sandstone_blocks_04
 https://polyhaven.com/a/tiled_floor_001
 https://polyhaven.com/a/walnut_veneer
 https://polyhaven.com/a/white_plaster_02
