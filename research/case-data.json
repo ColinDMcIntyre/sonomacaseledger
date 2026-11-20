@@ -78,7 +78,8 @@
       "caseNo": "SCR-563322-1",
       "courtRecordStatus": "Portal case-detail export matched to defendant and relevant allegation; date of review 2026-11-19. Underlying PDF not yet publicly hosted. Full event history and any later relief still require a complete audit.",
       "courtRecordSourceFile": "MERMAN.CourtRecords.pdf",
-      "courtRecordReviewedOn": "2026-11-19"
+      "courtRecordReviewedOn": "2026-11-19",
+      "publicDocketHeaderExcerptPath": "public-records/SCR-563322-1_Public_Docket_Header_Excerpt.pdf"
     },
     {
       "slug": "elana-cohen-roth",
@@ -103,7 +104,8 @@
       "caseNo": "SCR-751314-1",
       "courtRecordStatus": "Sonoma court-portal case-detail export matched to this defendant and the 23 charged counts, with the May 2025 jury outcomes and subsequent 2025–2026 docket events reviewed in part. The export shows additional appellate and restitution proceedings; no final appellate result was established by this review. Original PDF not published pending full document and privacy review.",
       "courtRecordSourceFile": "Elena.CourtREcords.pdf",
-      "courtRecordReviewedOn": "2026-11-19"
+      "courtRecordReviewedOn": "2026-11-19",
+      "publicDocketHeaderExcerptPath": "public-records/SCR-751314-1_Public_Docket_Header_Excerpt.pdf"
     },
     {
       "slug": "timothy-charles-webb-jr",
@@ -203,7 +205,8 @@
       "caseNo": "SCR-728488-1",
       "courtRecordStatus": "Portal case-detail export matched to defendant and relevant allegation; date of review 2026-11-19. Underlying PDF not yet publicly hosted. Full event history and any later relief still require a complete audit.",
       "courtRecordSourceFile": "RAMOS.CourtRecords.pdf",
-      "courtRecordReviewedOn": "2026-11-19"
+      "courtRecordReviewedOn": "2026-11-19",
+      "publicDocketHeaderExcerptPath": "public-records/SCR-728488-1_Public_Docket_Header_Excerpt.pdf"
     },
     {
       "slug": "tina-cabudoy",
@@ -275,7 +278,8 @@
         "sourceFile": "BROIN.CourtRecords.pdf",
         "sourcePage": 36,
         "notAcquittal": true
-      }
+      },
+      "publicDocketHeaderExcerptPath": "public-records/SCR-678074-1_Public_Docket_Header_Excerpt.pdf"
     },
     {
       "slug": "mary-katherine-david",
@@ -315,7 +319,8 @@
       "caseNo": "SCR-651671-1",
       "courtRecordStatus": "Portal case-detail export matched to defendant and relevant allegation; date of review 2026-11-19. Underlying PDF not yet publicly hosted. Full event history and any later relief still require a complete audit.",
       "courtRecordSourceFile": "Halaweh.CourtRecords.pdf",
-      "courtRecordReviewedOn": "2026-11-19"
+      "courtRecordReviewedOn": "2026-11-19",
+      "publicDocketHeaderExcerptPath": "public-records/SCR-651671-1_Public_Docket_Header_Excerpt.pdf"
     },
     {
       "slug": "michael-alan-voorhees",
@@ -325,7 +330,7 @@
       "amount": "Approximately $550,000",
       "amountType": "Reported trust theft amount",
       "outcome": "Reporting describes a conviction after pleas on six grand-theft counts; the California Supreme Court separately ordered summary disbarment.",
-      "details": "The Supreme Court document confirms the disciplinary outcome. Financial and criminal plea details are sourced to reporting; the criminal docket was not separately verified.",
+      "details": "The Sonoma Superior Court case-detail export for SCR-759956-1 identifies Michael Alan Voorhees, grand-theft felony counts, no-contest pleas dated April 23, 2024, and June 4, 2024 sentencing. The docket includes a January 6, 2025 entry recording completion of jail time and release. The California Supreme Court's 2025 disciplinary action was a separate proceeding.",
       "verification": "A/B",
       "sources": [
         {
@@ -337,8 +342,11 @@
           "url": "https://patch.com/california/san-francisco/san-francisco-lawyer-disbarred-after-stealing-550k-ca-state-bar"
         }
       ],
-      "caseNo": "",
-      "courtRecordStatus": "Matching Sonoma criminal docket not established; do not use similarly named civil, family or unrelated criminal cases."
+      "caseNo": "SCR-759956-1",
+      "courtRecordStatus": "Supplied 13-page Sonoma felony docket identifies Michael Alan Voorhees and six grand-theft counts; no-contest pleas were entered April 23, 2024, and the court recorded sentencing June 4, 2024. A January 6, 2025 docket entry states that jail time was completed and the defendant was released. Full source withheld pending privacy review; only the case-information header excerpt is public.",
+      "courtRecordSourceFile": "Voorhees.CourtRecords.pdf",
+      "courtRecordReviewedOn": "2026-11-20",
+      "publicDocketHeaderExcerptPath": "public-records/SCR-759956-1_Public_Docket_Header_Excerpt.pdf"
     },
     {
       "slug": "jeffrey-holzworth",
@@ -363,7 +371,8 @@
       "caseNo": "SCR-627215-1",
       "courtRecordStatus": "Portal case-detail export matched to defendant and relevant allegation; date of review 2026-11-19. Underlying PDF not yet publicly hosted. Full event history and any later relief still require a complete audit.",
       "courtRecordSourceFile": "SCR-627215-1.pdf",
-      "courtRecordReviewedOn": "2026-11-19"
+      "courtRecordReviewedOn": "2026-11-19",
+      "publicDocketHeaderExcerptPath": "public-records/SCR-627215-1_Public_Docket_Header_Excerpt.pdf"
     },
     {
       "slug": "karen-holzworth",
@@ -391,7 +400,8 @@
         "sourceFile": "SCR-627215-2.pdf",
         "sourcePage": 36,
         "notAcquittal": true
-      }
+      },
+      "publicDocketHeaderExcerptPath": "public-records/SCR-627215-2_Public_Docket_Header_Excerpt.pdf"
     },
     {
       "slug": "eileen-madayag",
@@ -454,7 +464,8 @@
       "caseNo": "SCR-556340-1",
       "courtRecordStatus": "Portal case-detail export matched to defendant and relevant allegation; date of review 2026-11-19. Underlying PDF not yet publicly hosted. Full event history and any later relief still require a complete audit.",
       "courtRecordSourceFile": "Lemoine.CourtRecords.pdf",
-      "courtRecordReviewedOn": "2026-11-19"
+      "courtRecordReviewedOn": "2026-11-19",
+      "publicDocketHeaderExcerptPath": "public-records/SCR-556340-1_Public_Docket_Header_Excerpt.pdf"
     },
     {
       "slug": "ana-carrillo",
