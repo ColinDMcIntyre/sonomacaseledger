@@ -25,3 +25,12 @@
 5. Only then populate `caseNo` in the public case data and update the profile.
 
 **Current status:** no new candidate has been promoted to a verified criminal docket from these lists alone.
+
+## Verification check — November 20, 2026
+
+The archive now contains **14 matched county case profiles** out of 31, including the newly supplied Michael Alan Voorhees criminal case `SCR-759956-1`. The two search-list leads below are still **unverified**; neither one is included in that 14 count.
+
+- **Pamela Renee Malfa / `SCR-701902-2`**: official-looking Sonoma portal search listing matches her complete name, identifies a 2017 felony, and shows a sentenced case. Independent California Statewide Law Enforcement Association reporting states she pleaded no contest September 12, 2017 to 12 grand-theft counts and was sentenced November 14, 2017 in the West Coast Auto Craft investigation: https://cslea.com/2017/09/classic-car-theft-suspects-enter-no-contest-pleas/ and https://cslea.com/2017/11/sonoma-county-classic-car-thieves-sentenced/. **Missing for final docket identification:** the case-detail view showing those grand-theft charges and matching 2017 plea/sentencing events. We must also separately verify co-defendant Christopher Miranda's case suffix rather than infer it.
+- **Timothy Charles Webb Jr. / `SCR-508159-1`**: the saved Sonoma name-search listing matches his complete name and a felony filed April 24, 2007. The 2010 district attorney case highlight and contemporaneous reporting identify a February 2007 Agilent incident, a May 2008 plea, and March 2010 sentence: https://lakeconews.com/news/13171-regional-embezzler-sentenced-agrees-to-repay-more-than-1-million-in-restitution . **Missing for final docket identification:** case-detail export showing the Agilent burglary/grand-theft offenses and the dated disposition; a surname and relevant filing date are not enough by themselves.
+
+The Sonoma portal's [Smart Search page](https://cmsportal.sonomacourt.org/IPortal/Home/Dashboard/29) requires JavaScript and session cookies; static public-web retrieval cannot submit these queries. For an official document request, consult [Sonoma Superior Court Criminal Record](https://sonoma.courts.ca.gov/divisions/criminal/criminal-record). Request a **case-detail register of actions, charge dispositions, later orders including post-conviction relief**, for each exact number before promoting a lead. Do not represent either candidate as an independently confirmed criminal court docket until those details match.

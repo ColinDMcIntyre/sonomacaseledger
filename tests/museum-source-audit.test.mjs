@@ -190,3 +190,16 @@ test('Voorhees complete raster PDF keeps original private and court numbering di
  assert.equal(doc.publicRedactedCopyPages,14);
  assert.equal(doc.publicationStatus,'WITHHELD_PENDING_FULL_PAGE_PRIVACY_AND_DISPOSITION_REVIEW');
 });
+
+test('the six full-source PDFs remain distinct from nine limited court-header excerpts',()=>{
+ const manifest=JSON.parse(read('research/COURT-PDF-MANIFEST.json'));
+ const reviewed=manifest.documents.filter(x=>x.publicRedactedCopy);
+ const limited=manifest.documents.filter(x=>x.publicDocketHeaderExcerpt);
+ assert.equal(reviewed.length,6);
+ assert.equal(limited.length,9);
+ assert.equal(manifest.publicPDFsHosted,6);
+ assert.equal(manifest.privacyReviewedOriginalPages,57);
+ assert.ok(read('research/COURT-SEARCH-LEADS.md').includes('SCR-508159-1'));
+ assert.ok(read('research/COURT-SEARCH-LEADS.md').includes('SCR-701902-2'));
+ assert.equal(data.county.filter(x=>x.caseNo).length,13); // Plus the separate Petros profile = 14.
+});
