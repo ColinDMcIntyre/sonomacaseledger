@@ -50,3 +50,7 @@ Three full source printouts were inspected page by page and released as privacy-
 The court printouts for Lisa Marie Fatu (6 pages, `SCR-757420-1`) and Frances Farias (10 pages, `SCR-706951-1`) were inspected page by page and posted as full-length privacy-redacted raster reproductions. Five originals covering 44 pages have now been manually reviewed and published in redacted form. The unredacted originals remain withheld; the other court documents are not cleared.
 
 **Classification guide:** See [RECORD-MATCHING-REVIEW.md](RECORD-MATCHING-REVIEW.md) for why each excluded or search-only PDF cannot verify the intended reported incident. These files are not proof that a reported incident did not happen.
+
+### Full privacy-screened Voorhees printout (November 20, 2026)
+
+The 13-page Sonoma Superior Court docket for Michael Alan Voorhees (`SCR-759956-1`) was visually reviewed and made available as a complete page-by-page raster reproduction with an additional provenance cover. The page 1 Party section (aliases, DOB field and attorney details) was removed before rasterization. Source pages 2–13 show charges, 2024 plea and sentence records, and the January 6, 2025 entry for completion of jail time; no full unredacted source PDF was published. This is not a certified judgment or confirmation of the absence of later orders. Public full-copy count: **6 cases / 57 original pages**. **Nine other matching source PDFs / 430 pages remain withheld**.

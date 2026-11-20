@@ -6,8 +6,8 @@
   "matchedCaseDetailPDFs": 15,
   "matchedCountyProfiles": 14,
   "matchedPages": 487,
-  "publicPDFsHosted": 5,
-  "reviewStage": "30 files classified. Five complete public redacted court printouts cover 44 original pages. Nine privacy-screened one-page docket-header excerpts cover nine further matched profiles; these are not full privacy-reviewed source files. Ten source PDFs (443 pages) still require full-page privacy screening. Unredacted originals remain withheld.",
+  "publicPDFsHosted": 6,
+  "reviewStage": "30 court PDFs classified; 14 case profiles matched. Six complete redacted public copies (57 source pages), nine one-page docket-header excerpts. Nine other matched source PDFs (430 pages) remain withheld pending full review.",
   "documents": [
     {
       "filename": "BARGANSKI.CourtRecords.pdf",
@@ -327,9 +327,11 @@
       "profileSlug": "michael-alan-voorhees",
       "searchableTextLayer": false,
       "publicationStatus": "WITHHELD_PENDING_FULL_PAGE_PRIVACY_AND_DISPOSITION_REVIEW",
-      "notes": "13-page criminal docket, SCR-759956-1, identifies six grand-theft counts, April 2024 no-contest pleas and June 2024 sentencing.",
+      "notes": "13-page criminal docket, SCR-759956-1, identifies six grand-theft counts, April 2024 no-contest pleas and June 2024 sentencing. All 13 source pages were reviewed and released with page-1 Party details omitted in a flattened raster reproduction; original remains withheld.",
       "publicDocketHeaderExcerpt": "public-records/SCR-759956-1_Public_Docket_Header_Excerpt.pdf",
-      "reviewStatus": "CASE_HEADER_AND_SELECTED_DISPOSITION_VERIFIED_FULL_PRIVACY_REVIEW_PENDING"
+      "reviewStatus": "FULL_13_PAGE_RASTER_COPY_PRIVACY_REVIEWED_AND_PUBLISHED",
+      "publicRedactedCopy": "public-records/SCR-759956-1_PublicCopy.pdf",
+      "publicRedactedCopyPages": 14
     },
     {
       "filename": "WILLIAMS.CourtRecords.pdf",
@@ -342,8 +344,8 @@
     }
   ],
   "publicRecordsReleaseDate": "2026-11-19",
-  "privacyReviewedOriginalPages": 44,
-  "publicCopyNotes": "Five complete public raster reproductions from 44 manually inspected source pages. DOB fields and original metadata removed; the 28 unredacted originals remain withheld. Remaining scans are not cleared.",
+  "privacyReviewedOriginalPages": 57,
+  "publicCopyNotes": "Six complete privacy-screened court printout reproductions cover 57 source pages; all unredacted originals remain withheld. The 9 other matched source PDFs (430 pages) still require full-page privacy clearance. Nine additional one-page header excerpts are distinct from the six full copies.",
   "publicDocketHeaderExcerptsHosted": 9,
   "publicDocketHeaderExcerptProfiles": 9
 }

@@ -343,10 +343,11 @@
         }
       ],
       "caseNo": "SCR-759956-1",
-      "courtRecordStatus": "Supplied 13-page Sonoma felony docket identifies Michael Alan Voorhees and six grand-theft counts; no-contest pleas were entered April 23, 2024, and the court recorded sentencing June 4, 2024. A January 6, 2025 docket entry states that jail time was completed and the defendant was released. Full source withheld pending privacy review; only the case-information header excerpt is public.",
+      "courtRecordStatus": "A complete 13-page Sonoma Superior Court case-portal printout was reviewed November 20, 2026. A privacy-screened 14-page PDF (13 flattened source pages plus a provenance cover) is publicly available. Page 1 party and attorney information was omitted; the original unredacted source remains withheld. The documented April and June 2024 court proceedings and January 2025 release entry are not certified final court records.",
       "courtRecordSourceFile": "Voorhees.CourtRecords.pdf",
       "courtRecordReviewedOn": "2026-11-20",
-      "publicDocketHeaderExcerptPath": "public-records/SCR-759956-1_Public_Docket_Header_Excerpt.pdf"
+      "publicDocketHeaderExcerptPath": "public-records/SCR-759956-1_Public_Docket_Header_Excerpt.pdf",
+      "publicRedactedRecordPath": "public-records/SCR-759956-1_PublicCopy.pdf"
     },
     {
       "slug": "jeffrey-holzworth",

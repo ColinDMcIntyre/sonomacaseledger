@@ -100,14 +100,15 @@ test('court PDF intake manifest blocks accidental raw-file publication',()=>{
 test('public redacted source PDFs are full printout reproductions, not original leaks',()=>{
  const fs=readFileSync;
  const manifest=JSON.parse(read('research/COURT-PDF-MANIFEST.json'));
- assert.equal(manifest.publicPDFsHosted,5);
- assert.equal(manifest.privacyReviewedOriginalPages,44);
+ assert.equal(manifest.publicPDFsHosted,6);
+ assert.equal(manifest.privacyReviewedOriginalPages,57);
  const sources={
   'constantine-petros':'SCR-715528-1_PublicCopy.pdf',
   'tina-cabudoy':'24CR08926_PublicCopy.pdf',
   'amanda-rodgers-graton-casino':'SCR-729817-1_PublicCopy.pdf',
   'lisa-fatu':'SCR-757420-1_PublicCopy.pdf',
-  'frances-farias':'SCR-706951-1_PublicCopy.pdf'
+  'frances-farias':'SCR-706951-1_PublicCopy.pdf',
+  'michael-alan-voorhees':'SCR-759956-1_PublicCopy.pdf'
  };
  for(const [slug,filename] of Object.entries(sources)){
   const bytes=fs(new URL('../public-records/'+filename,import.meta.url));
@@ -119,7 +120,7 @@ test('public redacted source PDFs are full printout reproductions, not original 
  for(const doc of manifest.documents){
   assert.equal(doc.publicationStatus,'WITHHELD_PENDING_FULL_PAGE_PRIVACY_AND_DISPOSITION_REVIEW','originals remain withheld');
  }
- assert.equal(manifest.documents.filter(x=>x.publicRedactedCopy).length,5);
+ assert.equal(manifest.documents.filter(x=>x.publicRedactedCopy).length,6);
 });
 
 test('Broin and Karen Holzworth retain verified post-conviction relief dates',()=>{
@@ -169,7 +170,7 @@ test('search-result PDFs preserve strong leads without falsely verifying crimina
 test('nine public limited docket excerpts do not claim full record release',()=>{
  const manifest=JSON.parse(read('research/COURT-PDF-MANIFEST.json'));
  assert.equal(manifest.publicDocketHeaderExcerptsHosted,9);
- assert.equal(manifest.publicPDFsHosted,5);
+ assert.equal(manifest.publicPDFsHosted,6);
  const excerpts=manifest.documents.filter(x=>x.publicDocketHeaderExcerpt);
  assert.equal(excerpts.length,9);
  for(const d of excerpts){
@@ -179,4 +180,13 @@ test('nine public limited docket excerpts do not claim full record release',()=>
  }
  assert.equal(data.county.find(x=>x.slug==='michael-alan-voorhees').caseNo,'SCR-759956-1');
  assert.equal(manifest.documents.find(x=>x.filename==='WILLIAMS.CourtRecords.pdf').classification,'unrelated_civil');
+});
+
+test('Voorhees complete raster PDF keeps original private and court numbering distinct',()=>{
+ const r=data.county.find(x=>x.slug==='michael-alan-voorhees');
+ assert.equal(r.caseNo,'SCR-759956-1');
+ assert.equal(r.publicRedactedRecordPath,'public-records/SCR-759956-1_PublicCopy.pdf');
+ const doc=JSON.parse(read('research/COURT-PDF-MANIFEST.json')).documents.find(x=>x.filename==='Voorhees.CourtRecords.pdf');
+ assert.equal(doc.publicRedactedCopyPages,14);
+ assert.equal(doc.publicationStatus,'WITHHELD_PENDING_FULL_PAGE_PRIVACY_AND_DISPOSITION_REVIEW');
 });
