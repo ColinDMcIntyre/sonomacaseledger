@@ -65,3 +65,7 @@ Use the [Sonoma Superior Court Case Portal](https://sonoma.courts.ca.gov/online-
 2. Inspect all pages for protected identifiers, private addresses, victim data and sealed/confidential information; redact properly before hosting.
 3. Link only a public-reviewed redacted record from the case page; until then use the official portal with a verified court number.
 4. Keep the court-record review date distinct from the date of the most recent court action.
+
+## Candidate numbers pending court-detail verification
+
+The six saved search-result lists were inspected as research leads on November 20, 2026. The two strongest candidates are **Pamela Renee Malfa — `SCR-701902-2` (2017 felony)** and **Timothy Charles Webb Jr. — `SCR-508159-1` (2007 felony, potentially the case sentenced in 2010)**. Neither is confirmed against the charges and disposition. Do **not** add them as final court IDs yet. See [COURT-SEARCH-LEADS.md](COURT-SEARCH-LEADS.md) for all six lists, including the Barganski search page showing only 10 of 13 results.

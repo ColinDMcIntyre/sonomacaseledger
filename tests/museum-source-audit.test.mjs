@@ -145,3 +145,23 @@ test('PDF relevance audit preserves category distinctions',()=>{
  assert.match(report,/430 pages/);
  assert.match(read('records/index.html'),/RECORD-MATCHING-REVIEW.md/);
 });
+
+test('search-result PDFs preserve strong leads without falsely verifying criminal dockets',()=>{
+ const manifest=JSON.parse(read('research/COURT-PDF-MANIFEST.json'));
+ const lead=read('research/COURT-SEARCH-LEADS.md');
+ const expected={
+  'Malfa.List.CourtRecords.pdf':'SCR-701902-2',
+  'WEBB.CourtRecords.pdf':'SCR-508159-1'
+ };
+ for(const [filename,num] of Object.entries(expected)){
+  const file=manifest.documents.find(x=>x.filename===filename);
+  assert.equal(file.classification,'search_result');
+  assert.ok(file.candidateCriminalDockets.some(x=>x.caseNumber===num&&x.matchStatus==='strong_candidate_unverified'));
+  assert.ok(lead.includes(num));
+ }
+ assert.equal(manifest.documents.find(x=>x.filename==='BARGANSKI.CourtRecords.pdf').searchResultsVisible,10);
+ assert.equal(manifest.documents.find(x=>x.filename==='BARGANSKI.CourtRecords.pdf').searchResultsTotal,13);
+ for(const slug of ['christopher-miranda-pamela-malfa','timothy-charles-webb-jr']){
+  assert.equal(data.county.find(x=>x.slug===slug).caseNo,'');
+ }
+});

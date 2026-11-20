@@ -75,3 +75,7 @@ Five matching full printouts (44 original pages) have completed manual public-co
 **Case coverage:** 18 of 31 county profiles still lack a matched criminal docket from the supplied collection. That is an unresolved verification status, not evidence the case did not happen.
 
 **Prepared:** November 19, 2026. This is an informational source audit; case-status portal exports are not certified judgments.
+
+## Re-examined search-result lists (November 20, 2026)
+
+The list PDFs were supplied intentionally as case-number discovery leads. After inspecting all six complete lists, **Malfa's `SCR-701902-2` and Webb's `SCR-508159-1` emerge as strong, unverified candidate felony case numbers**. The Barganski search printout only shows items 1–10 of 13 and therefore does **not** establish that no criminal listing exists. Garcia has several distinct full-name matches and cannot be resolved from surname alone. See [COURT-SEARCH-LEADS.md](COURT-SEARCH-LEADS.md). No unconfirmed number has been entered as a verified case number.

@@ -16,7 +16,9 @@
       "profileSlug": "suede-lee-barganski",
       "searchableTextLayer": false,
       "publicationStatus": "WITHHELD_PENDING_FULL_PAGE_PRIVACY_AND_DISPOSITION_REVIEW",
-      "notes": "Name-search results show civil or other proceedings; reported 2024 felony not matched"
+      "notes": "Printout shows first ten of 13 search results; remaining three not included. Displayed records are nonmatching civil/related matters. Cannot rule out later criminal entries.",
+      "searchResultsVisible": 10,
+      "searchResultsTotal": 13
     },
     {
       "filename": "BROIN.CourtRecords.pdf",
@@ -163,7 +165,15 @@
       "profileSlug": "christopher-miranda-pamela-malfa",
       "searchableTextLayer": false,
       "publicationStatus": "WITHHELD_PENDING_FULL_PAGE_PRIVACY_AND_DISPOSITION_REVIEW",
-      "notes": "Name-search results do not establish listed criminal prosecution"
+      "notes": "Search-result list, NOT an actual case-detail export. Strong unverified lead: SCR-701902-2, filed May 3, 2017. Do not promote without charge/disposition comparison.",
+      "candidateCriminalDockets": [
+        {
+          "caseNumber": "SCR-701902-2",
+          "filingDate": "May 3, 2017",
+          "matchStatus": "strong_candidate_unverified",
+          "reviewedOn": "2026-11-20"
+        }
+      ]
     },
     {
       "filename": "RAMOS.CourtRecords.pdf",
@@ -292,7 +302,15 @@
       "profileSlug": "timothy-charles-webb-jr",
       "searchableTextLayer": false,
       "publicationStatus": "WITHHELD_PENDING_FULL_PAGE_PRIVACY_AND_DISPOSITION_REVIEW",
-      "notes": "Name-search results; no corresponding 2010 offense established"
+      "notes": "Search-result list, NOT an actual case-detail export. Strong unverified lead: SCR-508159-1, filed April 24, 2007. Do not promote without charge/disposition comparison.",
+      "candidateCriminalDockets": [
+        {
+          "caseNumber": "SCR-508159-1",
+          "filingDate": "April 24, 2007",
+          "matchStatus": "strong_candidate_unverified",
+          "reviewedOn": "2026-11-20"
+        }
+      ]
     }
   ],
   "publicRecordsReleaseDate": "2026-11-19",
