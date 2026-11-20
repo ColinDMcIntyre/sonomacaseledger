@@ -10,7 +10,7 @@ test('all 37 case pages distinguish source grades from docket review',()=>{
    const html=read(folder+'/'+rec.slug+'/index.html');
    assert.match(html,/class="record-audit"/,rec.slug);
    assert.match(html,/Source and docket status/,rec.slug);
-   assert.ok(html.includes('Last documented source review:</strong> '+(rec.courtRecordReviewedOn?'November 19, 2026':'November 18, 2026')),rec.slug);
+   assert.ok(html.includes('Last documented source review:</strong> '+(rec.courtRecordReviewedOn==='2026-11-20'?'November 20, 2026':rec.courtRecordReviewedOn?'November 19, 2026':'November 18, 2026')),rec.slug);
    assert.match(html,/full (?:federal )?trial-court docket has not been independently reviewed/i,rec.slug);
    assert.match(html,/corrections\//,rec.slug);
    if(folder==='cases'){
@@ -35,9 +35,9 @@ test('every county profile is included in records-acquisition checklist',()=>{
   assert.ok(md.includes('../cases/'+rec.slug+'/'),rec.slug);
   if(rec.caseNo)assert.ok(md.includes(rec.caseNo),rec.slug);
  }
- assert.equal(data.county.filter(c=>!!c.caseNo).length,12);
+ assert.equal(data.county.filter(c=>!!c.caseNo).length,13);
  assert.ok(md.includes('SCR-715528-1'));
- assert.equal((md.match(/\| \*\*Pending\*\* \|/g)||[]).length,18);
+ assert.equal((md.match(/\| \*\*Pending\*\* \|/g)||[]).length,17);
 });
 test('plain-language grade explanation and corrections are publicly accessible',()=>{
  assert.match(read('index.html'),/Documented case summaries/);
@@ -62,12 +62,12 @@ test('matched criminal cases stay distinct from unrelated same-name files',()=>{
 
 test('court record status register matches JSON case-number coverage',()=>{
  const html=read('records/index.html');
- assert.match(html,/13<\/strong>/);
- assert.match(html,/18<\/strong>/);
- assert.match(html,/28<\/strong>/);
+ assert.match(html,/14<\/strong>/);
+ assert.match(html,/17<\/strong>/);
+ assert.match(html,/30<\/strong>/);
  assert.match(read('sitemap.xml'),/\/records\//);
  assert.equal((html.match(/class="record-entry"/g)||[]).length,31);
- assert.equal((html.match(/Court match found/g)||[]).length,13);
+ assert.equal((html.match(/Court match found/g)||[]).length,14);
  for(const rec of data.county){
   assert.ok(html.includes('id="'+rec.slug+'"'),rec.slug);
   if(rec.caseNo)assert.ok(html.includes('<code>'+rec.caseNo+'</code>'),rec.slug);
@@ -85,12 +85,12 @@ test('every county case page links to its match status',()=>{
 
 test('court PDF intake manifest blocks accidental raw-file publication',()=>{
  const manifest=JSON.parse(read('research/COURT-PDF-MANIFEST.json'));
- assert.equal(manifest.documents.length,28);
- assert.equal(manifest.documents.reduce((sum,x)=>sum+x.pages,0),537);
+ assert.equal(manifest.documents.length,30);
+ assert.equal(manifest.documents.reduce((sum,x)=>sum+x.pages,0),556);
  const matched=manifest.documents.filter(x=>x.classification==='criminal_match');
- assert.equal(matched.length,14);
- assert.equal(matched.reduce((sum,x)=>sum+x.pages,0),474);
- assert.equal(new Set(matched.map(x=>x.profileSlug)).size,13);
+ assert.equal(matched.length,15);
+ assert.equal(matched.reduce((sum,x)=>sum+x.pages,0),487);
+ assert.equal(new Set(matched.map(x=>x.profileSlug)).size,14);
  assert.equal(manifest.documents.filter(x=>x.searchableTextLayer).length,4);
  assert.equal(manifest.documents.filter(x=>x.publicationStatus!=='WITHHELD_PENDING_FULL_PAGE_PRIVACY_AND_DISPOSITION_REVIEW').length,0);
  for(const x of manifest.documents)assert.ok(data.county.some(y=>y.slug===x.profileSlug)||x.profileSlug==='constantine-petros');
@@ -138,9 +138,9 @@ test('Broin and Karen Holzworth retain verified post-conviction relief dates',()
 test('PDF relevance audit preserves category distinctions',()=>{
  const report=read('research/RECORD-MATCHING-REVIEW.md');
  const manifest=JSON.parse(read('research/COURT-PDF-MANIFEST.json'));
- assert.equal(manifest.documents.filter(d=>d.classification.startsWith('unrelated_')).length,8);
+ assert.equal(manifest.documents.filter(d=>d.classification.startsWith('unrelated_')).length,9);
  assert.equal(manifest.documents.filter(d=>d.classification==='search_result').length,6);
- assert.equal(manifest.documents.filter(d=>d.classification==='criminal_match').length,14);
+ assert.equal(manifest.documents.filter(d=>d.classification==='criminal_match').length,15);
  for(const item of manifest.documents)assert.ok(report.includes(item.filename),item.filename);
  assert.match(report,/430 pages/);
  assert.match(read('records/index.html'),/RECORD-MATCHING-REVIEW.md/);
@@ -164,4 +164,19 @@ test('search-result PDFs preserve strong leads without falsely verifying crimina
  for(const slug of ['christopher-miranda-pamela-malfa','timothy-charles-webb-jr']){
   assert.equal(data.county.find(x=>x.slug===slug).caseNo,'');
  }
+});
+
+test('nine public limited docket excerpts do not claim full record release',()=>{
+ const manifest=JSON.parse(read('research/COURT-PDF-MANIFEST.json'));
+ assert.equal(manifest.publicDocketHeaderExcerptsHosted,9);
+ assert.equal(manifest.publicPDFsHosted,5);
+ const excerpts=manifest.documents.filter(x=>x.publicDocketHeaderExcerpt);
+ assert.equal(excerpts.length,9);
+ for(const d of excerpts){
+  const pdf=readFileSync(new URL('../'+d.publicDocketHeaderExcerpt,import.meta.url));
+  assert.equal(pdf.subarray(0,5).toString(),'%PDF-');
+  assert.ok(read('cases/'+d.profileSlug+'/index.html').includes(d.publicDocketHeaderExcerpt.split('/').pop()));
+ }
+ assert.equal(data.county.find(x=>x.slug==='michael-alan-voorhees').caseNo,'SCR-759956-1');
+ assert.equal(manifest.documents.find(x=>x.filename==='WILLIAMS.CourtRecords.pdf').classification,'unrelated_civil');
 });

@@ -1,13 +1,13 @@
 {
   "intakeDate": "2026-11-19",
   "source": "User-provided Google Drive folder; exact original filenames preserved",
-  "documentCount": 28,
-  "totalPages": 537,
-  "matchedCaseDetailPDFs": 14,
-  "matchedCountyProfiles": 13,
-  "matchedPages": 474,
+  "documentCount": 30,
+  "totalPages": 556,
+  "matchedCaseDetailPDFs": 15,
+  "matchedCountyProfiles": 14,
+  "matchedPages": 487,
   "publicPDFsHosted": 5,
-  "reviewStage": "All 28 source files classified by relevance; headers, selected disposition events and final docket entries checked for nine remaining matched PDFs. Five public copies (44 pages) fully privacy-reviewed; the other nine matching PDFs (430 pages) are not certified for public publication.",
+  "reviewStage": "30 files classified. Five complete public redacted court printouts cover 44 original pages. Nine privacy-screened one-page docket-header excerpts cover nine further matched profiles; these are not full privacy-reviewed source files. Ten source PDFs (443 pages) still require full-page privacy screening. Unredacted originals remain withheld.",
   "documents": [
     {
       "filename": "BARGANSKI.CourtRecords.pdf",
@@ -36,7 +36,8 @@
           36
         ],
         "dispositionDescription": "A Sonoma Superior Court portal export documents a conviction and the reported original two-year sentence. On June 10, 2021, the court entered an order granting dismissal under Penal Code § 1203.4. That is later post-conviction relief, not an acquittal or an erasure of the historical conviction."
-      }
+      },
+      "publicDocketHeaderExcerpt": "public-records/SCR-678074-1_Public_Docket_Header_Excerpt.pdf"
     },
     {
       "filename": "Cabudoy.CourtRecords.pdf",
@@ -78,7 +79,8 @@
       "profileSlug": "elana-cohen-roth",
       "searchableTextLayer": true,
       "publicationStatus": "WITHHELD_PENDING_FULL_PAGE_PRIVACY_AND_DISPOSITION_REVIEW",
-      "notes": "Matching case SCR-751314-1; 2025-2026 appellate and restitution docket entries"
+      "notes": "Matching case SCR-751314-1; 2025-2026 appellate and restitution docket entries",
+      "publicDocketHeaderExcerpt": "public-records/SCR-751314-1_Public_Docket_Header_Excerpt.pdf"
     },
     {
       "filename": "FARIAS.CourtRecords.pdf",
@@ -120,7 +122,8 @@
       "profileSlug": "jeffrey-holzworth",
       "searchableTextLayer": true,
       "publicationStatus": "WITHHELD_PENDING_FULL_PAGE_PRIVACY_AND_DISPOSITION_REVIEW",
-      "notes": "Additional court-portal copy of Jeffrey's defendant case SCR-627215-1"
+      "notes": "Additional court-portal copy of Jeffrey's defendant case SCR-627215-1",
+      "publicDocketHeaderExcerpt": "public-records/SCR-627215-1_Public_Docket_Header_Excerpt.pdf"
     },
     {
       "filename": "Halaweh.CourtRecords.pdf",
@@ -129,7 +132,8 @@
       "profileSlug": "mohannad-halaweh",
       "searchableTextLayer": false,
       "publicationStatus": "WITHHELD_PENDING_FULL_PAGE_PRIVACY_AND_DISPOSITION_REVIEW",
-      "notes": "Matching criminal case-detail export"
+      "notes": "Matching criminal case-detail export",
+      "publicDocketHeaderExcerpt": "public-records/SCR-651671-1_Public_Docket_Header_Excerpt.pdf"
     },
     {
       "filename": "Lemoine.CourtRecords.pdf",
@@ -138,7 +142,8 @@
       "profileSlug": "kim-louise-lemoine",
       "searchableTextLayer": false,
       "publicationStatus": "WITHHELD_PENDING_FULL_PAGE_PRIVACY_AND_DISPOSITION_REVIEW",
-      "notes": "Matching criminal case-detail export"
+      "notes": "Matching criminal case-detail export",
+      "publicDocketHeaderExcerpt": "public-records/SCR-556340-1_Public_Docket_Header_Excerpt.pdf"
     },
     {
       "filename": "MCR-398955-1.pdf",
@@ -156,7 +161,8 @@
       "profileSlug": "ryan-merman",
       "searchableTextLayer": false,
       "publicationStatus": "WITHHELD_PENDING_FULL_PAGE_PRIVACY_AND_DISPOSITION_REVIEW",
-      "notes": "Matching criminal case-detail export"
+      "notes": "Matching criminal case-detail export",
+      "publicDocketHeaderExcerpt": "public-records/SCR-563322-1_Public_Docket_Header_Excerpt.pdf"
     },
     {
       "filename": "Malfa.List.CourtRecords.pdf",
@@ -182,7 +188,8 @@
       "profileSlug": "christopher-ramos",
       "searchableTextLayer": false,
       "publicationStatus": "WITHHELD_PENDING_FULL_PAGE_PRIVACY_AND_DISPOSITION_REVIEW",
-      "notes": "Matching criminal case-detail export"
+      "notes": "Matching criminal case-detail export",
+      "publicDocketHeaderExcerpt": "public-records/SCR-728488-1_Public_Docket_Header_Excerpt.pdf"
     },
     {
       "filename": "RAMOS.List.CourtRecords.pdf",
@@ -254,7 +261,8 @@
           36
         ],
         "dispositionDescription": "An appellate opinion records the conviction and its affirmance; the later Sonoma Superior Court defendant docket SCR-627215-2 records an order granting dismissal under Penal Code § 1203.4 on July 17, 2018. This was post-conviction relief, not an acquittal."
-      }
+      },
+      "publicDocketHeaderExcerpt": "public-records/SCR-627215-2_Public_Docket_Header_Excerpt.pdf"
     },
     {
       "filename": "SCR-729817-1.pdf",
@@ -311,9 +319,31 @@
           "reviewedOn": "2026-11-20"
         }
       ]
+    },
+    {
+      "filename": "Voorhees.CourtRecords.pdf",
+      "pages": 13,
+      "classification": "criminal_match",
+      "profileSlug": "michael-alan-voorhees",
+      "searchableTextLayer": false,
+      "publicationStatus": "WITHHELD_PENDING_FULL_PAGE_PRIVACY_AND_DISPOSITION_REVIEW",
+      "notes": "13-page criminal docket, SCR-759956-1, identifies six grand-theft counts, April 2024 no-contest pleas and June 2024 sentencing.",
+      "publicDocketHeaderExcerpt": "public-records/SCR-759956-1_Public_Docket_Header_Excerpt.pdf",
+      "reviewStatus": "CASE_HEADER_AND_SELECTED_DISPOSITION_VERIFIED_FULL_PRIVACY_REVIEW_PENDING"
+    },
+    {
+      "filename": "WILLIAMS.CourtRecords.pdf",
+      "pages": 6,
+      "classification": "unrelated_civil",
+      "profileSlug": "leona-schutte-robert-williams",
+      "searchableTextLayer": false,
+      "publicationStatus": "WITHHELD_PENDING_FULL_PAGE_PRIVACY_AND_DISPOSITION_REVIEW",
+      "notes": "MCV204401, 2009 civil unlawful-detainer proceeding Jensen v Williams (Thomas Williams Jr), not the reported Robert Thomas Williams criminal case."
     }
   ],
   "publicRecordsReleaseDate": "2026-11-19",
   "privacyReviewedOriginalPages": 44,
-  "publicCopyNotes": "Five complete public raster reproductions from 44 manually inspected source pages. DOB fields and original metadata removed; the 28 unredacted originals remain withheld. Remaining scans are not cleared."
+  "publicCopyNotes": "Five complete public raster reproductions from 44 manually inspected source pages. DOB fields and original metadata removed; the 28 unredacted originals remain withheld. Remaining scans are not cleared.",
+  "publicDocketHeaderExcerptsHosted": 9,
+  "publicDocketHeaderExcerptProfiles": 9
 }

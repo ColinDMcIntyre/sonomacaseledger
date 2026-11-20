@@ -1,6 +1,6 @@
 # Sonoma Case Ledger — PDF relevance and outcome audit
 
-**Source files:** 28 PDF exports supplied by the researcher from Sonoma Superior Court's public portal, dated November 19, 2026.
+**Source files:** 30 PDF exports supplied by the researcher (28 on November 19 and two additional documents on November 20, 2026).
 
 **Key distinction:** A matching surname is not enough to establish that a PDF concerns the reported criminal prosecution. A court-portal list is not the underlying case history. None of these discrepancies proves the reported incidents never happened.
 
@@ -8,12 +8,12 @@
 
 | Files | Count | Source pages | Status |
 |---|---:|---:|---|
-| Criminal case-detail exports matched to intended profiles | 14 | 474 | 13 profiles, including one duplicate export |
-| Different court proceedings | 8 | 45 | Do not use as evidence for the listed incidents |
+| Criminal case-detail exports matched to intended profiles | 15 | 487 | 14 profiles, including one duplicate export |
+| Different court proceedings | 9 | 51 | Do not use as evidence for the listed incidents |
 | Court portal search-result lists | 6 | 18 | Research clues, not verified criminal outcomes |
-| **All supplied files** | **28** | **537** | |
+| **All supplied files** | **30** | **556** | |
 
-Five matching full printouts (44 original pages) have completed manual public-copy privacy review and have published redacted, rasterized versions; the 28 unredacted original PDFs remain withheld.
+Five matching full printouts (44 original pages) have completed manual public-copy privacy review and have published redacted, rasterized versions; the 30 unredacted original PDFs remain withheld.
 
 ## A. Different proceedings: exclude from the intended case profile
 
@@ -79,3 +79,10 @@ Five matching full printouts (44 original pages) have completed manual public-co
 ## Re-examined search-result lists (November 20, 2026)
 
 The list PDFs were supplied intentionally as case-number discovery leads. After inspecting all six complete lists, **Malfa's `SCR-701902-2` and Webb's `SCR-508159-1` emerge as strong, unverified candidate felony case numbers**. The Barganski search printout only shows items 1–10 of 13 and therefore does **not** establish that no criminal listing exists. Garcia has several distinct full-name matches and cannot be resolved from surname alone. See [COURT-SEARCH-LEADS.md](COURT-SEARCH-LEADS.md). No unconfirmed number has been entered as a verified case number.
+
+## November 20 supplementary source audit
+
+- **Voorhees.CourtRecords.pdf (13 pages):** Sonoma felony docket `SCR-759956-1`, Michael Alan Voorhees, six grand-theft counts, April 2024 no-contest plea and June 2024 sentencing; **matched**, with a limited court-header excerpt public.
+- **WILLIAMS.CourtRecords.pdf (6 pages):** `MCV204401`, 2009 civil unlawful-detainer case involving Thomas Williams Jr., not the reported Robert Thomas Williams criminal matter; **excluded**.
+- **Nine public docket-header excerpts** now exist for the remaining matched profiles (eight carried over plus new Voorhees). They reproduce only the case-information header; **443 original matching pages remain uncleared for full public publication**.
+- **14 of 31 county profiles** have matched criminal court numbers. Malfa and Webb remain promising but unverified case-number leads, not verified matches.

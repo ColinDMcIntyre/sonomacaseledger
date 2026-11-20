@@ -1,6 +1,6 @@
 # Sonoma County court-record acquisition checklist
 
-**Updated:** November 19, 2026. **31 county profiles · 13 matched criminal court numbers · 18 pending or unmatched.**
+**Updated:** November 19, 2026. **31 county profiles · 14 matched criminal court numbers · 17 pending or unmatched.**
 
 Use the [Sonoma Superior Court Case Portal](https://sonoma.courts.ca.gov/online-services/case-portal). A number is recorded below only if an official case-detail export matches the profile, or the previously established court number was reviewed. *Different defendants may have separate suffixes.*
 
@@ -24,7 +24,7 @@ Use the [Sonoma Superior Court Case Portal](https://sonoma.courts.ca.gov/online-
 | [Daniel Broin](../cases/daniel-broin/) | `SCR-678074-1` | BROIN.CourtRecords.pdf — case-detail export checked full docket audit pending |
 | [Mary Katherine David](../cases/mary-katherine-david/) | **Pending** | David.List.CourtRecords.pdf lists civil collection cases none establish the reported criminal school-program theft. |
 | [Mohannad Halaweh](../cases/mohannad-halaweh/) | `SCR-651671-1` | Halaweh.CourtRecords.pdf — case-detail export checked full docket audit pending |
-| [Michael Alan Voorhees](../cases/michael-alan-voorhees/) | **Pending** | The user's checklist names SCR-759956-1 but no matching court-detail PDF was supplied still needs confirmation. |
+| [Michael Alan Voorhees](../cases/michael-alan-voorhees/) | `SCR-759956-1` | `Voorhees.CourtRecords.pdf` — matched 13-page felony docket; original withheld pending full privacy review. |
 | [Jeffrey Holzworth](../cases/jeffrey-holzworth/) | `SCR-627215-1` | SCR-627215-1.pdf — case-detail export checked full docket audit pending |
 | [Karen Marie Holzworth](../cases/karen-holzworth/) | `SCR-627215-2` | SCR-627215-2.pdf — case-detail export checked full docket audit pending |
 | [Eileen Madayag](../cases/eileen-madayag/) | **Pending** | No corresponding PDF supplied name search returned no result. |
@@ -48,7 +48,7 @@ Use the [Sonoma Superior Court Case Portal](https://sonoma.courts.ca.gov/online-
 - **John C. Sheehan**: SHEEHAN.CourtRecords.pdf is a 2000 receiving-stolen-property case, not established as the 2012 embezzlement prosecution.
 - **Suede Lee Barganski**: BARGANSKI.CourtRecords.pdf shows civil, unlawful-detainer and small-claims entries; the reported 2024 felony docket is not established.
 - **Mary Katherine David**: David.List.CourtRecords.pdf lists civil collection cases; none establish the reported criminal school-program theft.
-- **Michael Alan Voorhees**: The user's checklist names SCR-759956-1 but no matching court-detail PDF was supplied; still needs confirmation.
+- **Michael Alan Voorhees**: New 13-page criminal portal export `SCR-759956-1` supplied November 20, 2026. Correct case number established.
 - **Eileen Madayag**: No corresponding PDF supplied; name search returned no result.
 - **Christopher John Miranda and Pamela Malfa**: Malfa.List.CourtRecords.pdf includes civil collection/eviction cases, not the reported criminal convictions.
 - **Ana Carrillo**: SCR-523906-1.pdf is an older (2007) felony accessory case; not tied to the 2024 insurer report.
@@ -69,3 +69,7 @@ Use the [Sonoma Superior Court Case Portal](https://sonoma.courts.ca.gov/online-
 ## Candidate numbers pending court-detail verification
 
 The six saved search-result lists were inspected as research leads on November 20, 2026. The two strongest candidates are **Pamela Renee Malfa — `SCR-701902-2` (2017 felony)** and **Timothy Charles Webb Jr. — `SCR-508159-1` (2007 felony, potentially the case sentenced in 2010)**. Neither is confirmed against the charges and disposition. Do **not** add them as final court IDs yet. See [COURT-SEARCH-LEADS.md](COURT-SEARCH-LEADS.md) for all six lists, including the Barganski search page showing only 10 of 13 results.
+
+## November 20 source updates
+
+Nine one-page privacy-screened docket-header excerpts now accompany nine more matched profiles. These are NOT complete redacted versions of the original court printouts. `Voorhees.CourtRecords.pdf` is a new verified felony docket; `WILLIAMS.CourtRecords.pdf` is a 2009 civil unlawful-detainer case and is not a criminal case match.
