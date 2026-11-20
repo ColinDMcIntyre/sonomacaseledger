@@ -35,3 +35,10 @@ Three full source printouts were inspected page by page and released as privacy-
 ### Added reviewed copies: Lisa Fatu and Frances Farias
 
 The court printouts for Lisa Marie Fatu (6 pages, `SCR-757420-1`) and Frances Farias (10 pages, `SCR-706951-1`) were inspected page by page and posted as full-length privacy-redacted raster reproductions. Five originals covering 44 pages have now been manually reviewed and published in redacted form. The unredacted originals remain withheld; the other court documents are not cleared.
+
+## Further source checks — later dismissal orders
+
+- **Daniel Broin**: `BROIN.CourtRecords.pdf`, 36 source pages. Page 1 lists “Dismissed per PC 1203.4”; page 36 shows a May 11, 2021 petition and an order granting dismissal on **June 10, 2021**. The earlier reported prison sentence remains historical; this post-conviction dismissal is not an acquittal. Original withheld for page-level privacy clearance.
+- **Karen Marie Holzworth**: `SCR-627215-2.pdf`, 36 source pages. Page 1 lists “Dismissed per PC 1203.4”; page 36 shows an order granting dismissal on **July 17, 2018**. Her separate defendant record must not be merged with Jeffrey Holzworth's `SCR-627215-1`. Earlier verdict and appellate affirmance remain historical. Original withheld for page-level privacy clearance.
+
+**Scope of these checks:** specific later-order entries were verified from page images. This does not clear the remaining 430 pages of original matching PDFs for unrestricted public release.

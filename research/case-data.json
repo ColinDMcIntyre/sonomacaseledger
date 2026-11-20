@@ -256,9 +256,9 @@
       "subject": "Community-association embezzlement",
       "amount": "More than $135,000",
       "amountType": "Amount described in local reporting",
-      "outcome": "The Sonoma Valley Sun reported a two-year sentence for embezzlement from the Finnish American Home Association.",
-      "details": "The source attributes prosecution to the Sonoma DA. This archive has not independently obtained the sentencing judgment.",
-      "verification": "B",
+      "outcome": "A Sonoma Superior Court portal export documents a conviction and the reported original two-year sentence. On June 10, 2021, the court entered an order granting dismissal under Penal Code § 1203.4. That is later post-conviction relief, not an acquittal or an erasure of the historical conviction.",
+      "details": "The original 2018 news report described a two-year sentence following an embezzlement prosecution involving the Finnish American Home Association. The later court-portal event list, on page 36 of the supplied 36-page export, records a May 11, 2021 petition and a June 10, 2021 order granting dismissal under Penal Code § 1203.4. The portal's first-page case status likewise reads 'Dismissed per PC 1203.4'. The export does not establish how much custody was actually served.",
+      "verification": "A/B",
       "sources": [
         {
           "label": "broin",
@@ -266,9 +266,16 @@
         }
       ],
       "caseNo": "SCR-678074-1",
-      "courtRecordStatus": "Portal case-detail export matched to defendant and relevant allegation; date of review 2026-11-19. Underlying PDF not yet publicly hosted. Full event history and any later relief still require a complete audit.",
+      "courtRecordStatus": "Matched Sonoma criminal court-portal export and checked first-page case status plus final docket entries on November 19, 2026. A §1203.4 dismissal order is documented on June 10, 2021. Full-page privacy screening and certification of underlying documents are not complete; the original PDF is withheld.",
       "courtRecordSourceFile": "BROIN.CourtRecords.pdf",
-      "courtRecordReviewedOn": "2026-11-19"
+      "courtRecordReviewedOn": "2026-11-19",
+      "laterRelief": {
+        "orderType": "Dismissal under Penal Code § 1203.4 (post-conviction)",
+        "orderDate": "2021-06-10",
+        "sourceFile": "BROIN.CourtRecords.pdf",
+        "sourcePage": 36,
+        "notAcquittal": true
+      }
     },
     {
       "slug": "mary-katherine-david",
@@ -365,8 +372,8 @@
       "subject": "Accessory and receiving stolen property",
       "amount": "Not quantified here",
       "amountType": "No independent loss assigned to this defendant",
-      "outcome": "A jury convicted Karen Holzworth of accessory conduct and two misdemeanor receiving-stolen-property counts; she received probation and nine months county jail, and the judgment was affirmed.",
-      "details": "An appellate opinion identifies Sonoma Superior Court case SCR-627215. These convictions are distinct from the separate grand-theft counts against Jeffrey Holzworth. The court portal identifies Karen's separate defendant docket as SCR-627215-2; Jeffrey's is SCR-627215-1. The base case number SCR-627215 appears in appellate material.",
+      "outcome": "An appellate opinion records the conviction and its affirmance; the later Sonoma Superior Court defendant docket SCR-627215-2 records an order granting dismissal under Penal Code § 1203.4 on July 17, 2018. This was post-conviction relief, not an acquittal.",
+      "details": "The original jury verdict, probation/jail sentence and appellate affirmance remain historical events. Karen Holzworth's separate 36-page Sonoma court-portal export identifies defendant case SCR-627215-2 and records an order granting a Penal Code § 1203.4 dismissal on July 17, 2018 (page 36). This is not the same court record as Jeffrey Holzworth's SCR-627215-1; neither the appellate affirmance nor this later dismissal proves the actual number of days of custody served.",
       "verification": "A",
       "sources": [
         {
@@ -375,9 +382,16 @@
         }
       ],
       "caseNo": "SCR-627215-2",
-      "courtRecordStatus": "Portal case-detail export matched to defendant and relevant allegation; date of review 2026-11-19. Underlying PDF not yet publicly hosted. Full event history and any later relief still require a complete audit.",
+      "courtRecordStatus": "Matched Sonoma criminal court-portal export and checked first-page case status plus final docket entries on November 19, 2026. A §1203.4 dismissal order is documented on July 17, 2018. Full-page privacy screening and certification of underlying documents are not complete; the original PDF is withheld.",
       "courtRecordSourceFile": "SCR-627215-2.pdf",
-      "courtRecordReviewedOn": "2026-11-19"
+      "courtRecordReviewedOn": "2026-11-19",
+      "laterRelief": {
+        "orderType": "Dismissal under Penal Code § 1203.4 (post-conviction)",
+        "orderDate": "2018-07-17",
+        "sourceFile": "SCR-627215-2.pdf",
+        "sourcePage": 36,
+        "notAcquittal": true
+      }
     },
     {
       "slug": "eileen-madayag",

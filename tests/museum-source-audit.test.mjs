@@ -121,3 +121,16 @@ test('public redacted source PDFs are full printout reproductions, not original 
  }
  assert.equal(manifest.documents.filter(x=>x.publicRedactedCopy).length,5);
 });
+
+test('Broin and Karen Holzworth retain verified post-conviction relief dates',()=>{
+ const keyed=Object.fromEntries(data.county.map(x=>[x.slug,x]));
+ assert.equal(keyed['daniel-broin'].laterRelief.orderDate,'2021-06-10');
+ assert.equal(keyed['karen-holzworth'].laterRelief.orderDate,'2018-07-17');
+ for(const slug of ['daniel-broin','karen-holzworth']){
+  assert.equal(keyed[slug].laterRelief.notAcquittal,true);
+  assert.match(read('cases/'+slug+'/index.html'),/post-conviction relief/i);
+  assert.match(read('cases/'+slug+'/index.html'),/1203\.4/);
+ }
+ assert.match(read('research/COURT-PDF-AUDIT.md'),/June 10, 2021/);
+ assert.match(read('research/COURT-PDF-AUDIT.md'),/July 17, 2018/);
+});

@@ -7,7 +7,7 @@
   "matchedCountyProfiles": 13,
   "matchedPages": 474,
   "publicPDFsHosted": 5,
-  "reviewStage": "Header and selected event checks; full page-by-page privacy and disposition review incomplete.",
+  "reviewStage": "All 28 source files classified by relevance; headers, selected disposition events and final docket entries checked for nine remaining matched PDFs. Five public copies (44 pages) fully privacy-reviewed; the other nine matching PDFs (430 pages) are not certified for public publication.",
   "documents": [
     {
       "filename": "BARGANSKI.CourtRecords.pdf",
@@ -25,7 +25,16 @@
       "profileSlug": "daniel-broin",
       "searchableTextLayer": false,
       "publicationStatus": "WITHHELD_PENDING_FULL_PAGE_PRIVACY_AND_DISPOSITION_REVIEW",
-      "notes": "Matching criminal case-detail export"
+      "notes": "Page 1 (status); page 36 (petition and grant): later §1203.4 dismissal granted June 10, 2021; original withheld pending complete privacy clearance.",
+      "dispositionReview": {
+        "status": "LATER_1203_4_DISMISSAL_VERIFIED",
+        "date": "2021-06-10",
+        "pagesChecked": [
+          1,
+          36
+        ],
+        "dispositionDescription": "A Sonoma Superior Court portal export documents a conviction and the reported original two-year sentence. On June 10, 2021, the court entered an order granting dismissal under Penal Code § 1203.4. That is later post-conviction relief, not an acquittal or an erasure of the historical conviction."
+      }
     },
     {
       "filename": "Cabudoy.CourtRecords.pdf",
@@ -226,7 +235,16 @@
       "profileSlug": "karen-holzworth",
       "searchableTextLayer": false,
       "publicationStatus": "WITHHELD_PENDING_FULL_PAGE_PRIVACY_AND_DISPOSITION_REVIEW",
-      "notes": "Karen Holzworth defendant record; separate from Jeffrey's"
+      "notes": "Page 1 (status); page 36 (grant): later §1203.4 dismissal granted July 17, 2018; original withheld pending complete privacy clearance.",
+      "dispositionReview": {
+        "status": "LATER_1203_4_DISMISSAL_VERIFIED",
+        "date": "2018-07-17",
+        "pagesChecked": [
+          1,
+          36
+        ],
+        "dispositionDescription": "An appellate opinion records the conviction and its affirmance; the later Sonoma Superior Court defendant docket SCR-627215-2 records an order granting dismissal under Penal Code § 1203.4 on July 17, 2018. This was post-conviction relief, not an acquittal."
+      }
     },
     {
       "filename": "SCR-729817-1.pdf",
