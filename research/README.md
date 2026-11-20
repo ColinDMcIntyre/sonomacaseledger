@@ -27,3 +27,5 @@ Public status index: [../records/](../records/). It lists the 13 matched Sonoma 
 ## Public reviewed reproductions (November 19, 2026)
 
 Three full source printouts were inspected page by page and released as privacy-minimized raster copies with a new provenance cover: Petros (`SCR-715528-1`, 11 source pages), Cabudoy (`24CR08926`, 9), and Rodgers (`SCR-729817-1`, 8). The DOB fields were removed; rasterization eliminated the original metadata, hidden text and hyperlinks. The public copies are at `public-records/` and link from the three profiles. These public PDFs are **not certified court judgments**. The source originals remain withheld. All other original PDFs remain pending privacy and disposition review.
+
+The [PDF relevance and disposition audit](RECORD-MATCHING-REVIEW.md) identifies eight unrelated proceedings and six search-result lists among the original 28 court PDFs. It also records Broin's 2021 and Karen Holzworth's 2018 post-conviction dismissals and distinguishes completed case-matching from incomplete privacy clearance for longer PDFs.

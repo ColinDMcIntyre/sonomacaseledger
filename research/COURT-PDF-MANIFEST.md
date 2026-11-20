@@ -48,3 +48,5 @@ Three full source printouts were inspected page by page and released as privacy-
 ### Added reviewed copies: Lisa Fatu and Frances Farias
 
 The court printouts for Lisa Marie Fatu (6 pages, `SCR-757420-1`) and Frances Farias (10 pages, `SCR-706951-1`) were inspected page by page and posted as full-length privacy-redacted raster reproductions. Five originals covering 44 pages have now been manually reviewed and published in redacted form. The unredacted originals remain withheld; the other court documents are not cleared.
+
+**Classification guide:** See [RECORD-MATCHING-REVIEW.md](RECORD-MATCHING-REVIEW.md) for why each excluded or search-only PDF cannot verify the intended reported incident. These files are not proof that a reported incident did not happen.

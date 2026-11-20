@@ -134,3 +134,14 @@ test('Broin and Karen Holzworth retain verified post-conviction relief dates',()
  assert.match(read('research/COURT-PDF-AUDIT.md'),/June 10, 2021/);
  assert.match(read('research/COURT-PDF-AUDIT.md'),/July 17, 2018/);
 });
+
+test('PDF relevance audit preserves category distinctions',()=>{
+ const report=read('research/RECORD-MATCHING-REVIEW.md');
+ const manifest=JSON.parse(read('research/COURT-PDF-MANIFEST.json'));
+ assert.equal(manifest.documents.filter(d=>d.classification.startsWith('unrelated_')).length,8);
+ assert.equal(manifest.documents.filter(d=>d.classification==='search_result').length,6);
+ assert.equal(manifest.documents.filter(d=>d.classification==='criminal_match').length,14);
+ for(const item of manifest.documents)assert.ok(report.includes(item.filename),item.filename);
+ assert.match(report,/430 pages/);
+ assert.match(read('records/index.html'),/RECORD-MATCHING-REVIEW.md/);
+});

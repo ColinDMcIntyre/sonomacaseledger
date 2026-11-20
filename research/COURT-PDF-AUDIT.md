@@ -42,3 +42,7 @@ The court printouts for Lisa Marie Fatu (6 pages, `SCR-757420-1`) and Frances Fa
 - **Karen Marie Holzworth**: `SCR-627215-2.pdf`, 36 source pages. Page 1 lists “Dismissed per PC 1203.4”; page 36 shows an order granting dismissal on **July 17, 2018**. Her separate defendant record must not be merged with Jeffrey Holzworth's `SCR-627215-1`. Earlier verdict and appellate affirmance remain historical. Original withheld for page-level privacy clearance.
 
 **Scope of these checks:** specific later-order entries were verified from page images. This does not clear the remaining 430 pages of original matching PDFs for unrestricted public release.
+
+## Full source-file relevance breakdown
+
+The [28-file relevance and outcome report](RECORD-MATCHING-REVIEW.md) distinguishes the eight different proceedings, six name-search lists, and 14 criminal case-detail exports. It states precisely what remains unreviewed for public-release privacy clearance.
