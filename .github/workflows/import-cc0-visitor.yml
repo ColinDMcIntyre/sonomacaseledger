@@ -1,0 +1,71 @@
+name: Import vetted CC0 high-detail museum guide
+
+on:
+  push:
+    paths:
+      - ".github/workflows/import-cc0-visitor.yml"
+      - "scripts/import_cc0_detailed_visitor.py"
+      - "scripts/audit_public_cc0_visitor.py"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: import-cc0-realistic-visitor
+  cancel-in-progress: false
+
+jobs:
+  import-guide:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Fetch only vetted Innerscene public-domain animated character
+        run: |
+          mkdir -p .tmp/cc0
+          python scripts/import_cc0_detailed_visitor.py .tmp/cc0/source.glb
+          python scripts/audit_public_cc0_visitor.py .tmp/cc0/source.glb --max-bytes 30000000
+      - name: Resize and compress textures without requiring Draco/Meshopt decoders
+        run: |
+          npm install --global @gltf-transform/cli@4.5.1
+          gltf-transform resize .tmp/cc0/source.glb .tmp/cc0/resized.glb --width 1024 --height 1024
+          gltf-transform webp .tmp/cc0/resized.glb .tmp/cc0/realistic_guide_cc0.glb --quality 82
+      - name: Check final size, skinning, animation names and texture support
+        run: |
+          python scripts/audit_public_cc0_visitor.py .tmp/cc0/realistic_guide_cc0.glb --max-bytes 24000000 --report .tmp/cc0/quality.json
+      - name: Stage only the CC0 model and its manifest entry
+        run: |
+          cp .tmp/cc0/realistic_guide_cc0.glb museum/assets/characters/realistic_guide_cc0.glb
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('museum/assets/manifest.json')
+          d=json.loads(p.read_text(encoding='utf-8'))
+          d['character']['highDetail']={
+              'path':'./assets/characters/realistic_guide_cc0.glb',
+              'source':'https://www.innerscene.com/tools/library/3d-parts/locomotion-collection-jordan-3d-person-animated-911f1584',
+              'license':'CC0-1.0',
+              'status':'Public-domain Innerscene Jordan, optimized textures, separate idle/walk animations',
+              'mode':'load only after the museum first renders on capable desktops'
+          }
+          p.write_text(json.dumps(d,indent=2)+'\n',encoding='utf-8')
+          PY
+          node --test tests/high-detail-visitor.test.mjs tests/renderpeople-license-guard.test.mjs
+      - name: Publish validated CC0 replacement without exposing Renderpeople data
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add museum/assets/characters/realistic_guide_cc0.glb museum/assets/manifest.json
+          if ! git diff --cached --quiet; then
+            git commit -m "Install optimized CC0 animated realistic museum guide"
+            git push
+          fi
