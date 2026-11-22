@@ -83,6 +83,52 @@ export function createVisitor(scene,onStatus){
  shadow.rotation.x=-Math.PI/2;shadow.position.y=.018;root.add(shadow);
  let model=null,mixer=null,idleAction=null,walkAction=null,usingAsset=false;
  const modelRestPosition=new THREE.Vector3();
+ // Developer-only local preview. No proprietary file is hosted or uploaded.
+ let privatePreview=false, privateBonePose=[];
+ function installPrivateModel(obj){
+  if(!obj?.isObject3D)throw new Error('Private asset is not a Three.js scene');
+  const bounds=new THREE.Box3().setFromObject(obj),size=bounds.getSize(new THREE.Vector3());
+  if(!Number.isFinite(size.y)||size.y<.05)throw new Error('Private character has invalid dimensions');
+  if(model)root.remove(model);
+  if(mixer){mixer.stopAllAction();mixer=null;}
+  obj.scale.multiplyScalar(2.12/size.y);
+  const next=new THREE.Box3().setFromObject(obj);
+  obj.position.x-=(next.min.x+next.max.x)/2;
+  obj.position.y-=next.min.y;
+  obj.position.z-=(next.min.z+next.max.z)/2;
+  modelRestPosition.copy(obj.position);
+  root.add(obj);model=obj;usingAsset=true;privatePreview=true;proxy.visible=false;
+  obj.updateMatrixWorld(true);
+  const bones=new Map();
+  obj.traverse(node=>{
+   if(!node.isBone)return;
+   const name=node.name.toLowerCase().replace(/^.*::/,'');
+   const parentQ=node.parent.getWorldQuaternion(new THREE.Quaternion()).invert();
+   bones.set(name,{node,rest:node.quaternion.clone(),
+    xAxis:new THREE.Vector3(1,0,0).applyQuaternion(parentQ),
+    zAxis:new THREE.Vector3(0,0,1).applyQuaternion(parentQ)});
+  });
+  privateBonePose=[
+   ['upperarm_l','z',1.00,.15,0],['upperarm_r','z',-1.00,-.15,Math.PI],
+   ['upperleg_l','x',0,.37,0],['upperleg_r','x',0,.37,Math.PI],
+   ['lowerleg_l','x',0,.23,0],['lowerleg_r','x',0,.23,Math.PI],
+   ['spine_02','x',0,.015,0]
+  ].map(([name,axis,rest,swing,offset])=>({...bones.get(name),name,axis,angle:rest,swing,offset}))
+   .filter(p=>p.node);
+  onStatus('Visitor: private Renderpeople local preview');
+ }
+ function animatePrivatePose(){
+  if(!privatePreview||!model)return;
+  const wave=Math.sin(phase);
+  model.position.y=modelRestPosition.y+blend*.028*Math.abs(wave);
+  for(const p of privateBonePose){
+   const rhythm=Math.sin(phase+p.offset);
+   const bend=p.name.startsWith('lowerleg')?Math.max(0,rhythm)*p.swing*blend:rhythm*p.swing*blend;
+   const q=new THREE.Quaternion().setFromAxisAngle(p.axis==='x'?p.xAxis:p.zAxis,p.angle+bend);
+   p.node.quaternion.copy(p.rest).premultiply(q);
+  }
+ }
+
  let walking=false,blend=0,phase=0;
  function setWalking(value){walking=Boolean(value);}
  function tick(dt){
@@ -100,6 +146,7 @@ export function createVisitor(scene,onStatus){
     model.position.z=modelRestPosition.z;
    }
   }
+  if(privatePreview)animatePrivatePose();
   // The procedural rig always has genuine walk and idle animation.
   if(!usingAsset){
    const gait=Math.sin(phase),bob=Math.abs(Math.sin(phase));
@@ -131,6 +178,7 @@ export function createVisitor(scene,onStatus){
     onStatus('Visitor: native Walk + Idle animation');
     return;
    }
+   if(privatePreview)return; // private local model takes priority over delayed async loader
    const obj=gltf.scene;
    if(!obj)throw new Error('Model missing');
    // Center model at local origin and scale to human height.
@@ -153,5 +201,5 @@ export function createVisitor(scene,onStatus){
  // The character is visible and animating immediately; remote asset is optional.
  onStatus('Visitor: native Walk + Idle animation');
  tryAnimatedModel();
- return {root,setWalking,tick,get usesAsset(){return usingAsset;}};
+ return {root,setWalking,tick,installPrivateModel,get usesAsset(){return usingAsset;}};
 }
