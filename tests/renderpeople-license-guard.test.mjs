@@ -34,3 +34,20 @@ test('a private conversion prototype is not falsely described as installed', () 
   const manifest = JSON.parse(read('museum/assets/manifest.json'));
   assert.doesNotMatch(manifest.character.source, /renderpeople/i);
 });
+
+test('private FBX preview is opt-in, lazy and keeps source bytes local', () => {
+  const museum = read('museum/museum.js');
+  const preview = read('museum/private-renderpeople-preview.js');
+  const character = read('museum/character.js');
+  assert.match(museum, /new URLSearchParams\(window\.location\.search\)\.has\('private-character'\)/);
+  assert.match(museum, /import\('\.\/private-renderpeople-preview\.js'\)/);
+  assert.match(preview, /file\.name\.toLowerCase\(\)/);
+  assert.match(preview, /fbx\.arrayBuffer\(\)/);
+  assert.match(preview, /new FBXLoader\(manager\)/);
+  assert.match(preview, /visitor\.installPrivateModel\(obj\)/);
+  assert.doesNotMatch(preview, /fetch\(|XMLHttpRequest|sendBeacon|FormData/);
+  assert.match(character, /function installPrivateModel\(obj\)/);
+  assert.match(character, /privatePreview/);
+  assert.ok(!read('museum/index.html').includes('private-renderpeople-preview.js'),
+    'The default 3D museum must not eagerly load the private preview');
+});
