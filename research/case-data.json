@@ -450,7 +450,7 @@
       "amount": "Approximately $308,000",
       "amountType": "Counterfeit-check total described by California DOJ",
       "outcome": "California DOJ reported guilty pleas in Sonoma Superior Court to identity theft, forgery and grand theft and a five-year prison sentence.",
-      "details": "The state Attorney General's sentencing announcement and a filed Sonoma court complaint provide government documentation. The complaint itself describes initial charges; the press release supplies the later conviction and sentence. The supplied portal docket records a May 8, 2012 restitution determination of $301,528.18 jointly and severally with co-defendants, and minutes for April 30, 2015 report that an expungement motion was denied with outstanding restitution noted. Those entries do not establish the balance today or whether any subsequent relief occurred.",
+      "details": "The state Attorney General's sentencing announcement and a filed Sonoma court complaint provide government documentation. The complaint itself describes initial charges; the press release supplies the later conviction and sentence. The supplied portal docket records a May 8, 2012 restitution determination of $301,528.18 jointly and severally with co-defendants, and minutes for April 30, 2015 report that an expungement motion was denied with outstanding restitution noted. Those entries do not establish the balance today or whether any subsequent relief occurred. The July 8, 2009 sentencing minutes also state restitution of $302,361 jointly and severally to Bank of America; this differs from the May 8, 2012 restitution determination of $301,528.18 jointly with co-defendants. The printout does not clarify how these recorded amounts relate or establish a current balance.",
       "verification": "A",
       "sources": [
         {
@@ -463,9 +463,9 @@
         }
       ],
       "caseNo": "SCR-556340-1",
-      "courtRecordStatus": "Matching 35-page Sonoma portal export; all pages examined at overview resolution November 21, 2026, with 2012 restitution and 2015 expungement entries checked at higher resolution. Full-resolution privacy clearance and complete history verification remain pending. Original PDF withheld; limited public docket-header excerpt only.",
+      "courtRecordStatus": "35-page matching court portal printout visually triaged page by page November 22, 2026. Source pp28 and 33–35 support distinct 2009 and 2012 restitution entries and a 2015 denied expungement motion. Record includes medical/psychological evaluation and personal-detail references; full original withheld pending detailed redaction. Only header excerpt published.",
       "courtRecordSourceFile": "Lemoine.CourtRecords.pdf",
-      "courtRecordReviewedOn": "2026-11-21",
+      "courtRecordReviewedOn": "2026-11-22",
       "publicDocketHeaderExcerptPath": "public-records/SCR-556340-1_Public_Docket_Header_Excerpt.pdf"
     },
     {
