@@ -5,6 +5,9 @@ on:
       - "museum/**"
       - "tests/museum-*.test.mjs"
       - "tests/renderpeople-license-guard.test.mjs"
+      - "tests/high-detail-visitor.test.mjs"
+      - "scripts/audit_public_cc0_visitor.py"
+      - "scripts/import_cc0_detailed_visitor.py"
       - ".gitignore"
       - "research/RENDERPEOPLE-INTEGRATION-STATUS-2026-11-22.md"
       - ".github/workflows/test-museum-layout.yml"
@@ -13,6 +16,9 @@ on:
       - "museum/**"
       - "tests/museum-*.test.mjs"
       - "tests/renderpeople-license-guard.test.mjs"
+      - "tests/high-detail-visitor.test.mjs"
+      - "scripts/audit_public_cc0_visitor.py"
+      - "scripts/import_cc0_detailed_visitor.py"
       - ".gitignore"
       - "research/RENDERPEOPLE-INTEGRATION-STATUS-2026-11-22.md"
 permissions:
@@ -38,3 +44,5 @@ jobs:
         run: node --test tests/museum-*.test.mjs
       - name: Block proprietary Renderpeople files from public browser assets
         run: node --test tests/renderpeople-license-guard.test.mjs
+      - name: Verify progressive high-detail CC0 visitor fallback
+        run: node --test tests/high-detail-visitor.test.mjs
