@@ -6,7 +6,7 @@ Eric is the first candidate for the museum visitor because his shirt, tie, and d
 
 | Candidate | Source zip inside owner-supplied archive | Model and textures |
 | --- | --- | --- |
-| Eric (selected) | `rp_eric_rigged_001_FBX.zip` (~45 MB uncompressed ZIP) | Rigged FBX, diffuse/gloss/normal/two masks |
+| Eric (selected) | `rp_eric_rigged_001_FBX.zip` (~45 MB nested ZIP) | Rigged FBX, diffuse/gloss/normal/two masks |
 | Carla | `rp_carla_rigged_001_FBX.zip` | Rigged FBX, diffuse/gloss/normal/two masks |
 | Claudia | `rp_claudia_rigged_002_FBX.zip` | Rigged FBX, diffuse/gloss/normal/two masks |
 
