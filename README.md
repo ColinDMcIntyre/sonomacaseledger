@@ -21,7 +21,7 @@ Based on an 11-page export of the Sonoma County Superior Court's public case por
 
 ### Source handling
 
-The PDF export supplied during research is **not yet uploaded to this repository**. The case page cites the official public portal and exact PDF page references. Do not claim a PDF is hosted until it has actually been added. Only upload documents authorized for public distribution, and review for confidential or sealed information before sharing.
+The unredacted original Petros export remains private. A separate **privacy-redacted 11-page reproduction** is public at [`public-records/SCR-715528-1_PublicCopy.pdf`](public-records/SCR-715528-1_PublicCopy.pdf). It is an informational copy of a court-portal printout, not a certified judgment. Do not publish an original or unreviewed scan.
 
 ## Publishing free with GitHub Pages
 
@@ -58,4 +58,4 @@ To test: publish GitHub Pages from `main` at root, then open `https://colindmcin
 
 The public archive now distinguishes **source grade** (A: government, court or regulator source; A/B: mixed primary material and reporting; B: published reporting) from **complete trial-court docket review**. A government announcement alone is not a verified full docket. Each of the 37 case pages displays a source date and explicit docket-status note.
 
-The current Sonoma record acquisition tracker is [research/COURT-RECORDS-CHECKLIST.md](research/COURT-RECORDS-CHECKLIST.md) (also available as CSV). Of 31 county profiles, 3 case numbers are confirmed from existing cited material and 28 await identification through the official portal's party-name search. New court PDFs must be examined before upload, and confidential/unredacted protected documents must not be published. See [corrections](corrections/) for public correction requests and [research/README.md](research/README.md) for evidence-grade rules. The dated source register is not live court monitoring.
+The current Sonoma record acquisition tracker is [research/COURT-RECORDS-CHECKLIST.md](research/COURT-RECORDS-CHECKLIST.md) (also available as CSV). Of 31 county profiles, **14** have matched criminal case-detail records and **17** remain unresolved or unmatched. The private source collection contains 30 PDFs; six complete privacy-redacted public reproductions and nine limited header excerpts are published. New court PDFs must be examined before upload, and confidential/unredacted protected documents must not be published. See [corrections](corrections/) for public correction requests and [research/README.md](research/README.md) for evidence-grade rules. The dated source register is not live court monitoring. The [November 21 review progress log](research/COURT-REVIEW-PROGRESS-2026-11-21.md) records the 430-page remaining PDF preflight, newly checked later proceedings and strict public-release holds.
