@@ -67,7 +67,7 @@
       "amount": "$1,888,280.43",
       "amountType": "Reported restitution ordered",
       "outcome": "Reporting identifies a six-year-eight-month sentence in Sonoma Superior Court and a restitution order of $1,888,280.43.",
-      "details": "Restitution is not necessarily identical to gross proceeds or to an independent estimate of the amount taken. The underlying sentencing judgment was not separately examined.",
+      "details": "Restitution is not necessarily identical to gross proceeds or to an independent estimate of the amount taken. The underlying sentencing judgment was not separately examined. Source page 62 of the 63-page Sonoma portal export records a January 5 2010 restitution order filed with judgment amount $1,888,280.43. This is not a statement of funds paid or a current balance.",
       "verification": "B",
       "sources": [
         {
@@ -76,9 +76,9 @@
         }
       ],
       "caseNo": "SCR-563322-1",
-      "courtRecordStatus": "Portal case-detail export matched to defendant and relevant allegation; date of review 2026-11-19. Underlying PDF not yet publicly hosted. Full event history and any later relief still require a complete audit.",
+      "courtRecordStatus": "Matched 63-page criminal docket. Jan 5 2010 filed restitution order checked on source page 62 November 22 2026. Full privacy/disposition audit still pending; source original withheld.",
       "courtRecordSourceFile": "MERMAN.CourtRecords.pdf",
-      "courtRecordReviewedOn": "2026-11-19",
+      "courtRecordReviewedOn": "2026-11-22",
       "publicDocketHeaderExcerptPath": "public-records/SCR-563322-1_Public_Docket_Header_Excerpt.pdf"
     },
     {
@@ -194,7 +194,7 @@
       "amount": "$189,526",
       "amountType": "Restitution ordered according to California DOI",
       "outcome": "The California Department of Insurance reported felony theft convictions, a four-year term with mandatory supervision, and $189,526 in restitution.",
-      "details": "The state regulator confirms Sonoma District Attorney prosecution of a former Santa Rosa agent. The restitution is labeled as an order, not automatically as total financial loss.",
+      "details": "The state regulator confirms Sonoma District Attorney prosecution of a former Santa Rosa agent. The restitution is labeled as an order, not automatically as total financial loss. Source pages 73–76 of the 76-page portal printout show a March/April 2025 request and proceedings regarding resentencing, a July 11 2025 completed-jail-time-and-release entry, April 27 2026 mandatory supervision reinstatement/modification, and another modification on October 23 2026. Release from jail does not mean supervision ended.",
       "verification": "A",
       "sources": [
         {
@@ -203,9 +203,9 @@
         }
       ],
       "caseNo": "SCR-728488-1",
-      "courtRecordStatus": "Portal case-detail export matched to defendant and relevant allegation; date of review 2026-11-19. Underlying PDF not yet publicly hosted. Full event history and any later relief still require a complete audit.",
+      "courtRecordStatus": "Matched 76-page criminal docket. Specific 2025–2026 post-sentence actions verified from source pp.73–76 November 22 2026; full-length page-by-page privacy/disposition audit pending. Original withheld; one-page public header excerpt only.",
       "courtRecordSourceFile": "RAMOS.CourtRecords.pdf",
-      "courtRecordReviewedOn": "2026-11-19",
+      "courtRecordReviewedOn": "2026-11-22",
       "publicDocketHeaderExcerptPath": "public-records/SCR-728488-1_Public_Docket_Header_Excerpt.pdf"
     },
     {
@@ -260,7 +260,7 @@
       "amount": "More than $135,000",
       "amountType": "Amount described in local reporting",
       "outcome": "A Sonoma Superior Court portal export documents a conviction and the reported original two-year sentence. On June 10, 2021, the court entered an order granting dismissal under Penal Code § 1203.4. That is later post-conviction relief, not an acquittal or an erasure of the historical conviction.",
-      "details": "The original 2018 news report described a two-year sentence following an embezzlement prosecution involving the Finnish American Home Association. The later court-portal event list, on page 36 of the supplied 36-page export, records a May 11, 2021 petition and a June 10, 2021 order granting dismissal under Penal Code § 1203.4. The portal's first-page case status likewise reads 'Dismissed per PC 1203.4'. The export does not establish how much custody was actually served.",
+      "details": "The original 2018 news report described a two-year sentence following an embezzlement prosecution involving the Finnish American Home Association. The later court-portal event list, on page 36 of the supplied 36-page export, records a May 11, 2021 petition and a June 10, 2021 order granting dismissal under Penal Code § 1203.4. The portal's first-page case status likewise reads 'Dismissed per PC 1203.4'. The export does not establish how much custody was actually served. Source page 35 of the 36-page portal export records a February 14 2020 victim restitution order in the amount of $138,109 to the Finnish American Home Association, while page 36 documents the June 10 2021 dismissal under PC 1203.4. This later post-conviction relief is not an acquittal; the restitution figure is not a current balance.",
       "verification": "A/B",
       "sources": [
         {
@@ -269,9 +269,9 @@
         }
       ],
       "caseNo": "SCR-678074-1",
-      "courtRecordStatus": "Matched Sonoma criminal court-portal export and checked first-page case status plus final docket entries on November 19, 2026. A §1203.4 dismissal order is documented on June 10, 2021. Full-page privacy screening and certification of underlying documents are not complete; the original PDF is withheld.",
+      "courtRecordStatus": "Matched 36-page criminal docket. Restitution order (p35) and later PC1203.4 dismissal (p36) checked November 22 2026; full page-level privacy audit pending. Unredacted original withheld.",
       "courtRecordSourceFile": "BROIN.CourtRecords.pdf",
-      "courtRecordReviewedOn": "2026-11-19",
+      "courtRecordReviewedOn": "2026-11-22",
       "laterRelief": {
         "orderType": "Dismissal under Penal Code § 1203.4 (post-conviction)",
         "orderDate": "2021-06-10",
@@ -308,7 +308,7 @@
       "amount": "Not consistently established",
       "amountType": "No adjudicated financial figure used",
       "outcome": "Reporting says Halaweh pleaded no contest to 15 of 32 felony counts and received a 13-year-four-month structured term.",
-      "details": "The sentence reportedly included nine years four months of county custody and four years of mandatory supervision. A sentence is not proof that the full custody time was actually served.",
+      "details": "The sentence reportedly included nine years four months of county custody and four years of mandatory supervision. A sentence is not proof that the full custody time was actually served. Source page 54 of the 54-page portal export records April 28 and May 19 2021 restitution hearings and a monthly restitution payment reference; not proof of the amount paid or final case status.",
       "verification": "B",
       "sources": [
         {
@@ -317,9 +317,9 @@
         }
       ],
       "caseNo": "SCR-651671-1",
-      "courtRecordStatus": "Portal case-detail export matched to defendant and relevant allegation; date of review 2026-11-19. Underlying PDF not yet publicly hosted. Full event history and any later relief still require a complete audit.",
+      "courtRecordStatus": "Matched 54-page criminal docket. Targeted 2021 restitution entries checked November 22 2026; full privacy/disposition audit still pending; original withheld.",
       "courtRecordSourceFile": "Halaweh.CourtRecords.pdf",
-      "courtRecordReviewedOn": "2026-11-19",
+      "courtRecordReviewedOn": "2026-11-22",
       "publicDocketHeaderExcerptPath": "public-records/SCR-651671-1_Public_Docket_Header_Excerpt.pdf"
     },
     {
