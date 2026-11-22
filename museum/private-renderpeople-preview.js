@@ -36,7 +36,12 @@ export function enablePrivateCharacterPreview({getVisitor,controls,report}){
   try{
    const {FBXLoader}=await import('three/addons/loaders/FBXLoader.js');
    const manager=new THREE.LoadingManager();
-   manager.setURLModifier(url=>textureUrls.get(basename(url))||url);
+   // Never allow an FBX-embedded remote or filesystem texture reference to
+   // generate an outside network request. Only owner-selected blob URLs load.
+   manager.setURLModifier(url=>{
+    if(String(url).startsWith('blob:'))return url;
+    return textureUrls.get(basename(url))||'data:,';
+   });
    const loader=new FBXLoader(manager);
    const obj=loader.parse(await fbx.arrayBuffer(),'');
    // Artist FBXs can refer to machine-specific absolute texture paths.
