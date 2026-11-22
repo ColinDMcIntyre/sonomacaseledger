@@ -357,7 +357,7 @@
       "amount": "Not quantified here",
       "amountType": "No uniform court-proven loss figure",
       "outcome": "Published appellate material describes guilty pleas to grand theft and 11 receiving-stolen-property counts, a four-year prison sentence and an unsuccessful resentencing petition.",
-      "details": "A California Court of Appeal opinion describes the related proceedings. Jeffrey's pleas and sentence must be distinguished from Karen Holzworth's separate jury convictions.",
+      "details": "A California Court of Appeal opinion describes the related proceedings. Jeffrey's pleas and sentence must be distinguished from Karen Holzworth's separate jury convictions. The May 29 2014 court sentencing minutes in SCR-627215-1 source p31 ordered restitution of $285,453.49 to Zurich Recovery Services, distinct from any estimate of victim losses; source pp33–34 later deny a resentencing petition on March 10 2015 and source p39 records appellate affirmances in 2016–17.",
       "verification": "A/B",
       "sources": [
         {
@@ -370,9 +370,9 @@
         }
       ],
       "caseNo": "SCR-627215-1",
-      "courtRecordStatus": "Portal case-detail export matched to defendant and relevant allegation; date of review 2026-11-19. Underlying PDF not yet publicly hosted. Full event history and any later relief still require a complete audit.",
+      "courtRecordStatus": "Text-bearing 40-page court-portal copy reviewed for later court actions and contact/witness/tracking risks November 22, 2026; supplemental 39-page image-only printout also exists. Full source release pending detailed redaction, with only case-header excerpt public.",
       "courtRecordSourceFile": "SCR-627215-1.pdf",
-      "courtRecordReviewedOn": "2026-11-19",
+      "courtRecordReviewedOn": "2026-11-22",
       "publicDocketHeaderExcerptPath": "public-records/SCR-627215-1_Public_Docket_Header_Excerpt.pdf"
     },
     {
