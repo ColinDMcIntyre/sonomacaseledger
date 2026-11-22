@@ -8,6 +8,7 @@ on:
       - "research/case-data.json"
       - "research/case-briefs.json"
       - "tests/case-briefs.test.mjs"
+      - "scripts/sync-case-briefs.mjs"
       - ".github/workflows/test-case-summaries.yml"
   pull_request:
     paths:
@@ -16,6 +17,7 @@ on:
       - "research/case-data.json"
       - "research/case-briefs.json"
       - "tests/case-briefs.test.mjs"
+      - "scripts/sync-case-briefs.mjs"
       - ".github/workflows/test-case-summaries.yml"
 
 permissions:
@@ -29,5 +31,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
+      - name: Ensure all case summaries match maintained source data
+        run: node scripts/sync-case-briefs.mjs --check
       - name: Verify all 37 case briefs, source links and legal distinctions
         run: node --test tests/case-briefs.test.mjs
