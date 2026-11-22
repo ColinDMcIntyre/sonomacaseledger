@@ -4,10 +4,23 @@ A public-facing, static archive of Sonoma County court case outcomes.
 
 ## Site structure
 
-- \`index.html\` — homepage and research standards.
+- \`index.html\` — small, no-JavaScript entry landing with direct links to the traditional archive and 3D museum.
 - \`cases/constantine-petros/index.html\` — the first court-record case file.
 - \`assets/styles.css\` — shared responsive styling.
 - \`sitemap.xml\` and \`robots.txt\` — search-crawler discovery files.
+
+## Fast homepage and search visibility
+
+The site opens at **`/` with a pure HTML/CSS landing page**. It immediately offers two plain anchor links:
+
+- **Traditional website:** `./cases/`, a searchable text-first county case archive, with related federal profiles and court-record status linked in the navigation.
+- **3D interactive experience:** `./museum/`, a separate Three.js application that fetches the engine, models and textures **only after the visitor chooses the museum**.
+
+The homepage uses self-contained critical CSS, system fonts, no third-party images, no client-side page JavaScript and no redirect. Its visible research description and standard `<a href>` links are intentionally retained for indexing; do not replace the homepage with a blank JavaScript-only splash screen. The museum remains heavier because its visual assets are separate from this first load.
+
+**Performance guardrail:** `node --test tests/landing-page.test.mjs` checks the no-JS/no-media requirement, the 16 KB raw HTML budget, metadata, crawlable links and key anchors. A GitHub Actions workflow runs the test when landing files change. This is a *static budget check*, not a measured Lighthouse score or guaranteed search ranking.
+
+**Post-deployment verification:** inspect the public homepage on both mobile and desktop, test both entry options, check [PageSpeed Insights](https://pagespeed.web.dev/) for real LCP/INP/CLS metrics, and submit `https://colindmcintyre.github.io/sonomacaseledger/sitemap.xml` as a sitemap in a verified [Google Search Console](https://search.google.com/search-console/) property. Performance and ranking depend on user networks, devices, indexing and content quality, not only HTML size.
 
 ## First case: People v. Petros, SCR-715528-1
 
