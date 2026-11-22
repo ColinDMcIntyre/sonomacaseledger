@@ -751,6 +751,16 @@ async function main(){
    console.info('Static museum light:',daylight.pools+' stained-glass pools, '+daylight.shafts+' sun-shaft planes');
   loadingProgress(77);
   setupUI();setupPointer();
+  // Opt-in local rig preview: the proprietary FBX and textures stay on the
+  // visitor's own device and never become public GitHub Pages assets.
+  // Normally omitted completely; no FBXLoader network cost for visitors.
+  if(new URLSearchParams(window.location.search).has('private-character')){
+   import('./private-renderpeople-preview.js')
+    .then(({enablePrivateCharacterPreview})=>enablePrivateCharacterPreview({
+      getVisitor:()=>visitor,controls:document.querySelector('.hud-top-actions'),report
+    }))
+    .catch(error=>console.warn('Private model preview unavailable:',error));
+  }
   loadCathedralMaterials(status=>console.info(status))
     .catch(error=>console.warn('PBR loading:',error));
   // Install free third-party furniture only when the locally hosted model
