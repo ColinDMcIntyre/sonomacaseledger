@@ -14,6 +14,10 @@ test('private Renderpeople model files must not be hosted as public browser asse
   assert.match(manifest.character.license, /CC0/i);
 
   const allowed = new Set(['visitor.glb']);
+  if (manifest.character.highDetail?.license === 'CC0-1.0' &&
+      manifest.character.highDetail.path === './assets/characters/realistic_guide_cc0.glb') {
+    allowed.add('realistic_guide_cc0.glb');
+  }
   const names = readdirSync(resolve(root, 'museum/assets/characters'));
   for (const name of names) {
     assert.ok(allowed.has(name),
