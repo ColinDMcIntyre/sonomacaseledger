@@ -775,6 +775,17 @@ async function main(){
     })
     .catch(error=>console.warn('Optional museum assets:',error));
   clock.start();animate();
+  // Enhance the avatar only after rendering the playable museum. The import
+  // process makes the CC0 model available in the local manifest when approved.
+  // Conserve data and GPU memory on phones, tablets and slower connections.
+  const connection=navigator.connection||navigator.mozConnection||navigator.webkitConnection;
+  const roomyDisplay=window.matchMedia('(min-width: 1000px) and (pointer: fine)').matches;
+  const limitedNetwork=connection?.saveData||/^(slow-2g|2g|3g)$/.test(connection?.effectiveType||'');
+  if(roomyDisplay&&!limitedNetwork){
+   window.setTimeout(()=>visitor.upgradeToHighDetail().catch(
+    error=>console.warn('High-detail avatar fallback:',error)
+   ),1400);
+  }
   loadingProgress(100);
   setTimeout(()=>{UI.loading.classList.add('done');setTimeout(()=>UI.loading.remove(),800);},450);
   routeHash();
