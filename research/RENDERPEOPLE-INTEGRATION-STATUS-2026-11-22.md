@@ -20,9 +20,21 @@ Renderpeople's 2024 [General Terms and Conditions](https://renderpeople.com/gene
 
 Before public deployment, obtain specific written authorization from Renderpeople for the intended browser delivery method. Contact: info@renderpeople.com. Alternative: use a photorealistic character with a public-web-compatible license that permits direct delivery of the compiled 3D asset.
 
+## Private in-browser museum preview (implemented; live playback untested)
+
+A developer-only preview loader is now present at:
+
+https://colindmcintyre.github.io/sonomacaseledger/museum/?private-character=1
+
+Open the page in a browser with WebGL support. A **Preview private visitor** button appears at the top. Select the extracted **`rp_eric_rigged_001_yup_t.fbx`** and JPG textures from the `tex/` directory in one file-picker selection. The browser loads them with Three.js's FBXLoader, replaces the local player's visible model, and applies an experimental, procedurally driven arm/leg walk cycle using the verified `upperarm_l/r`, `upperleg_l/r`, `lowerleg_l/r` bones. The locally loaded files are **not uploaded, persisted, or shared with other site visitors**. A file-picker-only preview avoids making the proprietary source a publicly downloadable website asset.
+
+Implementation: `museum/private-renderpeople-preview.js` (loaded only with the explicit query parameter), `museum/character.js` (preview model installation and approximate gait), `museum/museum.js` (lazy opt-in wiring).
+
+**Limitations:** This preview has been source-checked but has **not undergone an interactive visual test with the owner's actual FBX in a running browser**. The arm pose, materials, scaling, face details, walk cycle and mobile performance may require adjustment. It is not a production replacement, a proper retargeted skeletal walk animation, or public distribution permission.
+
 ## Live museum status
 
-**The museum still uses the existing CC0 Casual Walker visitor,** with its built-in procedural fallback; no Renderpeople assets have been published. The existing visitor is retained so the museum and its animation system continue to function.
+**The public museum still uses the existing CC0 Casual Walker visitor** and built-in procedural fallback. A visitor may explicitly load an FBX already on their own device in private preview mode; no Renderpeople assets have been published. The existing visitor is retained so the museum and its animation system continue to function.
 
 ## Remaining integration steps
 
