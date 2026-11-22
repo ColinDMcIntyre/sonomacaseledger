@@ -1,0 +1,35 @@
+name: Lightweight landing page SEO and accessibility
+
+on:
+  push:
+    paths:
+      - "index.html"
+      - "cases/index.html"
+      - "museum/index.html"
+      - "robots.txt"
+      - "sitemap.xml"
+      - "tests/landing-page.test.mjs"
+      - ".github/workflows/test-landing-page.yml"
+  pull_request:
+    paths:
+      - "index.html"
+      - "cases/index.html"
+      - "museum/index.html"
+      - "robots.txt"
+      - "sitemap.xml"
+      - "tests/landing-page.test.mjs"
+      - ".github/workflows/test-landing-page.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  landing-page-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Verify lightweight landing and SEO links
+        run: node --test tests/landing-page.test.mjs
