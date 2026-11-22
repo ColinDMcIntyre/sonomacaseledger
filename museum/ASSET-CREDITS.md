@@ -25,6 +25,22 @@ Poly Haven license and reuse: https://polyhaven.com/license . Models are artisti
 
 The current locally imported animated visitor is Casual Walker v1 LOD0 (CC0; https://tevy.dev/models/casual-walker). Earlier Gobkit/remote-visitor references in the historical build notes below are superseded.
 
+## Realistic guide upgrade — rights and deployment
+
+The user supplied Renderpeople Eric, Carla, and Claudia FBX archives for character work. **Those models are not redistributed through this public website.** Renderpeople's [terms](https://renderpeople.com/general-terms-and-conditions/) grant render-use rights but restrict directly exposing individual model files. A local-only Eric FBX preview exists for development; it is not the installed public guide.
+
+For a compatible public-facing upgrade, this repository includes a guarded importer for **Jordan — Locomotion Collection**, an original business-clothed, skinned, animated character by Innerscene derived from MakeHuman/MPFB CC0 assets:
+- Source and rights: https://www.innerscene.com/tools/library/3d-parts/locomotion-collection-jordan-3d-person-animated-911f1584 (CC0 1.0).
+- Rig: multiple named clips including idle, relaxed walk, brisk walk, and others (as described by the source).
+- Original model size: approximately 23.3 MB. The import workflow attempts 1024-pixel textures and WebP compression and will **not publish a file** if rigging/animations, file size, or decoder requirements fail validation.
+- Output (only after successful import): `museum/assets/characters/realistic_guide_cc0.glb`; manifest `character.highDetail` must point to it with an explicit CC0 source.
+- Loading: the existing lightweight character appears immediately. After the museum's first frame, a capable desktop may progressively load the high-detail model; mobile and metered connections only load it through an optional **HD** control.
+- Fallback: failure to download, load, or validate leaves the existing CC0 Casual Walker/procedural visitor working.
+
+**Publication status must be checked against the repository tree and the manifest.** The existence of importer scripts does not mean the large high-detail binary was successfully downloaded, installed, visually tested, or released. Do not describe the high-detail visitor as live until those checks pass.
+
+
+
 ## Technical approach
 
 - Case displays use original transparent vitrines, not an opaque imported display cabinet that might conceal the contextual object.
