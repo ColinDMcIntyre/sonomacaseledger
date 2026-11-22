@@ -740,6 +740,48 @@ function animate(){
  world.update(clock.elapsedTime,dt,state.fx,camera);
  renderer.render(scene,camera);
 }
+async function installHighDetailGuideOption(){
+ try{
+  const response=await fetch('./assets/manifest.json',{cache:'force-cache'});
+  if(!response.ok)return;
+  const asset=(await response.json())?.character?.highDetail;
+  if(asset?.license!=='CC0-1.0'||
+    asset.path!=='./assets/characters/realistic_guide_cc0.glb')return;
+  const tray=document.querySelector('.control-tray');
+  if(!tray)return;
+  const button=document.createElement('button');
+  button.id='detail-guide-button';button.type='button';button.textContent='HD';
+  button.title='Load the optional detailed animated guide (up to 24 MB)';
+  button.setAttribute('aria-label','Load detailed animated guide, up to 24 megabytes');
+  tray.append(button);
+  async function upgrade(){
+   if(button.disabled)return;
+   button.disabled=true;button.textContent='…';
+   try{
+    const installed=await visitor.upgradeToHighDetail();
+    if(installed){
+     button.textContent='HD ✓';
+     button.title='Detailed animated guide installed';
+     button.setAttribute('aria-label','Detailed animated guide installed');
+    }else{
+     button.disabled=false;button.textContent='HD';
+     report('Enhanced guide unavailable. Your original animated visitor is unchanged.');
+    }
+   }catch(error){
+    button.disabled=false;button.textContent='HD';
+    console.warn('Optional guide upgrade failed',error);
+    report('Enhanced guide could not load; the museum is still playable.');
+   }
+  }
+  button.addEventListener('click',upgrade);
+  const connection=navigator.connection||navigator.mozConnection||navigator.webkitConnection;
+  const roomyDisplay=window.matchMedia('(min-width: 1000px) and (pointer: fine)').matches;
+  const limitedNetwork=connection?.saveData||/^(slow-2g|2g|3g)$/.test(connection?.effectiveType||'');
+  if(roomyDisplay&&!limitedNetwork)window.setTimeout(upgrade,1400);
+ }catch(error){
+  console.warn('Optional guide configuration unavailable; using existing visitor',error);
+ }
+}
 async function main(){
  try{
   loadingProgress(16);
@@ -775,17 +817,10 @@ async function main(){
     })
     .catch(error=>console.warn('Optional museum assets:',error));
   clock.start();animate();
-  // Enhance the avatar only after rendering the playable museum. The import
-  // process makes the CC0 model available in the local manifest when approved.
-  // Conserve data and GPU memory on phones, tablets and slower connections.
-  const connection=navigator.connection||navigator.mozConnection||navigator.webkitConnection;
-  const roomyDisplay=window.matchMedia('(min-width: 1000px) and (pointer: fine)').matches;
-  const limitedNetwork=connection?.saveData||/^(slow-2g|2g|3g)$/.test(connection?.effectiveType||'');
-  if(roomyDisplay&&!limitedNetwork){
-   window.setTimeout(()=>visitor.upgradeToHighDetail().catch(
-    error=>console.warn('High-detail avatar fallback:',error)
-   ),1400);
-  }
+  // Once a vetted CC0 GLB has actually been installed, offer a user-controlled
+  // HD switch. Desktop visitors with suitable connections auto-upgrade AFTER
+  // first frame; mobile and metered connections remain opt-in.
+  installHighDetailGuideOption();
   loadingProgress(100);
   setTimeout(()=>{UI.loading.classList.add('done');setTimeout(()=>UI.loading.remove(),800);},450);
   routeHash();
