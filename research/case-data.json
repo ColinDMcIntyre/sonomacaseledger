@@ -383,7 +383,7 @@
       "amount": "Not quantified here",
       "amountType": "No independent loss assigned to this defendant",
       "outcome": "An appellate opinion records the conviction and its affirmance; the later Sonoma Superior Court defendant docket SCR-627215-2 records an order granting dismissal under Penal Code § 1203.4 on July 17, 2018. This was post-conviction relief, not an acquittal.",
-      "details": "The original jury verdict, probation/jail sentence and appellate affirmance remain historical events. Karen Holzworth's separate 36-page Sonoma court-portal export identifies defendant case SCR-627215-2 and records an order granting a Penal Code § 1203.4 dismissal on July 17, 2018 (page 36). This is not the same court record as Jeffrey Holzworth's SCR-627215-1; neither the appellate affirmance nor this later dismissal proves the actual number of days of custody served.",
+      "details": "The original jury verdict, probation/jail sentence and appellate affirmance remain historical events. Karen Holzworth's separate 36-page Sonoma court-portal export identifies defendant case SCR-627215-2 and records an order granting a Penal Code § 1203.4 dismissal on July 17, 2018 (page 36). This is not the same court record as Jeffrey Holzworth's SCR-627215-1; neither the appellate affirmance nor this later dismissal proves the actual number of days of custody served. The case-specific source pages 32–34 record a February 2015 jury verdict and April 9, 2015 sentence imposing 36 months' formal probation and nine months' jail custody with one day of credit; that is an imposed sentence, not a statement of time actually served. Page 36 records the July 17, 2018 Penal Code 1203.4 dismissal, not an acquittal.",
       "verification": "A",
       "sources": [
         {
@@ -392,9 +392,9 @@
         }
       ],
       "caseNo": "SCR-627215-2",
-      "courtRecordStatus": "Matched Sonoma criminal court-portal export and checked first-page case status plus final docket entries on November 19, 2026. A §1203.4 dismissal order is documented on July 17, 2018. Full-page privacy screening and certification of underlying documents are not complete; the original PDF is withheld.",
+      "courtRecordStatus": "Matching 36-page scanned docket visually triaged page by page November 22, 2026. Trial courtroom minutes include witness identities, bank-record descriptions and other unnecessary third-party data, so full-source publication is withheld pending detailed redaction. Public one-page docket header excerpt only.",
       "courtRecordSourceFile": "SCR-627215-2.pdf",
-      "courtRecordReviewedOn": "2026-11-19",
+      "courtRecordReviewedOn": "2026-11-22",
       "laterRelief": {
         "orderType": "Dismissal under Penal Code § 1203.4 (post-conviction)",
         "orderDate": "2018-07-17",
