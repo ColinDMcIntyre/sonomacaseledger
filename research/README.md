@@ -2,6 +2,8 @@
 
 Original compilation: November 18, 2026. Court-PDF intake update: November 19, 2026.
 
+**Current source status (November 21, 2026):** 31 county profiles; **14 matched criminal case-detail records / 17 unresolved**. The research folder has **30 original court-related PDFs**. Six complete privacy-redacted court-portal copies and nine limited header excerpts are public; the unredacted originals remain withheld. Nine other matching source exports (430 pages) still need full-resolution privacy clearance. See [November 21 review-progress log](COURT-REVIEW-PROGRESS-2026-11-21.md). Historical phase notes below describe earlier milestones, not the current count.
+
 The archive comprises 30 new Sonoma-area financial-crime profiles plus one existing court-record review of Constantine William Petros, and six separate federal profiles. This is not a countywide largest-case ranking and its financial figures cannot all be compared.
 
 Evidence A = primarily a government, court or appellate source. A/B = government or court material plus published media reporting. B = published reporting with full docket unverified. A; docket pending = state regulator annual report reviewed but a matching Sonoma criminal docket has not been independently checked. A; subsequent dismissal documented = government report plus supplied portal record documenting later dismissal; do not confuse post-conviction relief with acquittal.
@@ -22,7 +24,7 @@ See evidence-table.csv and case-data.json for names, links, and case-specific ve
 
 The user supplied 28 court-portal PDFs in a connected Drive folder. The current public register lists 13 matched criminal case numbers, including the preexisting Petros entry, but the underlying PDFs are **not yet hosted**. Several same-name results are actually civil/family proceedings or older unrelated offenses. They must not be used as criminal evidence for the listed news cases. See [COURT-PDF-AUDIT.md](COURT-PDF-AUDIT.md) for triage and preservation guidance. Individual case pages should be updated for matched numbers and any verified later orders, without representing a partial review as an exhaustive docket audit.
 
-Public status index: [../records/](../records/). It lists the 13 matched Sonoma criminal court case-detail exports and 18 unresolved profiles, and explains why raw PDFs have not been republished.
+Public status index: [../records/](../records/). It currently lists 14 matched Sonoma criminal court case-detail exports and 17 unresolved profiles. Six reviewed, redacted full copies and nine header excerpts are public; unredacted originals remain withheld.
 
 ## Public reviewed reproductions (November 19, 2026)
 
