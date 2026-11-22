@@ -450,7 +450,7 @@
       "amount": "Approximately $308,000",
       "amountType": "Counterfeit-check total described by California DOJ",
       "outcome": "California DOJ reported guilty pleas in Sonoma Superior Court to identity theft, forgery and grand theft and a five-year prison sentence.",
-      "details": "The state Attorney General's sentencing announcement and a filed Sonoma court complaint provide government documentation. The complaint itself describes initial charges; the press release supplies the later conviction and sentence.",
+      "details": "The state Attorney General's sentencing announcement and a filed Sonoma court complaint provide government documentation. The complaint itself describes initial charges; the press release supplies the later conviction and sentence. The supplied portal docket records a May 8, 2012 restitution determination of $301,528.18 jointly and severally with co-defendants, and minutes for April 30, 2015 report that an expungement motion was denied with outstanding restitution noted. Those entries do not establish the balance today or whether any subsequent relief occurred.",
       "verification": "A",
       "sources": [
         {
@@ -463,9 +463,9 @@
         }
       ],
       "caseNo": "SCR-556340-1",
-      "courtRecordStatus": "Portal case-detail export matched to defendant and relevant allegation; date of review 2026-11-19. Underlying PDF not yet publicly hosted. Full event history and any later relief still require a complete audit.",
+      "courtRecordStatus": "Matching 35-page Sonoma portal export; all pages examined at overview resolution November 21, 2026, with 2012 restitution and 2015 expungement entries checked at higher resolution. Full-resolution privacy clearance and complete history verification remain pending. Original PDF withheld; limited public docket-header excerpt only.",
       "courtRecordSourceFile": "Lemoine.CourtRecords.pdf",
-      "courtRecordReviewedOn": "2026-11-19",
+      "courtRecordReviewedOn": "2026-11-21",
       "publicDocketHeaderExcerptPath": "public-records/SCR-556340-1_Public_Docket_Header_Excerpt.pdf"
     },
     {
