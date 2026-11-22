@@ -80,6 +80,25 @@ The distinction is **first-pass full-page visual triage** versus **publication-r
 
 **Do not publish** sensitive witness, bank-account, medical/evaluation, booking, mailing or other extraneous private details as part of a casual public court-document upload. Completion of visual review does not certify completeness of the docket or legal/publication clearance. A reduced editorial summary may be published based on verified court entries while original PDFs remain withheld.
 
+## November 22: six new public-safe selected-source PDFs published
+
+The six remaining matching **source PDF exports** have each been used to prepare a distinct privacy-minimized **selected-page evidence PDF**. These six new files are in `public-records/` and linked from the matching case profiles. **Five unique defendant profiles** are represented, because `SCR-627215-1.pdf` and `HOLZWORTH.CourtRecords.pdf` both concern **Jeffrey Holzworth** and are not two cases.
+
+| Original source | Newly published public evidence PDF | Selected source pages reproduced as cropped raster excerpts |
+| --- | --- | --- |
+| `Elena.CourtREcords.pdf` | [`SCR-751314-1_Selected_Redacted_Docket_Excerpt.pdf`](../public-records/SCR-751314-1_Selected_Redacted_Docket_Excerpt.pdf) | 1 (case-information header), 7 (jury findings), 51 (appeal filing) |
+| `HOLZWORTH.CourtRecords.pdf` | [`SCR-627215-1_Selected_Redacted_Docket_Excerpt.pdf`](../public-records/SCR-627215-1_Selected_Redacted_Docket_Excerpt.pdf) | 1, 7, 39 |
+| `Halaweh.CourtRecords.pdf` | [`SCR-651671-1_Selected_Redacted_Docket_Excerpt.pdf`](../public-records/SCR-651671-1_Selected_Redacted_Docket_Excerpt.pdf) | 1, 54 |
+| `MERMAN.CourtRecords.pdf` | [`SCR-563322-1_Selected_Redacted_Docket_Excerpt.pdf`](../public-records/SCR-563322-1_Selected_Redacted_Docket_Excerpt.pdf) | 1, 62 |
+| `RAMOS.CourtRecords.pdf` | [`SCR-728488-1_Selected_Redacted_Docket_Excerpt.pdf`](../public-records/SCR-728488-1_Selected_Redacted_Docket_Excerpt.pdf) | 1, 75, 76 |
+| `SCR-627215-1.pdf` | [`SCR-627215-1_Scanned_Secondary_Excerpt.pdf`](../public-records/SCR-627215-1_Scanned_Secondary_Excerpt.pdf) | 1, 39 |
+
+**Method:** Only manually selected source-page rectangular regions were rendered to raster images and incorporated into fresh, clearly labeled editorial PDFs with a cover, case number, original pagination and evidentiary limitations. Everything outside each displayed rectangle was omitted, not covered over with a cosmetic PDF rectangle. The original PDF object streams, annotations, metadata and extractable text were not copied into the published source-image pages. The public copies were opened to verify page count, zero embedded attachments, and lack of source-original PDF layers. Individual source excerpts were selected to avoid unrelated victim, bank-account, mailing, witness and sensitive treatment content.
+
+**Publication accounting:** Existing **six full privacy-reviewed reproductions** remain unchanged; **nine one-page court-header excerpts** remain unchanged; **six additional selected-source PDFs** are now public. **Do not reclassify any of the nine withheld source exports as a complete, privacy-cleared full-docket publication.** The 107/430 first-pass visual triage count and 323-page remaining comprehensive review count have **not** changed merely by publishing selected extracts. These selected-document publications do not increase the 14/31 unique court-case match count.
+
+**Site links:** See [Elana Cohen-Roth](../cases/elana-cohen-roth/), [Jeffrey Holzworth](../cases/jeffrey-holzworth/), [Mohannad Halaweh](../cases/mohannad-halaweh/), [Ryan Merman](../cases/ryan-merman/), and [Christopher Ramos](../cases/christopher-ramos/).
+
 ## Remaining work
 
 The matched-case count remains **14 of 31 Sonoma County profiles**; 17 are unresolved. Malfa `SCR-701902-2` and Webb `SCR-508159-1` remain leads requiring matching official case-detail charge/disposition records before upgrading the case count. The **six previous full public copies and nine previously published one-page docket-header excerpts** remain unchanged until new copies pass the publication gate.
