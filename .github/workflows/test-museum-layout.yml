@@ -4,11 +4,17 @@ on:
     paths:
       - "museum/**"
       - "tests/museum-*.test.mjs"
+      - "tests/renderpeople-license-guard.test.mjs"
+      - ".gitignore"
+      - "research/RENDERPEOPLE-INTEGRATION-STATUS-2026-11-22.md"
       - ".github/workflows/test-museum-layout.yml"
   pull_request:
     paths:
       - "museum/**"
       - "tests/museum-*.test.mjs"
+      - "tests/renderpeople-license-guard.test.mjs"
+      - ".gitignore"
+      - "research/RENDERPEOPLE-INTEGRATION-STATUS-2026-11-22.md"
 permissions:
   contents: read
 jobs:
@@ -30,3 +36,5 @@ jobs:
           node --check museum/museum.js
       - name: Verify level integrity, PBR materials, doors and case routes
         run: node --test tests/museum-*.test.mjs
+      - name: Block proprietary Renderpeople files from public browser assets
+        run: node --test tests/renderpeople-license-guard.test.mjs
