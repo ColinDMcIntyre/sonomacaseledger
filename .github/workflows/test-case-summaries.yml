@@ -1,0 +1,33 @@
+name: Case summary clarity and evidence boundaries
+
+on:
+  push:
+    paths:
+      - "cases/**"
+      - "federal/**"
+      - "research/case-data.json"
+      - "research/case-briefs.json"
+      - "tests/case-briefs.test.mjs"
+      - ".github/workflows/test-case-summaries.yml"
+  pull_request:
+    paths:
+      - "cases/**"
+      - "federal/**"
+      - "research/case-data.json"
+      - "research/case-briefs.json"
+      - "tests/case-briefs.test.mjs"
+      - ".github/workflows/test-case-summaries.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  verify-case-summaries:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Verify all 37 case briefs, source links and legal distinctions
+        run: node --test tests/case-briefs.test.mjs
