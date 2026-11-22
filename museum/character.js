@@ -178,7 +178,7 @@ export function createVisitor(scene,onStatus){
     onStatus('Visitor: native Walk + Idle animation');
     return;
    }
-   if(privatePreview)return; // private local model takes priority over delayed async loader
+   if(privatePreview||detailInstalled)return; // private and high-detail models take priority
    const obj=gltf.scene;
    if(!obj)throw new Error('Model missing');
    // Center model at local origin and scale to human height.
@@ -198,8 +198,59 @@ export function createVisitor(scene,onStatus){
    onStatus('Visitor: native Walk + Idle animation');
   }
  }
+
+ // A separately imported public-domain asset can replace the lightweight
+ // visitor after the first frame. It never blocks museum startup or changes
+ // the licensed Renderpeople local-file preview.
+ let detailLoading=false,detailInstalled=false;
+ async function upgradeToHighDetail(){
+  if(detailLoading||detailInstalled||privatePreview)return false;
+  detailLoading=true;
+  try{
+   const response=await fetch('./assets/manifest.json',{cache:'force-cache'});
+   if(!response.ok)return false;
+   const highDetail=(await response.json())?.character?.highDetail;
+   // Only accept owner-vetted, self-hosted CC0 GLBs; not untrusted remote URLs.
+   if(highDetail?.license!=='CC0-1.0'||
+      !/^\.\/assets\/characters\/[a-zA-Z0-9_-]+\.glb$/.test(highDetail.path||'')){
+    return false;
+   }
+   const gltf=await new GLTFLoader().loadAsync(highDetail.path);
+   if(privatePreview||detailInstalled)return false;
+   const clips=(gltf.animations||[]).filter(c=>c.tracks?.length);
+   const idle=clips.find(c=>/idle|standing|rest/i.test(c.name||''));
+   const walk=clips.find(c=>/walk|stride|locomotion/i.test(c.name||''));
+   if(!idle||!walk||idle===walk)throw new Error('Missing separate idle and walk clips');
+   const obj=gltf.scene;
+   if(!obj)throw new Error('No scene in high-detail GLB');
+   const bb=new THREE.Box3().setFromObject(obj),sz=bb.getSize(new THREE.Vector3());
+   if(!Number.isFinite(sz.y)||sz.y<.1)throw new Error('Invalid high-detail character height');
+   obj.scale.setScalar(2.12/sz.y);
+   const scaled=new THREE.Box3().setFromObject(obj);
+   obj.position.set(-(scaled.min.x+scaled.max.x)/2,-scaled.min.y,-(scaled.min.z+scaled.max.z)/2);
+   obj.traverse(node=>{
+    if(node.isMesh||node.isSkinnedMesh){node.receiveShadow=true;node.castShadow=false;}
+   });
+   const newMixer=new THREE.AnimationMixer(obj);
+   const newIdle=newMixer.clipAction(idle),newWalk=newMixer.clipAction(walk);
+   newIdle.play();newWalk.play();
+   newIdle.setEffectiveWeight(1-blend);
+   newWalk.setEffectiveWeight(blend);
+   if(mixer)mixer.stopAllAction();
+   if(model)root.remove(model);
+   root.add(obj);
+   model=obj;modelRestPosition.copy(obj.position);
+   mixer=newMixer;idleAction=newIdle;walkAction=newWalk;
+   usingAsset=true;detailInstalled=true;proxy.visible=false;
+   onStatus('Visitor: CC0 high-detail guide with Idle/Walk');
+   return true;
+  }catch(error){
+   console.warn('Optional high-detail character not available; existing visitor preserved.',error);
+   return false;
+  }finally{detailLoading=false;}
+ }
  // The character is visible and animating immediately; remote asset is optional.
  onStatus('Visitor: native Walk + Idle animation');
  tryAnimatedModel();
- return {root,setWalking,tick,installPrivateModel,get usesAsset(){return usingAsset;}};
+ return {root,setWalking,tick,installPrivateModel,upgradeToHighDetail,get usesAsset(){return usingAsset;}};
 }
