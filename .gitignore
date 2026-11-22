@@ -1,0 +1,10 @@
+# Renderpeople's free license is not CC0. Do not publish raw or converted models
+# as standalone downloadable assets through this public GitHub Pages repository.
+/private-renderpeople/
+/renderpeople-private/
+**/renderpeople_free_rigged_people_FBX*.zip
+**/rp_*_rigged_*.fbx
+/museum/assets/characters/renderpeople*.glb
+/museum/assets/characters/rp_*.glb
+/museum/assets/characters/renderpeople*/
+/museum/assets/characters/rp_*/
