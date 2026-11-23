@@ -740,6 +740,37 @@ function animate(){
  world.update(clock.elapsedTime,dt,state.fx,camera);
  renderer.render(scene,camera);
 }
+function installGuideActions(){
+ const available=new Set(visitor.availableAnimations||[]);
+ const catalogue=[
+  ['Action_interact','Gesture'],
+  ['Idle_talking','Talk'],
+  ['Idle_arms_folded_waiting','Fold arms'],
+  ['Action_pick_up_from_a_table','Pick up'],
+  ['Action_dance','Dance']
+ ];
+ if(!catalogue.some(([id])=>available.has(id)))return;
+ const tray=document.querySelector('.control-tray');
+ if(!tray)return;
+ const select=document.createElement('select');
+ select.className='motion-picker';
+ select.setAttribute('aria-label','Animate the museum guide');
+ select.title='Play an additional CC0 character animation';
+ select.append(new Option('Actions',''));
+ for(const [id,label] of catalogue){
+  if(available.has(id))select.append(new Option(label,id));
+ }
+ select.addEventListener('change',async()=>{
+  const name=select.value;
+  if(!name)return;
+  select.disabled=true;
+  try{
+   const result=await visitor.playGesture(name);
+   if(!result)report('This animation is unavailable while walking.');
+  }finally{select.value='';select.disabled=false;}
+ });
+ tray.append(select);
+}
 async function installHighDetailGuideOption(){
  try{
   const response=await fetch('./assets/manifest.json',{cache:'force-cache'});
@@ -824,6 +855,7 @@ async function main(){
   if(intro)intro.textContent='Preparing galleries and your animated guide…';
   await visitor.ready;
   loadingProgress(96);
+  installGuideActions();
   clock.start();animate();
   // This is only a manual retry when the preferred character could not load.
   if(!visitor.usesHighDetail)installHighDetailGuideOption();
