@@ -10,7 +10,11 @@ test('all 37 case pages distinguish source grades from docket review',()=>{
    const html=read(folder+'/'+rec.slug+'/index.html');
    assert.match(html,/class="record-audit"/,rec.slug);
    assert.match(html,/Source and docket status/,rec.slug);
-   assert.ok(html.includes('Last documented source review:</strong> '+(rec.courtRecordReviewedOn==='2026-11-20'?'November 20, 2026':rec.courtRecordReviewedOn?'November 19, 2026':'November 18, 2026')),rec.slug);
+   const reviewed=rec.courtRecordReviewedOn
+    ?new Date(rec.courtRecordReviewedOn+'T00:00:00Z').toLocaleDateString('en-US',
+      {month:'long',day:'numeric',year:'numeric',timeZone:'UTC'})
+    :'November 18, 2026';
+   assert.ok(html.includes('Last documented source review:</strong> '+reviewed),rec.slug);
    assert.match(html,/full (?:federal )?trial-court docket has not been independently reviewed/i,rec.slug);
    assert.match(html,/corrections\//,rec.slug);
    if(folder==='cases'){
