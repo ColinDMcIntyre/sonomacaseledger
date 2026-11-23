@@ -18,6 +18,7 @@ const MODEL_NAME='realistic_guide_cc0.glb';
 const MODEL_PATH=join(OUT,'museum','assets','characters',MODEL_NAME);
 const MODEL_SOURCE='https://www.innerscene.com/tools/library/3d-parts/locomotion-collection-jordan-3d-person-animated-911f1584';
 const MODEL_URL='https://www.innerscene.com/api/library/locomotion-collection-jordan-3d-person-animated-911f1584/download';
+const MODEL_URL_DIRECT='https://files.innerscene.com/library/locomotion-collection-jordan-3d-person-animated-911f1584/a153a7018a159efb583a/locomotion-collection-jordan-3d-person-animated.glb';
 const TRUSTED=new Set(['www.innerscene.com','files.innerscene.com']);
 const MAX_FILE=25*1024*1024; // Cloudflare Pages individual asset limit: 25 MiB
 const FALLBACK_MODEL='./assets/characters/visitor.glb';
@@ -151,9 +152,13 @@ async function prepareCharacter(){
    data=await readFile(existing);origin='vetted repository CC0 asset';
   }else{
    // Retry a transient server failure, not licensing or validation errors.
-   for(let attempt=0;attempt<2;attempt++){
-    try{data=await download(MODEL_URL);break;}
-    catch(error){if(attempt===1)throw error;console.warn('Retrying CC0 download:',error.message);}
+   const urls=[MODEL_URL,MODEL_URL_DIRECT];
+   for(let attempt=0;attempt<urls.length;attempt++){
+    try{data=await download(urls[attempt]);break;}
+    catch(error){
+     if(attempt===urls.length-1)throw error;
+     console.warn('Primary CC0 download unavailable; trying the official file URL:',error.message);
+    }
    }
   }
   const report=inspectGlb(data);
