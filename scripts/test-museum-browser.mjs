@@ -19,22 +19,33 @@ try{
  page.on('pageerror',error=>lines.push('pageerror '+error.message));
  page.on('requestfailed',req=>lines.push('requestfail '+req.url()+' '+req.failure()?.errorText));
  await page.goto('http://127.0.0.1:8765/museum/',{waitUntil:'domcontentloaded',timeout:40000});
- await page.waitForFunction(()=>document.querySelector('#loading')?.classList.contains('done'),
-  {timeout:100000});
- await page.waitForTimeout(1600);
- await page.screenshot({path:dir+'/visitor-idle.png'});
- await page.keyboard.down('KeyW');
- await page.waitForTimeout(1300);
- await page.screenshot({path:dir+'/visitor-walk.png'});
- await page.keyboard.up('KeyW');
+ let loadingError=null;
+ try{
+  await page.waitForFunction(()=>document.querySelector('#loading')?.classList.contains('done'),
+   null,{timeout:115000});
+ }catch(error){loadingError=error.message;lines.push('LOADING ERROR: '+loadingError);}
+ await page.waitForTimeout(1200);
+ await page.screenshot({path:dir+'/visitor-idle.png',timeout:20000});
+ if(!loadingError){
+  await page.keyboard.down('KeyW');
+  await page.waitForTimeout(1300);
+  await page.screenshot({path:dir+'/visitor-walk.png',timeout:20000});
+  await page.keyboard.up('KeyW');
+ }
  const retargetStarted=lines.some(line=>line.includes('Using retargeted CC0 locomotion:'));
  const errors=lines.filter(line=>/pageerror|Failed to|WebGLRenderer.*Error/.test(line));
- const result={retargetStarted,errors,status:await page.locator('#asset-status').textContent().catch(()=>null),
+ const result={retargetStarted,errors,loadingError,
+  status:await page.locator('#asset-status').textContent().catch(()=>null),
+  loadingText:await page.locator('#loading p').textContent().catch(()=>null),
+  loadingStillVisible:await page.locator('#loading').isVisible().catch(()=>null),
   screenshots:['visitor-idle.png','visitor-walk.png'],logs:lines};
  await writeFile(dir+'/results.json',JSON.stringify(result,null,2));
  console.log('BROWSER RESULTS',JSON.stringify({
-  retargetStarted,errors,status:result.status,logTail:lines.slice(-22)
+  retargetStarted,errors,loadingError,
+  status:result.status,loadingText:result.loadingText,
+  loadingStillVisible:result.loadingStillVisible,logTail:lines.slice(-36)
  },null,2));
+ if(loadingError)throw Error('Museum loading screen remained visible: '+loadingError);
  if(!retargetStarted)throw Error('Retargeted CC0 animation did not initialize in real Chrome');
  if(errors.length)throw Error('Browser console or asset errors detected');
 }finally{await browser.close();}
