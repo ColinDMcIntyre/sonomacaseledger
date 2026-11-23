@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
 import {createHumanoidPoseCorrector} from './character-pose.js?v=wrist-only-20261122';
+import {loadNaturalLocomotion,loadCc0Motion} from './animation-library.js';
 
 /*
  * Reliable third-person character and locomotion.
@@ -215,7 +216,8 @@ export function createVisitor(scene,onStatus){
  // loading screen stays up while this model initializes. If it fails, the
  // lightweight animated visitor remains a functional fallback.
  let detailLoading=false,detailInstalled=false,detailPose=null,initialExpired=false;
- async function upgradeToHighDetail(preselected=null){
+ let motionLibraryConfig=null,motionCatalog=[];
+ async function upgradeToHighDetail(preselected=null,availableMotions=null){
   if(privatePreview)return false;
   if(detailInstalled)return true;
   if(detailLoading)return false;
@@ -227,7 +229,9 @@ export function createVisitor(scene,onStatus){
    if(!highDetail){
     const response=await fetch('./assets/manifest.json',{cache:'no-store'});
     if(!response.ok)return false;
-    highDetail=(await response.json())?.character?.highDetail;
+    const config=(await response.json())?.character;
+    highDetail=config?.highDetail;
+    availableMotions=config?.animationLibrary;
    }
    // Only publicly redistributable, self-hosted human models are accepted.
    if(highDetail?.license!=='CC0-1.0'||
@@ -245,8 +249,22 @@ export function createVisitor(scene,onStatus){
    obj.traverse(node=>{
     if(node.isMesh||node.isSkinnedMesh){node.receiveShadow=true;node.castShadow=false;}
    });
+   // Prefer the CC0 KinemIQ walking library, retargeted to Jordan's
+   // original skeleton. A rig mismatch or download failure must NEVER
+   // substitute invalid animations or break the visible character.
+   let idleClip=idle,walkClip=walk,usedNaturalMotions=false;
+   if(availableMotions?.license==='CC0-1.0'){
+    try{
+     const result=await loadNaturalLocomotion(obj,availableMotions);
+     idleClip=result.idle;walkClip=result.walk;
+     usedNaturalMotions=true;
+     console.info('Using retargeted CC0 locomotion:',idleClip.name,walkClip.name);
+    }catch(error){
+     console.warn('Motion retargeting unavailable; original Jordan clips retained:',error);
+    }
+   }
    const nextMixer=new THREE.AnimationMixer(obj);
-   const nextIdle=nextMixer.clipAction(idle),nextWalk=nextMixer.clipAction(walk);
+   const nextIdle=nextMixer.clipAction(idleClip),nextWalk=nextMixer.clipAction(walkClip);
    nextIdle.play();nextWalk.play();
    nextIdle.setEffectiveWeight(1);nextWalk.setEffectiveWeight(0);
    nextMixer.update(0);
@@ -274,9 +292,11 @@ export function createVisitor(scene,onStatus){
    root.add(obj);
    model=obj;modelRestPosition.copy(obj.position);
    mixer=nextMixer;idleAction=nextIdle;walkAction=nextWalk;
+   motionLibraryConfig=usedNaturalMotions?availableMotions:null;
+   motionCatalog=motionLibraryConfig?.clips||[];
    detailPose=corrector;
    usingAsset=true;detailInstalled=true;proxy.visible=false;shadow.visible=true;
-   onStatus('Visitor: realistic guide · wrist-only adjustment · Walk/Idle');
+   onStatus('Visitor: realistic guide · '+(usedNaturalMotions?'retargeted CC0 motion':'original Walk/Idle')+' · exact 90° wrists');
    candidate=null;
    return true;
   }catch(error){
@@ -302,7 +322,7 @@ export function createVisitor(scene,onStatus){
     const expiry=new Promise(resolve=>{
      handle=setTimeout(()=>{initialExpired=true;resolve('timeout');},24000);
     });
-    const result=await Promise.race([upgradeToHighDetail(config.highDetail),expiry]);
+    const result=await Promise.race([upgradeToHighDetail(config.highDetail,config.animationLibrary),expiry]);
     clearTimeout(handle);
     if(result===true){shadow.visible=true;return true;}
     if(result==='timeout')onStatus('Visitor: using fast animated fallback');
@@ -318,5 +338,6 @@ export function createVisitor(scene,onStatus){
  })();
  return {root,setWalking,tick,ready,installPrivateModel,upgradeToHighDetail,
   get usesAsset(){return usingAsset;},
-  get usesHighDetail(){return detailInstalled;}};
+  get usesHighDetail(){return detailInstalled;},
+  get availableAnimations(){return motionCatalog.slice();}};
 }
