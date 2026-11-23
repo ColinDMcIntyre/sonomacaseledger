@@ -6,6 +6,9 @@ on:
       - "scripts/build-cloudflare.mjs"
       - "tests/cloudflare-build.test.mjs"
       - "museum/character.js"
+      - "museum/character-pose.js"
+      - "tests/character-pose.test.mjs"
+      - "tests/high-detail-visitor.test.mjs"
       - "museum/museum.js"
       - ".github/workflows/test-cloudflare-build.yml"
   pull_request:
@@ -13,6 +16,9 @@ on:
       - "scripts/build-cloudflare.mjs"
       - "tests/cloudflare-build.test.mjs"
       - "museum/character.js"
+      - "museum/character-pose.js"
+      - "tests/character-pose.test.mjs"
+      - "tests/high-detail-visitor.test.mjs"
       - "museum/museum.js"
       - ".github/workflows/test-cloudflare-build.yml"
 
@@ -30,4 +36,4 @@ jobs:
       - name: Build deployment bundle without network
         run: SKIP_HD_DOWNLOAD=1 node scripts/build-cloudflare.mjs
       - name: Inspect deployment output and safeguards
-        run: node --test tests/cloudflare-build.test.mjs tests/renderpeople-license-guard.test.mjs tests/high-detail-visitor.test.mjs
+        run: node --test tests/cloudflare-build.test.mjs tests/renderpeople-license-guard.test.mjs tests/high-detail-visitor.test.mjs tests/character-pose.test.mjs
