@@ -13,9 +13,19 @@ test('Cloudflare bundle contains every public page and case source',()=>{
   'museum/index.html','museum/character.js','museum/museum.js',
   'museum/assets/characters/visitor.glb','museum/assets/manifest.json',
   'research/case-data.json','research/case-briefs.json',
+  'research/COURT-RECORDS-CHECKLIST.md','research/RECORD-MATCHING-REVIEW.md',
   'public-records/SCR-715528-1_PublicCopy.pdf']){
   assert.ok(existsSync(resolve(dir,p)),'Missing Cloudflare public asset: '+p);
  }
+});
+
+test('research links still work after the source GitHub repository becomes private',()=>{
+ for(const path of ['cases/index.html','records/index.html','corrections/index.html','museum/index.html']){
+  const page=read('dist/'+path);
+  assert.doesNotMatch(page,/github\.com\/ColinDMcIntyre\/sonomacaseledger\/blob\/main\//i,
+   'Broken private-source reference in '+path);
+ }
+ assert.ok(read('dist/records/index.html').includes('/research/RECORD-MATCHING-REVIEW.md'));
 });
 
 test('Cloudflare deployment excludes GitHub internals and private source packages',()=>{
