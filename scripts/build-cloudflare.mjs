@@ -85,8 +85,30 @@ async function copyPublishedSite(){
   await cp(join(ROOT,name),join(OUT,name),{recursive:true});
  }
  await mkdir(join(OUT,'research'),{recursive:true});
- for(const name of ['case-data.json','case-briefs.json']){
+ for(const name of [
+  'case-data.json','case-briefs.json',
+  'COURT-RECORDS-CHECKLIST.md','RECORD-MATCHING-REVIEW.md',
+  'COURT-REVIEW-PROGRESS-2026-11-21.md','COMPLETE-30-PDF-INVENTORY-2026-11-22.md',
+  'COURT-PDF-AUDIT.md','COURT-PDF-MANIFEST.md'
+ ]){
   await cp(join(ROOT,'research',name),join(OUT,'research',name));
+ }
+ // Keep already-published evidence references accessible when the source
+ // repository goes private. Only public HTML is rewritten.
+ const githubBlob='https://github.com/ColinDMcIntyre/sonomacaseledger/blob/main/';
+ const {readdir}=await import('node:fs/promises');
+ async function forEachPage(dir,callback){
+  for(const item of await readdir(dir,{withFileTypes:true})){
+   const p=join(dir,item.name);
+   if(item.isDirectory())await forEachPage(p,callback);
+   else if(/\\.html$/i.test(item.name))await callback(p);
+  }
+ }
+ for(const pageDir of ['cases','federal','records','corrections','museum']){
+  await forEachPage(join(OUT,pageDir),async p=>{
+   const html=await readFile(p,'utf8');
+   if(html.includes(githubBlob))await writeFile(p,html.split(githubBlob).join('/'));
+  });
  }
  // Deliberately omit private archives, repo metadata, importer code, and
  // unpublished court-data research: dist is the complete public release.
