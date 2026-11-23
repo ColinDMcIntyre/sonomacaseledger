@@ -14,7 +14,7 @@ const browser=await chromium.launch({
  '--disable-features=BlockInsecurePrivateNetworkRequests']
 });
 try{
- const page=await browser.newPage({viewport:{width:1366,height:768},deviceScaleFactor:1});
+ const page=await browser.newPage({viewport:{width:960,height:540},deviceScaleFactor:1});
  page.on('console',message=>lines.push('console '+message.type()+' '+message.text()));
  page.on('pageerror',error=>lines.push('pageerror '+error.message));
  page.on('requestfailed',req=>lines.push('requestfail '+req.url()+' '+req.failure()?.errorText));
@@ -26,12 +26,18 @@ try{
   await page.waitForFunction(()=>!document.querySelector('#loading'),
    null,{timeout:52000});
  }catch(error){loadingError=error.message;lines.push('LOADING ERROR: '+loadingError);}
- await page.waitForTimeout(1200);
- await page.screenshot({path:dir+'/visitor-idle.png',timeout:20000});
+ const preflightStatus=await page.locator('#asset-status').textContent({timeout:5000}).catch(()=>null);
+ console.log('BROWSER PRE-FLIGHT',JSON.stringify({loadingError,preflightStatus,logTail:lines.slice(-20)}));
+ if(loadingError){
+  await writeFile(dir+'/results.json',JSON.stringify({loadingError,preflightStatus,logs:lines},null,2));
+  throw Error('Museum did not finish loading before screenshot: '+loadingError);
+ }
+ await page.waitForTimeout(500);
+ await page.screenshot({path:dir+'/visitor-idle.png',timeout:40000,animations:'disabled'});
  if(!loadingError){
   await page.keyboard.down('KeyW');
   await page.waitForTimeout(1300);
-  await page.screenshot({path:dir+'/visitor-walk.png',timeout:20000});
+  await page.screenshot({path:dir+'/visitor-walk.png',timeout:40000,animations:'disabled'});
   await page.keyboard.up('KeyW');
  }
  const visitorStatus=await page.locator('#asset-status').textContent().catch(()=>null);
