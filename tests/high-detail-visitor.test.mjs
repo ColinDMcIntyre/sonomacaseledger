@@ -11,6 +11,10 @@ test('realistic guide is selected first, pre-posed and correctly scaled',()=>{
  const museumHtml=read('museum/index.html');
  assert.match(character,/async function upgradeToHighDetail\(preselected=null,availableMotions=null\)/);
  assert.match(character,/highDetail\?\.license!=='CC0-1\.0'/);
+ assert.match(character,/ara_museum_guide\\.glb/);
+ assert.match(character,/nativeAra\\?null:createHumanoidPoseCorrector/);
+ assert.match(character,/nativeGestureClips=nativeAra/);
+ assert.match(character,/onStatus\\(nativeAra\\?/);
  assert.match(character,/createHumanoidPoseCorrector\(THREE,obj\)/);
  assert.match(character,/walkClip=result\.walk/);
  assert.match(character,/let idleClip=idle,walkClip=nativeBrisk/);
@@ -26,7 +30,7 @@ test('realistic guide is selected first, pre-posed and correctly scaled',()=>{
  assert.doesNotMatch(museum,/window\.setTimeout\(upgrade,1400\)/,
   'No delayed HD swap once the museum is already visible');
  assert.match(museum,/6\.5:11\.2/,'Closer follow camera for larger character');
- assert.match(museumHtml,/museum\.js\?v=formal-walk-20261123/);
+ assert.match(museumHtml,/museum\.js\?v=ara-human-20261123/);
  assert.ok(!read('index.html').includes('realistic_guide_cc0.glb'));
 });
 
