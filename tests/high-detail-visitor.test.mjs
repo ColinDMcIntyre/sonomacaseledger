@@ -6,17 +6,23 @@ import {resolve} from 'node:path';
 const root=fileURLToPath(new URL('..',import.meta.url));
 const read=p=>readFileSync(resolve(root,p),'utf8');
 
-test('approved high-detail guide is opt-in to device capability, local and optional',()=>{
+test('realistic guide is selected first, pre-posed and correctly scaled',()=>{
  const character=read('museum/character.js'),museum=read('museum/museum.js');
- assert.match(character,/async function upgradeToHighDetail\(\)/);
+ const museumHtml=read('museum/index.html');
+ assert.match(character,/async function upgradeToHighDetail\(preselected=null\)/);
  assert.match(character,/highDetail\?\.license!=='CC0-1\.0'/);
- assert.match(character,/\.\/assets\/characters/);
- assert.match(character,/if\(privatePreview\|\|detailInstalled\)/);
- assert.match(character,/Missing separate idle and walk clips/);
- assert.match(character,/existing visitor preserved/);
- assert.match(museum,/loadingProgress\(100\)/);
- assert.match(museum,/visitor\.upgradeToHighDetail\(\)/);
- assert.match(museum,/if\(!limitedNetwork\)window\.setTimeout\(upgrade,1400\)/);
+ assert.match(character,/createHumanoidPoseCorrector\(THREE,obj\)/);
+ assert.match(character,/corrector\.apply\(0,0\)/);
+ assert.match(character,/2\.64\/size\.y/);
+ assert.match(character,/const ready=\(async\(\)=>\{/);
+ assert.match(character,/Promise\.race\(\[upgradeToHighDetail\(config\.highDetail\),expiry\]\)/);
+ assert.match(character,/if\(privatePreview\|\|initialExpired\)return false/);
+ assert.match(museum,/await visitor\.ready/);
+ assert.match(museum,/if\(!visitor\.usesHighDetail\)installHighDetailGuideOption\(\)/);
+ assert.doesNotMatch(museum,/window\.setTimeout\(upgrade,1400\)/,
+  'No delayed HD swap once the museum is already visible');
+ assert.match(museum,/6\.5:11\.2/,'Closer follow camera for larger character');
+ assert.match(museumHtml,/museum\.js\?v=visitor-pose-20261122/);
  assert.ok(!read('index.html').includes('realistic_guide_cc0.glb'));
 });
 
