@@ -302,8 +302,8 @@ export function createVisitor(scene,onStatus){
    if(corrector?.hasSkeleton){
     corrector.apply(0,0);
     console.info('Wrist-only correction mapping:',corrector.describe());
-   }else{
-    console.warn('Could not identify both hand/finger chains; keeping original animation.');
+   }else if(!nativeAra){
+    console.warn('Could not identify both Jordan hand/finger chains; keeping original animation.');
    }
    const bounds=new THREE.Box3().setFromObject(obj,true);
    const size=bounds.getSize(new THREE.Vector3());
@@ -327,6 +327,10 @@ export function createVisitor(scene,onStatus){
    motionCatalog=nativeAra?[...nativeGestureClips.keys()]:motionLibraryConfig?.clips||[];
    detailPose=corrector;
    usingAsset=true;detailInstalled=true;proxy.visible=false;shadow.visible=true;
+   if(nativeAra)console.info('Native Ara guide ready:',{
+    idle:idleClip.name,walk:walkClip.name,gestures:[...nativeGestureClips.keys()],
+    wristPatch:false,externalRetarget:false
+   });
    onStatus(nativeAra?
     'Visitor: photo-textured guide · native '+walkClip.name+' · matching rig':
     'Visitor: realistic guide · '+(usedNaturalMotions?'new CC0 '+walkClip.name:'Jordan '+walkClip.name)+' · exact 90° wrists');
