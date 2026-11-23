@@ -16,7 +16,7 @@ test('approved high-detail guide is opt-in to device capability, local and optio
  assert.match(character,/existing visitor preserved/);
  assert.match(museum,/loadingProgress\(100\)/);
  assert.match(museum,/visitor\.upgradeToHighDetail\(\)/);
- assert.match(museum,/roomyDisplay&&!limitedNetwork/);
+ assert.match(museum,/if\(!limitedNetwork\)window\.setTimeout\(upgrade,1400\)/);
  assert.ok(!read('index.html').includes('realistic_guide_cc0.glb'));
 });
 
