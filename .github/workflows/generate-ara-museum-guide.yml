@@ -43,7 +43,7 @@ jobs:
           mkdir -p .tmp/ara
           npx -y ara3d@0.14.0 export \
             --params research/museum-guide-ara.json \
-            --detail low --formats glb \
+            --detail medium --formats glb \
             --animations idle,walk,look_around,talk_gestures \
             --out .tmp/ara
       - name: Check rig, materials, animations, and 24 MiB deployment limit
@@ -58,7 +58,7 @@ jobs:
           rm -rf .tmp/ara
           npx -y ara3d@0.14.0 export \
             --params research/museum-guide-ara.json \
-            --detail medium --formats glb \
+            --detail low --formats glb \
             --animations idle,walk,look_around,talk_gestures \
             --out .tmp/ara
           node scripts/stage-ara-guide.mjs .tmp/ara
