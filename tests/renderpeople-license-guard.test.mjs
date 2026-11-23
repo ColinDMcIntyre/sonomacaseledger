@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync, readdirSync } from 'node:fs';
+import { readFileSync, readdirSync, existsSync } from 'node:fs';
+import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { resolve } from 'node:path';
 
@@ -17,6 +18,18 @@ test('private Renderpeople model files must not be hosted as public browser asse
   if (manifest.character.highDetail?.license === 'CC0-1.0' &&
       manifest.character.highDetail.path === './assets/characters/realistic_guide_cc0.glb') {
     allowed.add('realistic_guide_cc0.glb');
+  }
+  // The new photo-textured human is distributable, unlike Renderpeople.
+  // Require a pinned source audit and content digest for this one binary.
+  const ara=resolve(root,'museum/assets/characters/ara_museum_guide.glb');
+  const reportPath=resolve(root,'research/museum-guide-ara-report.json');
+  if(existsSync(ara)){
+    assert.ok(existsSync(reportPath),'Ara model must have matching asset provenance');
+    const report=JSON.parse(readFileSync(reportPath,'utf8'));
+    assert.equal(report.generatedBy,'Ara 3D Gen 0.14.0 (MIT)');
+    assert.equal(report.file,'museum/assets/characters/ara_museum_guide.glb');
+    assert.equal(report.sha256,createHash('sha256').update(readFileSync(ara)).digest('hex'));
+    allowed.add('ara_museum_guide.glb');
   }
   const names = readdirSync(resolve(root, 'museum/assets/characters'));
   for (const name of names) {
