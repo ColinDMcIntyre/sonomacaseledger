@@ -1,0 +1,39 @@
+name: Browser validate realistic guide animation
+
+on:
+  push:
+    paths:
+      - "scripts/test-museum-browser.mjs"
+      - ".github/workflows/test-avatar-browser.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test-real-avatar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Build full CC0 character and animation bundle
+        run: node scripts/build-cloudflare.mjs
+      - name: Install browser test dependencies
+        run: npm install --no-save playwright@1.56.1
+      - name: Launch static museum web server
+        run: |
+          python3 -m http.server 8765 --bind 127.0.0.1 --directory dist > /tmp/scl-web.log 2>&1 &
+          sleep 2
+      - name: Render real WebGL museum and validate retargeted motion
+        run: node scripts/test-museum-browser.mjs
+      - name: Save visual proof and browser errors
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cc0-guide-browser-preview
+          path: avatar-preview/
+          retention-days: 7
+          if-no-files-found: warn
