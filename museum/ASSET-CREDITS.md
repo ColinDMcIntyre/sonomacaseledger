@@ -34,7 +34,7 @@ For a compatible public-facing upgrade, this repository includes a guarded impor
 - Rig: multiple named clips including idle, relaxed walk, brisk walk, and others (as described by the source).
 - Original model size: approximately 23.3 MB. The import workflow attempts 1024-pixel textures and WebP compression and will **not publish a file** if rigging/animations, file size, or decoder requirements fail validation.
 - Output (only after successful import): `museum/assets/characters/realistic_guide_cc0.glb`; manifest `character.highDetail` must point to it with an explicit CC0 source.
-- Loading: the existing lightweight character appears immediately. After the museum's first frame, a capable desktop may progressively load the high-detail model; mobile and metered connections only load it through an optional **HD** control.
+- Loading: the existing lightweight character appears immediately. After the museum's first frame, visitors on normal network connections (desktop or mobile) progressively load the high-detail model; Data Saver and slow connections can load it only through an optional **HD** control.
 - Fallback: failure to download, load, or validate leaves the existing CC0 Casual Walker/procedural visitor working.
 
 **Publication status must be checked against the repository tree and the manifest.** The existence of importer scripts does not mean the large high-detail binary was successfully downloaded, installed, visually tested, or released. Do not describe the high-detail visitor as live until those checks pass.
