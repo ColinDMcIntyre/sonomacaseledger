@@ -23,7 +23,7 @@ export function retargetHumanoidClip(target, source, clip){
   sourceRotations++;
   const name=track.name.slice(0,-'.quaternion'.length);
   const dst=targetBones.get(name),src=sourceNodes.get(name);
-  if(!src||!dst||!track.values?.length||track.values.length%4)continue;
+  if(!src||!dst||!track.values?.length||track.values.length!==track.times.length*4)continue;
   // bone-local baseline correction: animated target = targetRest *
   // inverse(sourceRest) * sourceAnimationQuaternion.
   const offset=dst.quaternion.clone().multiply(src.quaternion.clone().invert());
