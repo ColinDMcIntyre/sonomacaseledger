@@ -11,6 +11,7 @@ import {cp, mkdir, readFile, writeFile, rm, stat} from 'node:fs/promises';
 import {resolve, join} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {createHash} from 'node:crypto';
+import {installCc0Animations} from './import-cc0-animation-pack.mjs';
 
 const ROOT=resolve(fileURLToPath(new URL('..',import.meta.url)));
 const OUT=join(ROOT,'dist');
@@ -185,4 +186,10 @@ async function prepareCharacter(){
 await copyPublishedSite();
 // Offline CI verifies the static deployment without requesting the 23 MB model.
 const enabled=process.env.SKIP_HD_DOWNLOAD==='1' ? false : await prepareCharacter();
+if(enabled){
+ const path=join(OUT,'museum/assets/manifest.json');
+ const manifest=JSON.parse(await readFile(path,'utf8'));
+ await installCc0Animations(OUT,manifest,enabled);
+ await writeFile(path,JSON.stringify(manifest,null,2)+'\n');
+}
 console.log('Cloudflare Pages dist/ ready; high-detail character:',enabled?'installed':'fallback');
