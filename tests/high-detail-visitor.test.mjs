@@ -12,6 +12,9 @@ test('realistic guide is selected first, pre-posed and correctly scaled',()=>{
  assert.match(character,/async function upgradeToHighDetail\(preselected=null,availableMotions=null\)/);
  assert.match(character,/highDetail\?\.license!=='CC0-1\.0'/);
  assert.match(character,/createHumanoidPoseCorrector\(THREE,obj\)/);
+ assert.match(character,/walkClip=result\.walk/);
+ assert.match(character,/let idleClip=idle,walkClip=nativeBrisk/);
+ assert.match(character,/Using retargeted CC0 walking/);
  assert.match(character,/loadNaturalLocomotion\(obj,availableMotions,idle\)/);
  assert.match(character,/corrector\.apply\(0,0\)/);
  assert.match(character,/2\.64\/size\.y/);
@@ -23,7 +26,7 @@ test('realistic guide is selected first, pre-posed and correctly scaled',()=>{
  assert.doesNotMatch(museum,/window\.setTimeout\(upgrade,1400\)/,
   'No delayed HD swap once the museum is already visible');
  assert.match(museum,/6\.5:11\.2/,'Closer follow camera for larger character');
- assert.match(museumHtml,/museum\.js\?v=idle-calibration-20261122/);
+ assert.match(museumHtml,/museum\.js\?v=formal-walk-20261123/);
  assert.ok(!read('index.html').includes('realistic_guide_cc0.glb'));
 });
 
