@@ -36,21 +36,21 @@ jobs:
         with:
           path: .ara3d-cache
           key: ara3d-0.14.0-data
-      - name: Export photo-textured suited guide and its OWN animation rig
+      - name: Export web-optimized photo-textured guide and matching animation rig
         env:
           ARA3D_CACHE: ${{ github.workspace }}/.ara3d-cache
         run: |
           mkdir -p .tmp/ara
           npx -y ara3d@0.14.0 export \
             --params research/museum-guide-ara.json \
-            --detail high --formats glb \
+            --detail low --formats glb \
             --animations idle,walk,look_around,talk_gestures \
             --out .tmp/ara
       - name: Check rig, materials, animations, and 24 MiB deployment limit
         id: stage
         continue-on-error: true
         run: node scripts/stage-ara-guide.mjs .tmp/ara
-      - name: Use medium mesh if full detail is too large for Cloudflare
+      - name: Use low mesh if medium detail is too large for Cloudflare
         if: steps.stage.outcome == 'failure'
         env:
           ARA3D_CACHE: ${{ github.workspace }}/.ara3d-cache
