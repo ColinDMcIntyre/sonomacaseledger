@@ -252,3 +252,15 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(-
  .map-grid{grid-template-rows:repeat(4,55px)}
  .map-grid button{font-size:.63rem}
 }
+
+
+/* Optional gesture controls for the approved CC0 motion library. */
+.control-tray .motion-picker{
+ color:var(--cream);background:#233b48;border:1px solid #ffffff24;
+ border-radius:5px;height:36px;padding:0 6px;max-width:102px;
+ font-size:.75rem;cursor:pointer;
+}
+.control-tray .motion-picker option{color:#fff;background:#233b48}
+@media(max-width:780px){
+ .control-tray .motion-picker{height:32px;max-width:76px;padding:0 2px;font-size:.66rem}
+}
