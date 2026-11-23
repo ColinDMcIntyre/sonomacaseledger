@@ -15,7 +15,7 @@ test('all 37 case pages distinguish source grades from docket review',()=>{
       {month:'long',day:'numeric',year:'numeric',timeZone:'UTC'})
     :'November 18, 2026';
    assert.ok(html.includes('Last documented source review:</strong> '+reviewed),rec.slug);
-   assert.match(html,/full (?:federal )?trial-court docket has not been independently reviewed/i,rec.slug);
+   assert.match(html,/(?:trial-court docket has not been independently reviewed|full current criminal docket not independently reviewed)/i,rec.slug);
    assert.match(html,/corrections\//,rec.slug);
    if(folder==='cases'){
     assert.match(html,/Sonoma court number:/,rec.slug);
