@@ -1,0 +1,33 @@
+name: Cloudflare public bundle and character safeguards
+
+on:
+  push:
+    paths:
+      - "scripts/build-cloudflare.mjs"
+      - "tests/cloudflare-build.test.mjs"
+      - "museum/character.js"
+      - "museum/museum.js"
+      - ".github/workflows/test-cloudflare-build.yml"
+  pull_request:
+    paths:
+      - "scripts/build-cloudflare.mjs"
+      - "tests/cloudflare-build.test.mjs"
+      - "museum/character.js"
+      - "museum/museum.js"
+      - ".github/workflows/test-cloudflare-build.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  validate-public-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Build deployment bundle without network
+        run: SKIP_HD_DOWNLOAD=1 node scripts/build-cloudflare.mjs
+      - name: Inspect deployment output and safeguards
+        run: node --test tests/cloudflare-build.test.mjs tests/renderpeople-license-guard.test.mjs tests/high-detail-visitor.test.mjs
