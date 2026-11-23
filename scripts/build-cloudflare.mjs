@@ -156,5 +156,6 @@ async function prepareCharacter(){
  }
 }
 await copyPublishedSite();
-const enabled=await prepareCharacter();
+// Offline CI verifies the static deployment without requesting the 23 MB model.
+const enabled=process.env.SKIP_HD_DOWNLOAD==='1' ? false : await prepareCharacter();
 console.log('Cloudflare Pages dist/ ready; high-detail character:',enabled?'installed':'fallback');
