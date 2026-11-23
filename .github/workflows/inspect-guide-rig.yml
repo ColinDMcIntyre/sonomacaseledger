@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - "scripts/inspect-guide-rig.mjs"
+      - "scripts/inspect-kinemiq-pack.mjs"
       - ".github/workflows/inspect-guide-rig.yml"
   workflow_dispatch:
 
@@ -21,6 +22,8 @@ jobs:
           node-version: '22'
       - name: Obtain the public-domain animated character for diagnostics
         run: node scripts/build-cloudflare.mjs
+      - name: Inspect the larger CC0 animation pack for retargeting
+        run: node scripts/inspect-kinemiq-pack.mjs
       - name: Inspect joint hierarchy and animation names without publishing model
         run: |
           node scripts/inspect-guide-rig.mjs
