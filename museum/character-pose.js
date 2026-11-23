@@ -43,7 +43,7 @@ export function createHumanoidPoseCorrector(THREE,scene){
  const handPosition=new THREE.Vector3(),fingerPosition=new THREE.Vector3();
  const current=new THREE.Vector3(),target=new THREE.Vector3();
  const sceneQ=new THREE.Quaternion(),parentQ=new THREE.Quaternion();
- const worldCorrection=new THREE.Quaternion(),localCorrection=new THREE.Quaternion();
+ const desiredWorld=new THREE.Quaternion(),worldCorrection=new THREE.Quaternion(),localCorrection=new THREE.Quaternion();
  const inverseParent=new THREE.Quaternion(),neutral=new THREE.Quaternion();
  const MAX_CORRECTION=Math.PI/2; // maximum 90 degrees at the wrist
 
@@ -65,9 +65,9 @@ export function createHumanoidPoseCorrector(THREE,scene){
    target.set(j.side*.075,-.995,-.055).normalize().applyQuaternion(sceneQ);
    const angle=current.angleTo(target);
    if(angle<.20)continue;
-   worldCorrection.setFromUnitVectors(current,target);
+   desiredWorld.setFromUnitVectors(current,target);
    const fraction=Math.min(1,MAX_CORRECTION/angle)*(walking>.45?.55:.85);
-   worldCorrection.copy(neutral).slerp(worldCorrection,fraction);
+   worldCorrection.copy(neutral).slerp(desiredWorld,fraction);
    j.hand.parent.getWorldQuaternion(parentQ);
    inverseParent.copy(parentQ).invert();
    localCorrection.copy(inverseParent).multiply(worldCorrection).multiply(parentQ);
