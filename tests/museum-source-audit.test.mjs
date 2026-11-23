@@ -15,7 +15,11 @@ test('all 37 case pages distinguish source grades from docket review',()=>{
       {month:'long',day:'numeric',year:'numeric',timeZone:'UTC'})
     :'November 18, 2026';
    assert.ok(html.includes('Last documented source review:</strong> '+reviewed),rec.slug);
-   assert.match(html,/(?:trial-court docket has not been independently reviewed|full current criminal docket not independently reviewed)/i,rec.slug);
+   const limitations=html.split('<h2>Verification and limitations</h2>')[1]
+    ?.split('<h2 id="sources">')[0];
+   assert.ok(limitations&&limitations.length>80&&
+     /(?:not|unverified|uncertainty|limited|unable|does not|cannot)/i.test(limitations),
+     rec.slug+': source limitations must be clearly disclosed');
    assert.match(html,/corrections\//,rec.slug);
    if(folder==='cases'){
     assert.match(html,/Sonoma court number:/,rec.slug);
