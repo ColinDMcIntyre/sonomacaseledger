@@ -1,0 +1,35 @@
+name: Validate CC0 animation library build and compatibility
+
+on:
+  push:
+    paths:
+      - "scripts/build-cloudflare.mjs"
+      - "scripts/import-cc0-animation-pack.mjs"
+      - "museum/animation-library.js"
+      - "museum/character.js"
+      - "tests/cc0-animation-pack.test.mjs"
+      - ".github/workflows/test-cc0-animation-pack.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-cc0-motion-library:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Build real Cloudflare deployment and import licensed CC0 assets
+        run: node scripts/build-cloudflare.mjs
+      - name: Verify rig metadata, downloaded clips and safe animation fallback
+        run: node --test tests/cc0-animation-pack.test.mjs tests/character-pose.test.mjs
+      - name: Parse browser entry modules and check safe build scripts
+        run: |
+          node --check museum/animation-library.js
+          node --check museum/character.js
+          node --check museum/museum.js
+          node --check scripts/import-cc0-animation-pack.mjs
