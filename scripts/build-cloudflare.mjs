@@ -146,6 +146,33 @@ async function copyPublishedSite(){
 async function prepareCharacter(){
  const characterPath=join(OUT,'museum','assets','manifest.json');
  const manifest=JSON.parse(await readFile(characterPath,'utf8'));
+ // First-class native-rig guide: photo-textured CC0 MakeHuman character
+ // with animations baked for its OWN skeleton (no retargeting).
+ const araName='ara_museum_guide.glb';
+ const araSource=join(ROOT,'museum','assets','characters',araName);
+ const araOutput=join(OUT,'museum','assets','characters',araName);
+ if((await stat(araSource).catch(()=>null))?.size){
+  try{
+   const data=await readFile(araSource);
+   if(data.length>24*1024*1024)throw Error('Ara asset exceeds Cloudflare file limit');
+   const report=inspectGlb(data);
+   manifest.character.highDetail={
+    path:'./assets/characters/'+araName,
+    source:'https://github.com/olatunde85/3d-gen',
+    license:'CC0-1.0',
+    animationSource:'CMU Graphics Lab Motion Capture Database',
+    mode:'Complete matching humanoid rig and native idle/walk/gesture clips',
+    status:'Photo-textured suited museum guide'
+   };
+   delete manifest.character.animationLibrary;
+   await writeFile(characterPath,JSON.stringify(manifest,null,2)+'\n');
+   console.log('Installed native rig Ara guide:',report);
+   return true;
+  }catch(error){
+   console.warn('Ara asset validation failed; retaining Jordan fallback:',error.message);
+   await rm(araOutput,{force:true});
+  }
+ }
  const existing=join(ROOT,'museum','assets','characters',MODEL_NAME);
  let data=null,origin='Innerscene (CC0)';
  try{
@@ -189,7 +216,9 @@ const enabled=process.env.SKIP_HD_DOWNLOAD==='1' ? false : await prepareCharacte
 if(enabled){
  const path=join(OUT,'museum/assets/manifest.json');
  const manifest=JSON.parse(await readFile(path,'utf8'));
- await installCc0Animations(OUT,manifest,enabled);
+ // No external retargeting: Ara's own mocap clips match its skeleton.
+ if(manifest.character.highDetail?.path!=='./assets/characters/ara_museum_guide.glb')
+  await installCc0Animations(OUT,manifest,enabled);
  await writeFile(path,JSON.stringify(manifest,null,2)+'\n');
 }
 console.log('Cloudflare Pages dist/ ready; high-detail character:',enabled?'installed':'fallback');
