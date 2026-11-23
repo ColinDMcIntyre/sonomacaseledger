@@ -12,7 +12,7 @@ test('realistic guide is selected first, pre-posed and correctly scaled',()=>{
  assert.match(character,/async function upgradeToHighDetail\(preselected=null,availableMotions=null\)/);
  assert.match(character,/highDetail\?\.license!=='CC0-1\.0'/);
  assert.match(character,/createHumanoidPoseCorrector\(THREE,obj\)/);
- assert.match(character,/loadNaturalLocomotion\(obj,availableMotions\)/);
+ assert.match(character,/loadNaturalLocomotion\(obj,availableMotions,idle\)/);
  assert.match(character,/corrector\.apply\(0,0\)/);
  assert.match(character,/2\.64\/size\.y/);
  assert.match(character,/const ready=\(async\(\)=>\{/);
