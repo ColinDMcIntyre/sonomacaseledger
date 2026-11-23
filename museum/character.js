@@ -133,6 +133,7 @@ export function createVisitor(scene,onStatus){
  }
 
  let walking=false,blend=0,phase=0;
+ let gestureAction=null,gestureBlend=0;
  function setWalking(value){walking=Boolean(value);}
  function tick(dt){
   const smooth=1-Math.exp(-dt*11);
@@ -141,9 +142,15 @@ export function createVisitor(scene,onStatus){
   // Only hands are pose-corrected. Restore them before each mixer step
   // so unkeyed wrist tracks never accumulate our prior correction.
   if(detailInstalled&&detailPose)detailPose.reset();
+  if(gestureAction){
+   const exiting=walking||gestureAction.time>=gestureAction.getClip().duration-.22;
+   gestureBlend+=(Number(!exiting)-gestureBlend)*smooth;
+   if(exiting&&gestureBlend<.025){gestureAction.stop();gestureAction=null;gestureBlend=0;}
+  }
   if(usingAsset&&mixer){
-   idleAction.setEffectiveWeight(1-blend);
-   walkAction.setEffectiveWeight(blend);
+   idleAction.setEffectiveWeight((1-blend)*(1-gestureBlend));
+   walkAction.setEffectiveWeight(blend*(1-gestureBlend));
+   if(gestureAction)gestureAction.setEffectiveWeight(gestureBlend);
    mixer.update(dt);
    // Preserve the imported model's measured local centering. Resetting X/Z
    // to zero undid the GLB centering and shifted the visible avatar right.
@@ -307,6 +314,28 @@ export function createVisitor(scene,onStatus){
    detailLoading=false;
   }
  }
+ async function playGesture(name){
+  // On-demand action animation: idle/walk are already retargeted at startup.
+  // No weapon animation is automatic; every gesture requires a user action.
+  if(!detailInstalled||!mixer||!model||walking||
+     !motionLibraryConfig?.clips?.includes(name))return false;
+  try{
+   const clip=await loadCc0Motion(model,motionLibraryConfig,name);
+   if(walking||!detailInstalled)return false;
+   if(gestureAction)gestureAction.stop();
+   gestureBlend=0;
+   const action=mixer.clipAction(clip);
+   action.reset().setLoop(THREE.LoopOnce,1);
+   action.clampWhenFinished=true;
+   action.setEffectiveWeight(0);
+   action.play();
+   gestureAction=action;
+   return true;
+  }catch(error){
+   console.warn('Could not retarget optional character action:',name,error);
+   return false;
+  }
+ }
  // Resolve the preferred visitor before exposing the museum canvas:
  // no wrong avatar first, no mid-visit change in size or appearance.
  onStatus('Visitor: loading museum guide');
@@ -339,5 +368,5 @@ export function createVisitor(scene,onStatus){
  return {root,setWalking,tick,ready,installPrivateModel,upgradeToHighDetail,
   get usesAsset(){return usingAsset;},
   get usesHighDetail(){return detailInstalled;},
-  get availableAnimations(){return motionCatalog.slice();}};
+  get availableAnimations(){return motionCatalog.slice();},playGesture};
 }
