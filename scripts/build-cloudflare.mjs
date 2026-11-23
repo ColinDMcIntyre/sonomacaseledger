@@ -101,7 +101,7 @@ async function copyPublishedSite(){
   for(const item of await readdir(dir,{withFileTypes:true})){
    const p=join(dir,item.name);
    if(item.isDirectory())await forEachPage(p,callback);
-   else if(/\\.html$/i.test(item.name))await callback(p);
+   else if(/\.html$/i.test(item.name))await callback(p);
   }
  }
  for(const pageDir of ['cases','federal','records','corrections','museum']){
