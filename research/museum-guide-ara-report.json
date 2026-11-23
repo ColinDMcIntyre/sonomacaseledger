@@ -1,0 +1,43 @@
+{
+  "generatedBy": "Ara 3D Gen 0.14.0 (MIT)",
+  "source": "https://github.com/olatunde85/3d-gen",
+  "baseModelLicense": "MakeHuman CC0-1.0",
+  "animationSource": "CMU Graphics Lab Motion Capture Database (commercial project use permitted; no standalone resale)",
+  "preset": "The Secret Agent",
+  "file": "museum/assets/characters/ara_museum_guide.glb",
+  "bytes": 6566772,
+  "sha256": "9f5bcece755bd4e048ac94fb77f542037be559e7a7f68ddaba0279eebd94aa19",
+  "animations": [
+    "Idle",
+    "Walk",
+    "Look around",
+    "Talk with gestures"
+  ],
+  "bones": 69,
+  "meshes": 1,
+  "textures": 11,
+  "materials": 13,
+  "animationChannels": [
+    {
+      "name": "Idle",
+      "channels": 71,
+      "duration": "in metadata"
+    },
+    {
+      "name": "Walk",
+      "channels": 71,
+      "duration": "in metadata"
+    },
+    {
+      "name": "Look around",
+      "channels": 71,
+      "duration": "in metadata"
+    },
+    {
+      "name": "Talk with gestures",
+      "channels": 71,
+      "duration": "in metadata"
+    }
+  ],
+  "triangleCount": null
+}
