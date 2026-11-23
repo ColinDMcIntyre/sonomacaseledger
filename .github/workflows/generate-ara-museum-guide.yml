@@ -6,6 +6,10 @@ on:
       - ".github/workflows/generate-ara-museum-guide.yml"
       - "research/museum-guide-ara.json"
       - "scripts/stage-ara-guide.mjs"
+      - "tests/high-detail-visitor.test.mjs"
+      - "tests/cc0-animation-pack.test.mjs"
+      - "museum/character.js"
+      - "scripts/build-cloudflare.mjs"
   workflow_dispatch:
 
 permissions:
