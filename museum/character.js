@@ -224,6 +224,7 @@ export function createVisitor(scene,onStatus){
  // lightweight animated visitor remains a functional fallback.
  let detailLoading=false,detailInstalled=false,detailPose=null,initialExpired=false;
  let motionLibraryConfig=null,motionCatalog=[];
+ let nativeGestureClips=new Map();
  async function upgradeToHighDetail(preselected=null,availableMotions=null){
   if(privatePreview)return false;
   if(detailInstalled)return true;
@@ -241,8 +242,9 @@ export function createVisitor(scene,onStatus){
     availableMotions=config?.animationLibrary;
    }
    // Only publicly redistributable, self-hosted human models are accepted.
-   if(highDetail?.license!=='CC0-1.0'||
-      highDetail.path!=='./assets/characters/realistic_guide_cc0.glb')return false;
+   const nativeAra=highDetail?.path==='./assets/characters/ara_museum_guide.glb';
+   const jordan=highDetail?.path==='./assets/characters/realistic_guide_cc0.glb';
+   if(highDetail?.license!=='CC0-1.0'||(!nativeAra&&!jordan))return false;
    onStatus('Visitor: preparing realistic animated guide');
    const gltf=await new GLTFLoader().loadAsync(highDetail.path);
    if(privatePreview||initialExpired)return false;
@@ -264,7 +266,7 @@ export function createVisitor(scene,onStatus){
    let idleClip=idle,walkClip=nativeBrisk,usedNaturalMotions=false;
    const walkPreview=new URLSearchParams(window.location.search)
      .get('motion-preview')==='1';
-   if(availableMotions?.license==='CC0-1.0' &&
+   if(!nativeAra && availableMotions?.license==='CC0-1.0' &&
       availableMotions?.path==='./assets/animations/kinemiq/' &&
       availableMotions?.clips?.includes('Idle_relaxed') &&
       availableMotions?.clips?.includes('Walk_formal')){
@@ -290,13 +292,14 @@ export function createVisitor(scene,onStatus){
    nextIdle.play();nextWalk.play();
    // The formal source motion has an assertive gait; play just below
    // source tempo so the museum's exploratory walking stays unhurried.
-   nextWalk.timeScale=usedNaturalMotions?.92:.82;
+   nextWalk.timeScale=nativeAra?1:usedNaturalMotions?.92:.82;
    nextIdle.setEffectiveWeight(1);nextWalk.setEffectiveWeight(0);
    nextMixer.update(0);
    // The source animation owns the full body. Only wrist orientation is
    // adjusted for neutral hand position, before measuring avatar size.
-   const corrector=createHumanoidPoseCorrector(THREE,obj);
-   if(corrector.hasSkeleton){
+   // Matching Ara skeleton and native clips need no Jordan wrist correction.
+   const corrector=nativeAra?null:createHumanoidPoseCorrector(THREE,obj);
+   if(corrector?.hasSkeleton){
     corrector.apply(0,0);
     console.info('Wrist-only correction mapping:',corrector.describe());
    }else{
@@ -317,11 +320,16 @@ export function createVisitor(scene,onStatus){
    root.add(obj);
    model=obj;modelRestPosition.copy(obj.position);
    mixer=nextMixer;idleAction=nextIdle;walkAction=nextWalk;
+   nativeGestureClips=nativeAra?new Map(clips.filter(c=>
+    !/idle|walk|run|locomotion/i.test(c.name||'')
+   ).map(c=>[c.name,c])):new Map();
    motionLibraryConfig=usedNaturalMotions?availableMotions:null;
-   motionCatalog=motionLibraryConfig?.clips||[];
+   motionCatalog=nativeAra?[...nativeGestureClips.keys()]:motionLibraryConfig?.clips||[];
    detailPose=corrector;
    usingAsset=true;detailInstalled=true;proxy.visible=false;shadow.visible=true;
-   onStatus('Visitor: realistic guide · '+(usedNaturalMotions?'new CC0 '+walkClip.name:'Jordan '+walkClip.name)+' · exact 90° wrists');
+   onStatus(nativeAra?
+    'Visitor: photo-textured guide · native '+walkClip.name+' · matching rig':
+    'Visitor: realistic guide · '+(usedNaturalMotions?'new CC0 '+walkClip.name:'Jordan '+walkClip.name)+' · exact 90° wrists');
    candidate=null;
    return true;
   }catch(error){
@@ -335,10 +343,11 @@ export function createVisitor(scene,onStatus){
  async function playGesture(name){
   // On-demand action animation: idle/walk are already retargeted at startup.
   // No weapon animation is automatic; every gesture requires a user action.
+  const native=nativeGestureClips.get(name);
   if(!detailInstalled||!mixer||!model||walking||
-     !motionLibraryConfig?.clips?.includes(name))return false;
+     (!native&&!motionLibraryConfig?.clips?.includes(name)))return false;
   try{
-   const clip=await loadCc0Motion(model,motionLibraryConfig,name);
+   const clip=native||await loadCc0Motion(model,motionLibraryConfig,name);
    if(walking||!detailInstalled)return false;
    if(gestureAction)gestureAction.stop();
    gestureBlend=0;
