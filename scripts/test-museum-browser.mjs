@@ -18,10 +18,12 @@ try{
  page.on('console',message=>lines.push('console '+message.type()+' '+message.text()));
  page.on('pageerror',error=>lines.push('pageerror '+error.message));
  page.on('requestfailed',req=>lines.push('requestfail '+req.url()+' '+req.failure()?.errorText));
+ page.on('response',response=>{if(response.status()>=400)
+  lines.push('http '+response.status()+' '+response.url());});
  await page.goto('http://127.0.0.1:8765/museum/',{waitUntil:'domcontentloaded',timeout:40000});
  let loadingError=null;
  try{
-  await page.waitForFunction(()=>document.querySelector('#loading')?.classList.contains('done'),
+  await page.waitForFunction(()=>!document.querySelector('#loading'),
    null,{timeout:52000});
  }catch(error){loadingError=error.message;lines.push('LOADING ERROR: '+loadingError);}
  await page.waitForTimeout(1200);
@@ -33,7 +35,10 @@ try{
   await page.keyboard.up('KeyW');
  }
  const retargetStarted=lines.some(line=>line.includes('Using retargeted CC0 locomotion:'));
- const errors=lines.filter(line=>/pageerror|Failed to|WebGLRenderer.*Error/.test(line));
+ const errors=lines.filter(line=>
+  /pageerror|requestfail|WebGLRenderer.*Error/.test(line)||
+  (/http (?:4|5)\\d\\d/.test(line)&&!/favicon\\.ico/.test(line)));
+
  const result={retargetStarted,errors,loadingError,
   status:await page.locator('#asset-status').textContent().catch(()=>null),
   loadingText:await page.locator('#loading p').textContent().catch(()=>null),
