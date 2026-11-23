@@ -11,6 +11,7 @@ on:
       - "museum/character.js"
       - "museum/index.html"
       - "tests/renderpeople-license-guard.test.mjs"
+      - "scripts/test-museum-browser.mjs"
       - "scripts/build-cloudflare.mjs"
   workflow_dispatch:
 
