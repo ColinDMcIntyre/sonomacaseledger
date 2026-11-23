@@ -42,7 +42,7 @@ For a public-facing detailed character, the repository now includes a source-lim
 - `scripts/audit_public_cc0_visitor.py`: validates GLB 2.0, skinned mesh, materials/textures, named idle and walk clips, output size and compatibility with the current loader.
 - `.github/workflows/import-cc0-visitor.yml`: automated 1K texture resize/WebP compression, size/rig verification, protected fallback checks, and publication of the CC0 binary and `character.highDetail` manifest entry **only after validation succeeds**.
 - `museum/character.js`: swaps to high detail without interrupting play, keeping the old model if loading fails.
-- `museum/museum.js`: HD control on mobile after successful import; delayed automatic upgrade only for roomy desktops without restricted connections.
+- `museum/museum.js`: HD control on mobile after successful import; delayed automatic upgrade for normal desktop and mobile connections; Data Saver / slow connections remain opt-in.
 - `tests/high-detail-visitor.test.mjs`: regression checks for all of the above.
 
 **Current verified publication status:** The high-detail CC0 binary and the manifest entry were not yet present in the repository during this editing session. Therefore the current public character remains the existing visitor; the importer is a validated *deployment mechanism*, not proof of a live replacement. The JavaScript has had structural syntax checks, but the imported animated character has not been visually tested here. No Renderpeople binary was published.
