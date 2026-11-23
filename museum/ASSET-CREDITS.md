@@ -123,3 +123,14 @@ Lighting and performance tuning, shadows, baked PBR textures, sound effects, adv
 - The Gobkit CC0 GLB loader previously hid the procedural model even when no usable Walk/Idle clips were found. The new loader **requires both recognizable animations** before enabling the external model. Otherwise the built-in articulated visitor rig visibly walks and idles. It reports the actual animation source, not a misleading generic "animated GLB" status.
 - No source data, case summaries or court outcomes were changed. The source-backed HTML articles remain the primary accessible reading experience.
 - This is a large art and camera redesign, not a claim that procedural models are photorealistic. Live browser playtesting is needed to validate proportions, animation quality and hardware performance.
+
+
+## Expanded motion library (CC0)
+
+[KinemIQ — 35 Free Game Animations (GLB)](https://huggingface.co/datasets/Kinemiq/free-game-animations), derived from [Quaternius Universal Animation Library](https://quaternius.itch.io/universal-animation-library). The source pack is licensed CC0-1.0. Cloudflare's deploy step extracts only `GLB/` motion clips, not KinemIQ's mannequin, and includes the source/license in the public manifest. Available clips include `Idle_relaxed`, `Walk_formal`, `Walk_forwards`, `Run_jog_forwards`, `Idle_talking` and `Action_interact` plus others.
+
+Because KinemIQ's and Jordan's skeleton rest rotations differ, the museum does **not** apply original animation quaternions directly. It retargets *rotation* tracks with `targetRest × inverse(sourceRest) × animatedSource`, only on matched bones. Translation/scale channels are omitted to avoid deforming body dimensions or overriding museum navigation. The pack is an optional enhancement: if downloading or retargeting fails, Jordan's original animations remain active.
+
+**Exact wrist correction:** The source GLB confirmed `hand_l` and `hand_r` are children of `lowerarm_l` and `lowerarm_r` and sit ~0.266 along their forearm-local +Y axes. The importer applies a mirrored ±90° *axial* quaternion on those two wrists only, rather than steering fingers down in world space. Neither the left nor right wrist, the elbows nor the legs are edited by the pose solver. This change replaces the earlier heuristic pose solver.
+
+The 35 available clips are not all context-appropriate for a historical museum; the user-facing Actions control exposes selected benign gestures. Visual realism and foot-planting of retargeted motion remain unverified in a browser.
