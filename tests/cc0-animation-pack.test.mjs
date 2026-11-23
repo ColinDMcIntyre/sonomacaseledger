@@ -29,7 +29,8 @@ test('live build includes 35 approved CC0 motion clips and the Jordan guide',()=
 test('runtime maps rotation tracks to matching Jordan bones and keeps translation out',()=>{
  const source=read('museum/animation-library.js');
  assert.match(source,/target\.traverse\(n=>\{if\(n\.isBone\)/);
- assert.match(source,/src\.quaternion\.clone\(\)\.invert\(\)/);
+ assert.match(source,/prepareIdleCalibration\(target,jordanOriginalIdle,rawIdle\)/);
+ assert.match(source,/dst\.clone\(\)\.multiply\(src\.clone\(\)\.invert\(\)\)/);
  assert.match(source,/sample\.premultiply\(offset\)\.normalize\(\)/);
  assert.match(source,/QuaternionKeyframeTrack/);
  assert.match(source,/tracks\.length<40\|\|coverage<\.65/);
