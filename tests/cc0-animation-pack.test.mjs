@@ -37,7 +37,12 @@ test('runtime maps rotation tracks to matching Jordan bones and keeps translatio
  assert.doesNotMatch(source,/VectorKeyframeTrack/);
  const visitor=read('museum/character.js');
  assert.match(visitor,/loadNaturalLocomotion\(obj,availableMotions,idle\)/);
- assert.match(visitor,/original Jordan clips retained/);
+ assert.match(visitor,/CC0 walk unavailable; using built-in Walk_Brisk/);
+ assert.match(visitor,/walkClip=result\.walk/);
+ assert.match(visitor,/let idleClip=idle,walkClip=nativeBrisk/);
+ assert.match(visitor,/nextWalk\.timeScale=usedNaturalMotions\?\.92:\.82/);
+ assert.match(visitor,/Using retargeted CC0 walking/);
+ assert.match(visitor,/availableMotions\?\.clips\?\.includes\('Walk_formal'\)/);
  assert.match(visitor,/loadCc0Motion\(model,motionLibraryConfig,name\)/);
 });
 
