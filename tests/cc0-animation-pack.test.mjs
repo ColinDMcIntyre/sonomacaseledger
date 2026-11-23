@@ -39,3 +39,29 @@ test('runtime maps rotation tracks to matching Jordan bones and keeps translatio
  assert.match(visitor,/original Jordan clips retained/);
  assert.match(visitor,/loadCc0Motion\(model,motionLibraryConfig,name\)/);
 });
+
+
+function parsedGlb(path){
+ const buf=readFileSync(resolve(root,path));
+ assert.equal(buf.toString('ascii',0,4),'glTF');
+ const length=buf.readUInt32LE(12);
+ return JSON.parse(buf.subarray(20,20+length).toString('utf8').trim());
+}
+test('real idle and walk tracks match enough Jordan bones for safe quaternion retarget',()=>{
+ const jordan=parsedGlb('dist/museum/assets/characters/realistic_guide_cc0.glb');
+ const boneNames=new Set((jordan.skins||[]).flatMap(s=>(s.joints||[])
+  .map(id=>jordan.nodes[id].name)));
+ for(const name of ['Idle_relaxed','Walk_formal']){
+  const gltf=parsedGlb('dist/museum/assets/animations/kinemiq/'+name+'.glb');
+  const animation=gltf.animations[0];
+  const channels=animation.channels.filter(ch=>ch.target?.path==='rotation');
+  const matching=channels.filter(ch=>boneNames.has(gltf.nodes[ch.target.node]?.name));
+  assert.ok(channels.length>=60,name+': expected humanoid rotation tracks');
+  assert.ok(matching.length>=40,name+': enough retargetable joints');
+  assert.ok(matching.length/channels.length>=.65,name+': compatible target coverage');
+  for(const sampler of animation.samplers){
+   assert.ok(!sampler.interpolation||['LINEAR','STEP'].includes(sampler.interpolation),
+    name+': unsupported cubic quaternion interpolation');
+  }
+ }
+});
