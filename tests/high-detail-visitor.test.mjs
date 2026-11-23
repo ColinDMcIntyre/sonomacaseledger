@@ -23,7 +23,7 @@ test('realistic guide is selected first, pre-posed and correctly scaled',()=>{
  assert.doesNotMatch(museum,/window\.setTimeout\(upgrade,1400\)/,
   'No delayed HD swap once the museum is already visible');
  assert.match(museum,/6\.5:11\.2/,'Closer follow camera for larger character');
- assert.match(museumHtml,/museum\.js\?v=kinemiq-20261122/);
+ assert.match(museumHtml,/museum\.js\?v=idle-calibration-20261122/);
  assert.ok(!read('index.html').includes('realistic_guide_cc0.glb'));
 });
 
