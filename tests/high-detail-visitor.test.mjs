@@ -11,10 +11,10 @@ test('realistic guide is selected first, pre-posed and correctly scaled',()=>{
  const museumHtml=read('museum/index.html');
  assert.match(character,/async function upgradeToHighDetail\(preselected=null,availableMotions=null\)/);
  assert.match(character,/highDetail\?\.license!=='CC0-1\.0'/);
- assert.match(character,/ara_museum_guide\\.glb/);
- assert.match(character,/nativeAra\\?null:createHumanoidPoseCorrector/);
+ assert.match(character,/ara_museum_guide\.glb/);
+ assert.match(character,/nativeAra\?null:createHumanoidPoseCorrector/);
  assert.match(character,/nativeGestureClips=nativeAra/);
- assert.match(character,/onStatus\\(nativeAra\\?/);
+ assert.match(character,/onStatus\(nativeAra\?/);
  assert.match(character,/createHumanoidPoseCorrector\(THREE,obj\)/);
  assert.match(character,/walkClip=result\.walk/);
  assert.match(character,/let idleClip=idle,walkClip=nativeBrisk/);
