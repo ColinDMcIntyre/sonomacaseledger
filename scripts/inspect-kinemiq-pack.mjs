@@ -15,7 +15,7 @@ for(let p=buf.length-22;p>=Math.max(0,buf.length-65000);p--){
 }
 if(e<0)throw Error('Invalid ZIP archive');
 let pos=buf.readUInt32LE(e+16);
-const count=buf.readUInt16LE(e+10),entries=[];
+const count=buf.readUInt16LE(e+10),entries=[],samples=new Map();
 function get(central){
  const compression=buf.readUInt16LE(central+10);
  const length=buf.readUInt32LE(central+20),uncompressed=buf.readUInt32LE(central+24);
@@ -37,6 +37,8 @@ for(let k=0;k<count;k++){
   const jslen=data.readUInt32LE(12);
   const gltf=JSON.parse(data.subarray(20,20+jslen).toString('utf8').trim());
   const jointNames=(gltf.skins||[]).flatMap(s=>(s.joints||[]).map(i=>gltf.nodes?.[i]?.name)).filter(Boolean);
+  if(/KinemIQ_Mannequin\.glb|Idle_relaxed\.glb|Walk_formal\.glb|Walk_forwards\.glb/i.test(name))
+   samples.set(name,gltf);
   entries.push({name,bytes:data.length,clips:(gltf.animations||[]).map(a=>a.name),
    bones:jointNames.length,exampleBones:jointNames.slice(0,12)});
  }
@@ -44,3 +46,35 @@ for(let k=0;k<count;k++){
 }
 console.log(JSON.stringify({zipBytes:buf.length,glbCount:entries.length,entries},null,2));
 if(entries.length<15)throw Error('Expected >=15 CC0 GLB clips');
+
+const target=process.env.JORDAN_GLB||'dist/museum/assets/characters/realistic_guide_cc0.glb';
+const {readFileSync}=await import('node:fs');
+const model=readFileSync(target);
+const mlen=model.readUInt32LE(12);
+const jordan=JSON.parse(model.subarray(20,20+mlen).toString('utf8').trim());
+const jnodes=new Map((jordan.nodes||[]).map(x=>[x.name,x]));
+const q=(node)=>node?.rotation||[0,0,0,1];
+const delta=(a,b)=>2*Math.acos(Math.max(-1,Math.min(1,Math.abs(
+ a.reduce((sum,x,i)=>sum+x*b[i],0)
+))))*180/Math.PI;
+console.log('SKELETON COMPATIBILITY');
+for(const [name,gltf] of samples){
+ const names=(gltf.nodes||[]).map(n=>n.name).filter(Boolean);
+ const matched=names.filter(n=>jnodes.has(n));
+ const interested=['pelvis','spine_01','upperarm_l','lowerarm_l','hand_l','thigh_l','upperarm_r','lowerarm_r','hand_r','thigh_r'];
+ const comparison=interested.map(n=>{
+  const src=(gltf.nodes||[]).find(x=>x.name===n),dst=jnodes.get(n);
+  return {joint:n,present:!!src,deltaDeg:src&&dst?Math.round(delta(q(src),q(dst))):null,
+    srcQ:src?q(src):null,dstQ:dst?q(dst):null};
+ });
+ const clip=gltf.animations?.[0];
+ const channelNames=(clip?.channels||[]).map(c=>({
+  name:gltf.nodes?.[c.target?.node]?.name,path:c.target?.path
+ }));
+ const rotations=channelNames.filter(x=>x.path==='rotation');
+ const matchingRotations=rotations.filter(x=>jnodes.has(x.name));
+ console.log(JSON.stringify({asset:name,nodes:names.length,matchedNames:matched.length,
+  rotationTracks:rotations.length,matchedRotationTracks:matchingRotations.length,
+  comparisons:comparison},null,2));
+}
+
