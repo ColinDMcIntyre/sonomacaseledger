@@ -5,7 +5,7 @@ import {exhibitSockets,ENTRY_POINT} from './layout.js';
 import {loadCathedralMaterials} from './materials.js?v=unified-vault-bays-20261119';
 import {installCathedralLighting} from './lighting.js?v=unified-vault-bays-20261119';
 import {installBakedDaylight} from './daylight.js';
-import {createVisitor} from './character.js?v=cc0-guide-20261122';
+import {createVisitor} from './character.js?v=visitor-pose-20261122';
 import {installMuseumAssets} from './asset-library.js?v=case-dioramas-20261119';
 import {caseIllustrationFor} from './case-dioramas.js?v=case-dioramas-20261119';
 import {RoomEnvironment} from 'three/addons/environments/RoomEnvironment.js';
@@ -41,7 +41,7 @@ let cameraEye=new THREE.Vector3();
 const heldKeys=new Set();
 const interactionPosition=new THREE.Vector3();
 let closestExhibit=null;
-const cameraDistance=()=>((state.cameraMode==='close')?7.3:12.4)/state.zoom;
+const cameraDistance=()=>((state.cameraMode==='close')?6.5:11.2)/state.zoom;
 const COLOR={gold:0xd1b37b,aqua:0x86d8c9};
 const clamp=THREE.MathUtils.clamp;
 function element(tag,text,cls){
@@ -195,7 +195,7 @@ function updateCamera(dt){
  // Frame the actual visitor immediately. Following a damped tracking point
  // let the character slide toward the side of the screen while moving.
  viewTarget.copy(player);
- cameraAnchor.set(player.x,1.62,player.z);
+ cameraAnchor.set(player.x,1.79,player.z);
  const distance=cameraDistance(),cp=Math.cos(state.pitch),sp=Math.sin(state.pitch);
  desiredCamera.set(
   cameraAnchor.x+Math.sin(state.yaw)*distance*cp,
@@ -747,6 +747,9 @@ async function installHighDetailGuideOption(){
   const asset=(await response.json())?.character?.highDetail;
   if(asset?.license!=='CC0-1.0'||
     asset.path!=='./assets/characters/realistic_guide_cc0.glb')return;
+  // Successful startup already displayed the right guide: no redundant
+  // button, second request or visible avatar swap.
+  if(visitor.usesHighDetail)return;
   const tray=document.querySelector('.control-tray');
   if(!tray)return;
   const button=document.createElement('button');
@@ -774,11 +777,8 @@ async function installHighDetailGuideOption(){
    }
   }
   button.addEventListener('click',upgrade);
-  const connection=navigator.connection||navigator.mozConnection||navigator.webkitConnection;
-  // Visitors explicitly chose the 3D experience. Upgrade by default on
-  // normal connections, including mobile, but respect Data Saver / 2G / 3G.
-  const limitedNetwork=connection?.saveData||/^(slow-2g|2g|3g)$/.test(connection?.effectiveType||'');
-  if(!limitedNetwork)window.setTimeout(upgrade,1400);
+  // If the first HD attempt failed, offer a deliberate retry. Never
+  // silently swap a different avatar into an already-running museum.
  }catch(error){
   console.warn('Optional guide configuration unavailable; using existing visitor',error);
  }
@@ -817,11 +817,16 @@ async function main(){
        if(renderer.shadowMap.enabled)renderer.shadowMap.needsUpdate=true;
     })
     .catch(error=>console.warn('Optional museum assets:',error));
+  // The visitor starts loading during setupThree() in parallel with rooms
+  // and furniture. Hold the museum's existing loading screen until the
+  // correct character (or a real fallback on failure) is ready.
+  const intro=UI.loading.querySelector('p');
+  if(intro)intro.textContent='Preparing galleries and your animated guide…';
+  await visitor.ready;
+  loadingProgress(96);
   clock.start();animate();
-  // Once a vetted CC0 GLB has actually been installed, offer a user-controlled
-  // HD switch. Desktop visitors with suitable connections auto-upgrade AFTER
-  // first frame; mobile and metered connections remain opt-in.
-  installHighDetailGuideOption();
+  // This is only a manual retry when the preferred character could not load.
+  if(!visitor.usesHighDetail)installHighDetailGuideOption();
   loadingProgress(100);
   setTimeout(()=>{UI.loading.classList.add('done');setTimeout(()=>UI.loading.remove(),800);},450);
   routeHash();
