@@ -9,6 +9,18 @@ const read=p=>readFileSync(resolve(root,p),'utf8');
 test('live build includes 35 approved CC0 motion clips and the Jordan guide',()=>{
  const config=JSON.parse(read('dist/museum/assets/manifest.json')).character;
  assert.equal(config.highDetail?.license,'CC0-1.0','Realistic guide missing from full build');
+ // The replacement character has its own matched rig and native clips:
+ // no KinemIQ assets should be served or blended onto it.
+ if(config.highDetail?.path==='./assets/characters/ara_museum_guide.glb'){
+  assert.equal(config.animationLibrary,undefined);
+  const ara=parsedGlb('dist/museum/assets/characters/ara_museum_guide.glb');
+  assert.ok((ara.skins||[]).some(s=>(s.joints||[]).length>=25));
+  const names=(ara.animations||[]).map(a=>a.name||'');
+  assert.ok(names.some(n=>/idle|standing/i.test(n)),'Ara idle missing');
+  assert.ok(names.some(n=>/walk/i.test(n)),'Ara walk missing');
+  assert.ok((ara.textures||[]).length>=1,'Ara photo textures missing');
+  return;
+ }
  const lib=config.animationLibrary;
  assert.equal(lib.license,'CC0-1.0');
  assert.equal(lib.preferredIdle,'Idle_relaxed');
@@ -40,7 +52,7 @@ test('runtime maps rotation tracks to matching Jordan bones and keeps translatio
  assert.match(visitor,/CC0 walk unavailable; using built-in Walk_Brisk/);
  assert.match(visitor,/walkClip=result\.walk/);
  assert.match(visitor,/let idleClip=idle,walkClip=nativeBrisk/);
- assert.match(visitor,/nextWalk\.timeScale=usedNaturalMotions\?\.92:\.82/);
+ assert.match(visitor,/nextWalk\\.timeScale=nativeAra\\?1:usedNaturalMotions\\?\\.92:\\.82/);
  assert.match(visitor,/Using retargeted CC0 walking/);
  assert.match(visitor,/availableMotions\?\.clips\?\.includes\('Walk_formal'\)/);
  assert.match(visitor,/loadCc0Motion\(model,motionLibraryConfig,name\)/);
@@ -54,6 +66,11 @@ function parsedGlb(path){
  return JSON.parse(buf.subarray(20,20+length).toString('utf8').trim());
 }
 test('real idle and walk tracks match enough Jordan bones for safe quaternion retarget',()=>{
+ const config=JSON.parse(read('dist/museum/assets/manifest.json')).character;
+ if(config.highDetail?.path==='./assets/characters/ara_museum_guide.glb'){
+  assert.equal(config.animationLibrary,undefined,'Ara must not inherit an incompatible retargeter');
+  return;
+ }
  const jordan=parsedGlb('dist/museum/assets/characters/realistic_guide_cc0.glb');
  const boneNames=new Set((jordan.skins||[]).flatMap(s=>(s.joints||[])
   .map(id=>jordan.nodes[id].name)));
