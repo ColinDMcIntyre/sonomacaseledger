@@ -43,9 +43,9 @@ jobs:
           node --check museum/character-pose.js
           node --check museum/asset-library.js
           node --check museum/museum.js
-      - name: Verify level integrity, PBR materials, doors and case routes
-        run: node --test tests/museum-*.test.mjs
-      - name: Block proprietary Renderpeople files from public browser assets
-        run: node --test tests/renderpeople-license-guard.test.mjs
       - name: Verify corrected guide pose and high-detail-first loading
         run: node --test tests/high-detail-visitor.test.mjs tests/character-pose.test.mjs
+      - name: Block proprietary Renderpeople files from public browser assets
+        run: node --test tests/renderpeople-license-guard.test.mjs
+      - name: Verify level integrity, PBR materials, doors and case routes
+        run: node --test tests/museum-*.test.mjs
