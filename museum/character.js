@@ -256,31 +256,41 @@ export function createVisitor(scene,onStatus){
    obj.traverse(node=>{
     if(node.isMesh||node.isSkinnedMesh){node.receiveShadow=true;node.castShadow=false;}
    });
-   // KinemIQ's source skeleton is not yet safely retargeted to Jordan.
-   // Keep the tested Jordan clips as the DEFAULT until a visual QA gate
-   // explicitly marks a future asset as verifiedRetarget=true.
-   // Prefer the CC0 KinemIQ walking library, retargeted to Jordan's
-   // original skeleton. A rig mismatch or download failure must NEVER
-   // substitute invalid animations or break the visible character.
-   let idleClip=idle,walkClip=walk,usedNaturalMotions=false;
-   // Optional QA mode: test the full CC0 motion pack without changing
-   // the production default. A failed retarget always keeps Jordan clips.
-   const experimentalMotions=new URLSearchParams(window.location.search)
+   // Keep Jordan's existing Idle_Standing and exact 90-degree wrist
+   // corrections. Replace ONLY the disliked Walk_Relaxed with a separate
+   // CC0 Walk_formal motion, calibrated against Jordan's known idle pose.
+   // The native Walk_Brisk is a compatible, decoder-free backup.
+   const nativeBrisk=clips.find(c=>/^walk[ _-]*brisk$/i.test(c.name||''))||walk;
+   let idleClip=idle,walkClip=nativeBrisk,usedNaturalMotions=false;
+   const walkPreview=new URLSearchParams(window.location.search)
      .get('motion-preview')==='1';
    if(availableMotions?.license==='CC0-1.0' &&
-      (availableMotions?.verifiedRetarget===true||experimentalMotions)){
+      availableMotions?.path==='./assets/animations/kinemiq/' &&
+      availableMotions?.clips?.includes('Idle_relaxed') &&
+      availableMotions?.clips?.includes('Walk_formal')){
     try{
      const result=await loadNaturalLocomotion(obj,availableMotions,idle);
-     idleClip=result.idle;walkClip=result.walk;
+     // Use ONLY the new walking clip: never replace the standing pose.
+     walkClip=result.walk;
+     if(walkPreview && availableMotions.clips.includes('Walk_forwards')){
+      // Optional comparison between two retargeted walk styles.
+      walkClip=await loadCc0Motion(obj,availableMotions,'Walk_forwards');
+     }
      usedNaturalMotions=true;
-     console.info('Using retargeted CC0 locomotion:',idleClip.name,walkClip.name);
+     console.info('Using retargeted CC0 walking:',walkClip.name,
+      'with original Jordan idle:',idleClip.name);
     }catch(error){
-     console.warn('Motion retargeting unavailable; original Jordan clips retained:',error);
+     console.warn('CC0 walk unavailable; using built-in Walk_Brisk:',error);
+     walkClip=nativeBrisk;
+     usedNaturalMotions=false;
     }
    }
    const nextMixer=new THREE.AnimationMixer(obj);
    const nextIdle=nextMixer.clipAction(idleClip),nextWalk=nextMixer.clipAction(walkClip);
    nextIdle.play();nextWalk.play();
+   // The formal source motion has an assertive gait; play just below
+   // source tempo so the museum's exploratory walking stays unhurried.
+   nextWalk.timeScale=usedNaturalMotions?.92:.82;
    nextIdle.setEffectiveWeight(1);nextWalk.setEffectiveWeight(0);
    nextMixer.update(0);
    // The source animation owns the full body. Only wrist orientation is
@@ -311,7 +321,7 @@ export function createVisitor(scene,onStatus){
    motionCatalog=motionLibraryConfig?.clips||[];
    detailPose=corrector;
    usingAsset=true;detailInstalled=true;proxy.visible=false;shadow.visible=true;
-   onStatus('Visitor: realistic guide · '+(usedNaturalMotions?'CC0 motion preview':'original Walk/Idle')+' · exact 90° wrists');
+   onStatus('Visitor: realistic guide · '+(usedNaturalMotions?'new CC0 '+walkClip.name:'Jordan '+walkClip.name)+' · exact 90° wrists');
    candidate=null;
    return true;
   }catch(error){
