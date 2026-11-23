@@ -35,7 +35,8 @@ try{
   await page.keyboard.up('KeyW');
  }
  const retargetStarted=lines.some(line=>
-  line.includes('Using retargeted CC0 walking: Walk_formal'));
+  line.includes('Using retargeted CC0 walking: Walk_formal')||
+  line.includes('Visitor: photo-textured guide · native'));
  const errors=lines.filter(line=>
   /pageerror|requestfail|WebGLRenderer.*Error/.test(line)||
   (/http (?:4|5)\\d\\d/.test(line)&&!/favicon\\.ico/.test(line)));
@@ -52,6 +53,6 @@ try{
   loadingStillVisible:result.loadingStillVisible,logTail:lines.slice(-36)
  },null,2));
  if(loadingError)throw Error('Museum loading screen remained visible: '+loadingError);
- if(!retargetStarted)throw Error('New CC0 Walk_formal did not initialize in real Chrome');
+ if(!retargetStarted)throw Error('Neither Ara native gait nor approved Jordan fallback initialized in Chrome');
  if(errors.length)throw Error('Browser console or asset errors detected');
 }finally{await browser.close();}
