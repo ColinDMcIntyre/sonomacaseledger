@@ -262,7 +262,7 @@ export function createVisitor(scene,onStatus){
    let idleClip=idle,walkClip=walk,usedNaturalMotions=false;
    if(availableMotions?.license==='CC0-1.0'){
     try{
-     const result=await loadNaturalLocomotion(obj,availableMotions);
+     const result=await loadNaturalLocomotion(obj,availableMotions,idle);
      idleClip=result.idle;walkClip=result.walk;
      usedNaturalMotions=true;
      console.info('Using retargeted CC0 locomotion:',idleClip.name,walkClip.name);
