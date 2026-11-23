@@ -39,13 +39,13 @@ The Cloudflare build creates a **public-only `dist/` directory**, instead of pub
 
 The build fetches a [CC0 animated business-dressed character named Jordan](https://www.innerscene.com/tools/library/3d-parts/locomotion-collection-jordan-3d-person-animated-911f1584) from Innerscene during deployment, verifies the GLB's integrity, skinning and idle/walk clips, and only then includes it at `museum/assets/characters/realistic_guide_cc0.glb`. This model is licensed for **public redistribution**. The existing CC0 `visitor.glb` remains an immediate fallback if downloading or validating the larger model fails.
 
-Because the 3D experience is optional on the landing page, the model is never requested on the lightweight homepage. Within the 3D museum the original character is displayed immediately, then the high-detail one loads on normal connections; Data Saver/slow connections can use the optional HD control. The original high-detail source is about 23.3 MB, which is large for mobile devices and below Cloudflare's 25 MiB per-file Pages limit.
+Because the 3D experience is optional on the landing page, the model is never requested on the lightweight homepage. Within the 3D museum, the loading screen now waits for the **correct high-detail guide first**, so visitors no longer watch a different character swap in afterward. An automated humanoid pose corrector relaxes T-pose shoulders, wrists and over-wide legs. The visible guide is normalized to approximately 2.64 museum units and the follow camera is closer. If the detailed model cannot load in 24 seconds, the lightweight animated visitor becomes the fallback; on Data Saver/slow connections the lightweight visitor remains the default and HD can be requested manually. The original detailed GLB is about 23.3 MB, which is large for mobile devices.
 
 **Local/offline build verification:**
 
 ```sh
 SKIP_HD_DOWNLOAD=1 node scripts/build-cloudflare.mjs
-node --test tests/cloudflare-build.test.mjs tests/high-detail-visitor.test.mjs tests/renderpeople-license-guard.test.mjs
+node --test tests/cloudflare-build.test.mjs tests/high-detail-visitor.test.mjs tests/character-pose.test.mjs tests/renderpeople-license-guard.test.mjs
 ```
 
 Cloudflare Pages must use the command and output directory above. An ordinary static deployment with the output set to `.` will not download the character or include it.
@@ -93,7 +93,7 @@ The new **isometric Three.js museum** is at `museum/`, and is linked from the ho
 
 Visitors click the floor to walk, click exhibits to read a source-backed summary, and use the map/directory to jump between wings. The museum is generated from shared `world.js` components and the existing `research/case-data.json` register. New case records do not need custom 3D logic.
 
-The character attempts to load a free CC0 Gobkit GLB with Idle/Walk clips; a procedural visitor works if the GLB cannot be loaded. No third-party asset ZIP is required to build the museum shell. See [museum/ASSET-CREDITS.md](museum/ASSET-CREDITS.md) for exact sources and licenses.
+Cloudflare builds install the CC0 Jordan model when validation succeeds, and the museum prioritizes this visitor. The older CC0 Casual Walker GLB and a native procedural visitor are retained as fallbacks. No third-party proprietary character ZIP is required. See [museum/ASSET-CREDITS.md](museum/ASSET-CREDITS.md) for exact sources and licenses.
 
 To test: publish GitHub Pages from `main` at root, then open `https://colindmcintyre.github.io/sonomacaseledger/museum/`. WebGL and the Three.js CDN are required for the 3D view. Full case articles remain accessible as normal HTML pages.
 
