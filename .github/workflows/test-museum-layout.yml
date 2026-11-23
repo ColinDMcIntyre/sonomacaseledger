@@ -6,6 +6,7 @@ on:
       - "tests/museum-*.test.mjs"
       - "tests/renderpeople-license-guard.test.mjs"
       - "tests/high-detail-visitor.test.mjs"
+      - "tests/character-pose.test.mjs"
       - "scripts/audit_public_cc0_visitor.py"
       - "scripts/import_cc0_detailed_visitor.py"
       - ".gitignore"
@@ -17,6 +18,7 @@ on:
       - "tests/museum-*.test.mjs"
       - "tests/renderpeople-license-guard.test.mjs"
       - "tests/high-detail-visitor.test.mjs"
+      - "tests/character-pose.test.mjs"
       - "scripts/audit_public_cc0_visitor.py"
       - "scripts/import_cc0_detailed_visitor.py"
       - ".gitignore"
@@ -38,11 +40,12 @@ jobs:
           node --check museum/lighting.js
           node --check museum/architecture.js
           node --check museum/character.js
+          node --check museum/character-pose.js
           node --check museum/asset-library.js
           node --check museum/museum.js
       - name: Verify level integrity, PBR materials, doors and case routes
         run: node --test tests/museum-*.test.mjs
       - name: Block proprietary Renderpeople files from public browser assets
         run: node --test tests/renderpeople-license-guard.test.mjs
-      - name: Verify progressive high-detail CC0 visitor fallback
-        run: node --test tests/high-detail-visitor.test.mjs
+      - name: Verify corrected guide pose and high-detail-first loading
+        run: node --test tests/high-detail-visitor.test.mjs tests/character-pose.test.mjs
