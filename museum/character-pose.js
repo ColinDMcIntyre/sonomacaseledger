@@ -40,6 +40,14 @@ export function locateHumanoidBones(scene){
 }
 export function createHumanoidPoseCorrector(THREE,scene){
  const joints=locateHumanoidBones(scene);
+ // Restore the untouched hand pose before each mixer update. Some imported
+ // clips omit wrist tracks; without this, a correction can compound per frame.
+ const handRest=joints.filter(j=>j.hand&&j.finger)
+   .map(j=>({hand:j.hand,rest:j.hand.quaternion.clone()}));
+ function reset(){
+  for(const j of handRest)j.hand.quaternion.copy(j.rest);
+ }
+
  const handPosition=new THREE.Vector3(),fingerPosition=new THREE.Vector3();
  const current=new THREE.Vector3(),target=new THREE.Vector3();
  const sceneQ=new THREE.Quaternion(),parentQ=new THREE.Quaternion();
@@ -76,7 +84,7 @@ export function createHumanoidPoseCorrector(THREE,scene){
   }
  }
  return {
-  apply,
+  apply,reset,
   hasSkeleton:joints.some(j=>j.hand&&j.finger),
   describe:()=>joints.map(j=>({
    side:j.side<0?'left':'right',hand:j.hand?.name||null,
