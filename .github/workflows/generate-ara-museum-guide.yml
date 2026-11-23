@@ -9,6 +9,8 @@ on:
       - "tests/high-detail-visitor.test.mjs"
       - "tests/cc0-animation-pack.test.mjs"
       - "museum/character.js"
+      - "museum/index.html"
+      - "tests/renderpeople-license-guard.test.mjs"
       - "scripts/build-cloudflare.mjs"
   workflow_dispatch:
 
