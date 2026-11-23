@@ -137,6 +137,9 @@ export function createVisitor(scene,onStatus){
   const smooth=1-Math.exp(-dt*11);
   blend+=(Number(walking)-blend)*smooth;
   phase+=dt*(walking?10:1.8);
+  // Only hands are pose-corrected. Restore them before each mixer step
+  // so unkeyed wrist tracks never accumulate our prior correction.
+  if(detailInstalled&&detailPose)detailPose.reset();
   if(usingAsset&&mixer){
    idleAction.setEffectiveWeight(1-blend);
    walkAction.setEffectiveWeight(blend);
@@ -247,14 +250,14 @@ export function createVisitor(scene,onStatus){
    nextIdle.play();nextWalk.play();
    nextIdle.setEffectiveWeight(1);nextWalk.setEffectiveWeight(0);
    nextMixer.update(0);
-   // Apply corrections to the animated skeleton BEFORE measuring the size.
-   // Otherwise the initial T-pose or exported rig extents distort scaling.
+   // The source animation owns the full body. Only wrist orientation is
+   // adjusted for neutral hand position, before measuring avatar size.
    const corrector=createHumanoidPoseCorrector(THREE,obj);
    if(corrector.hasSkeleton){
     corrector.apply(0,0);
-    console.info('Human rig correction mapping:',corrector.describe());
+    console.info('Wrist-only correction mapping:',corrector.describe());
    }else{
-    console.warn('Could not identify full arm chains in CC0 guide; keeping source poses.');
+    console.warn('Could not identify both hand/finger chains; keeping original animation.');
    }
    const bounds=new THREE.Box3().setFromObject(obj,true);
    const size=bounds.getSize(new THREE.Vector3());
@@ -273,7 +276,7 @@ export function createVisitor(scene,onStatus){
    mixer=nextMixer;idleAction=nextIdle;walkAction=nextWalk;
    detailPose=corrector;
    usingAsset=true;detailInstalled=true;proxy.visible=false;shadow.visible=true;
-   onStatus('Visitor: realistic guide · corrected pose · Walk/Idle');
+   onStatus('Visitor: realistic guide · wrist-only adjustment · Walk/Idle');
    candidate=null;
    return true;
   }catch(error){
