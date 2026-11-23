@@ -36,7 +36,7 @@ test('runtime maps rotation tracks to matching Jordan bones and keeps translatio
  assert.match(source,/tracks\.length<40\|\|coverage<\.65/);
  assert.doesNotMatch(source,/VectorKeyframeTrack/);
  const visitor=read('museum/character.js');
- assert.match(visitor,/loadNaturalLocomotion\(obj,availableMotions\)/);
+ assert.match(visitor,/loadNaturalLocomotion\(obj,availableMotions,idle\)/);
  assert.match(visitor,/original Jordan clips retained/);
  assert.match(visitor,/loadCc0Motion\(model,motionLibraryConfig,name\)/);
 });
