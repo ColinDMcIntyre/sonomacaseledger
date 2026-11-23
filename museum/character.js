@@ -263,7 +263,12 @@ export function createVisitor(scene,onStatus){
    // original skeleton. A rig mismatch or download failure must NEVER
    // substitute invalid animations or break the visible character.
    let idleClip=idle,walkClip=walk,usedNaturalMotions=false;
-   if(availableMotions?.license==='CC0-1.0' && availableMotions?.verifiedRetarget===true){
+   // Optional QA mode: test the full CC0 motion pack without changing
+   // the production default. A failed retarget always keeps Jordan clips.
+   const experimentalMotions=new URLSearchParams(window.location.search)
+     .get('motion-preview')==='1';
+   if(availableMotions?.license==='CC0-1.0' &&
+      (availableMotions?.verifiedRetarget===true||experimentalMotions)){
     try{
      const result=await loadNaturalLocomotion(obj,availableMotions,idle);
      idleClip=result.idle;walkClip=result.walk;
@@ -306,7 +311,7 @@ export function createVisitor(scene,onStatus){
    motionCatalog=motionLibraryConfig?.clips||[];
    detailPose=corrector;
    usingAsset=true;detailInstalled=true;proxy.visible=false;shadow.visible=true;
-   onStatus('Visitor: realistic guide · '+(usedNaturalMotions?'retargeted CC0 motion':'original Walk/Idle')+' · exact 90° wrists');
+   onStatus('Visitor: realistic guide · '+(usedNaturalMotions?'CC0 motion preview':'original Walk/Idle')+' · exact 90° wrists');
    candidate=null;
    return true;
   }catch(error){
