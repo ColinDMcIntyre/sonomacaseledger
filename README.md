@@ -22,6 +22,38 @@ The homepage uses self-contained critical CSS, system fonts, no third-party imag
 
 **Post-deployment verification:** inspect the public homepage on both mobile and desktop, test both entry options, check [PageSpeed Insights](https://pagespeed.web.dev/) for real LCP/INP/CLS metrics, and submit `https://colindmcintyre.github.io/sonomacaseledger/sitemap.xml` as a sitemap in a verified [Google Search Console](https://search.google.com/search-console/) property. Performance and ranking depend on user networks, devices, indexing and content quality, not only HTML size.
 
+## Cloudflare Pages — current recommended deployment
+
+The Cloudflare build creates a **public-only `dist/` directory**, instead of publishing the repository root. It includes ordinary case pages, the museum, approved source PDFs and the case data needed by the museum. Source archives, developer tooling and the Renderpeople FBX files are not included.
+
+**Configure the Git-connected Cloudflare Pages project as follows:**
+
+| Field | Value |
+| --- | --- |
+| Repository | `ColinDMcIntyre/sonomacaseledger` |
+| Production branch | `main` |
+| Framework | `None` |
+| Build command | `node scripts/build-cloudflare.mjs` |
+| Output directory | `dist` |
+| Node version | 22 (Cloudflare Pages default) |
+
+The build fetches a [CC0 animated business-dressed character named Jordan](https://www.innerscene.com/tools/library/3d-parts/locomotion-collection-jordan-3d-person-animated-911f1584) from Innerscene during deployment, verifies the GLB's integrity, skinning and idle/walk clips, and only then includes it at `museum/assets/characters/realistic_guide_cc0.glb`. This model is licensed for **public redistribution**. The existing CC0 `visitor.glb` remains an immediate fallback if downloading or validating the larger model fails.
+
+Because the 3D experience is optional on the landing page, the model is never requested on the lightweight homepage. Within the 3D museum the original character is displayed immediately, then the high-detail one loads on normal connections; Data Saver/slow connections can use the optional HD control. The original high-detail source is about 23.3 MB, which is large for mobile devices and below Cloudflare's 25 MiB per-file Pages limit.
+
+**Local/offline build verification:**
+
+```sh
+SKIP_HD_DOWNLOAD=1 node scripts/build-cloudflare.mjs
+node --test tests/cloudflare-build.test.mjs tests/high-detail-visitor.test.mjs tests/renderpeople-license-guard.test.mjs
+```
+
+Cloudflare Pages must use the command and output directory above. An ordinary static deployment with the output set to `.` will not download the character or include it.
+
+**Custom domain:** after `sonomacaseledger.org` is registered and attached, set the Cloudflare build environment variable `SITE_ORIGIN=https://sonomacaseledger.org` to rewrite absolute canonical, social and sitemap URLs for the new origin. Until then, existing absolute URLs may still point to GitHub Pages. Verify the Cloudflare deployment works before changing the repository to private.
+
+**Current limitation:** the automated download and model appearance are not verified until a real Cloudflare build runs. The model is not a Renderpeople asset. Do not claim the high-detail guide is live based solely on the committed build script.
+
 ## First case: People v. Petros, SCR-715528-1
 
 Based on an 11-page export of the Sonoma County Superior Court's public case portal dated November 18, 2026:
