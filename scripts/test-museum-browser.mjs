@@ -41,8 +41,9 @@ try{
   await page.keyboard.up('KeyW');
  }
  const visitorStatus=await page.locator('#asset-status').textContent().catch(()=>null);
- const retargetStarted=(visitorStatus||'').includes('photo-textured guide')||
-   lines.some(line=>line.includes('Using retargeted CC0 walking: Walk_formal'));
+ const retargetStarted=lines.some(line=>
+   line.includes('Native Ara guide ready:')||
+   line.includes('Using retargeted CC0 walking: Walk_formal'));
  const errors=lines.filter(line=>
   /pageerror|requestfail|WebGLRenderer.*Error/.test(line)||
   (/http (?:4|5)\\d\\d/.test(line)&&!/favicon\\.ico/.test(line)));
