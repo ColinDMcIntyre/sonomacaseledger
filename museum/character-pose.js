@@ -13,7 +13,7 @@ function boneKey(name){
 function belongsToSide(key,side){
  const word=side<0?'left':'right',suffix=side<0?'l':'r';
  return key.includes(word)||
-  (key.endsWith(suffix)&&/(arm|leg|thigh|calf|shin|wrist|hand|finger|middle|index|foot)/.test(key))||
+  (key.endsWith(suffix)&&/(arm|leg|thigh|calf|shin|wrist|hand|finger|middle|index|foot|ankle)/.test(key))||
   new RegExp('^'+suffix+'(upperarm|lowerarm|forearm|arm|hand|wrist|upperleg|lowerleg|thigh|calf|shin|leg|foot|finger)').test(key);
 }
 function selectBone(bones,side,patterns){
