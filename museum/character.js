@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
-import {createHumanoidPoseCorrector} from './character-pose.js';
+import {createHumanoidPoseCorrector} from './character-pose.js?v=wrist-only-20261122';
 
 /*
  * Reliable third-person character and locomotion.
