@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
 import {createHumanoidPoseCorrector} from './character-pose.js?v=twist90-motions-20261122';
-import {loadNaturalLocomotion,loadCc0Motion} from './animation-library.js?v=kinemiq-20261122';
+import {loadNaturalLocomotion,loadCc0Motion} from './animation-library.js?v=idle-calibration-20261122';
 
 /*
  * Reliable third-person character and locomotion.
