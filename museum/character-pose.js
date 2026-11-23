@@ -14,7 +14,7 @@ function belongsToSide(key,side){
  const word=side<0?'left':'right',suffix=side<0?'l':'r';
  return key.includes(word)||
   (key.endsWith(suffix)&&/(arm|leg|thigh|calf|shin|wrist|hand|finger|middle|index|foot)/.test(key))||
-  new RegExp('^'+suffix+'(upperarm|lowerarm|forearm|hand|upperleg|lowerleg|thigh)').test(key);
+  new RegExp('^'+suffix+'(upperarm|lowerarm|forearm|arm|hand|wrist|upperleg|lowerleg|thigh|calf|shin|leg|foot|finger)').test(key);
 }
 function selectBone(bones,side,patterns){
  for(const test of patterns){
@@ -47,7 +47,8 @@ export function locateHumanoidBones(scene){
    n=>n.includes('upperleg'),n=>n.includes('thigh'),n=>n.includes('upleg')
   ]);
   const shin=selectBone(bones,side,[
-   n=>n.includes('lowerleg'),n=>n.includes('calf'),n=>n.includes('shin')
+   n=>n.includes('lowerleg'),n=>n.includes('calf'),n=>n.includes('shin'),
+   n=>/^(leftleg|rightleg|lleg|rleg)$/.test(n)
   ]);
   const foot=selectBone(bones,side,[
    n=>n.includes('foot')&&!n.includes('toe'),n=>n.includes('ankle')
