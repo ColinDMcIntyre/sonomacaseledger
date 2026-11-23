@@ -1,0 +1,90 @@
+name: Generate native-rig realistic museum guide
+
+on:
+  push:
+    paths:
+      - ".github/workflows/generate-ara-museum-guide.yml"
+      - "research/museum-guide-ara.json"
+      - "scripts/stage-ara-guide.mjs"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ara-guide-release
+  cancel-in-progress: false
+
+jobs:
+  make-and-validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/cache@v4
+        with:
+          path: .ara3d-cache
+          key: ara3d-0.14.0-data
+      - name: Export photo-textured suited guide and its OWN animation rig
+        env:
+          ARA3D_CACHE: ${{ github.workspace }}/.ara3d-cache
+        run: |
+          mkdir -p .tmp/ara
+          npx -y ara3d@0.14.0 export \
+            --params research/museum-guide-ara.json \
+            --detail high --formats glb \
+            --animations idle,walk,look_around,talk_gestures \
+            --out .tmp/ara
+      - name: Check rig, materials, animations, and 24 MiB deployment limit
+        id: stage
+        continue-on-error: true
+        run: node scripts/stage-ara-guide.mjs .tmp/ara
+      - name: Use medium mesh if full detail is too large for Cloudflare
+        if: steps.stage.outcome == 'failure'
+        env:
+          ARA3D_CACHE: ${{ github.workspace }}/.ara3d-cache
+        run: |
+          rm -rf .tmp/ara
+          npx -y ara3d@0.14.0 export \
+            --params research/museum-guide-ara.json \
+            --detail medium --formats glb \
+            --animations idle,walk,look_around,talk_gestures \
+            --out .tmp/ara
+          node scripts/stage-ara-guide.mjs .tmp/ara
+      - name: Build real Cloudflare deployment with native Ara asset
+        run: node scripts/build-cloudflare.mjs
+      - name: Verify native humanoid clips, license guard, and code
+        run: |
+          node --check museum/character.js
+          node --check scripts/build-cloudflare.mjs
+          node --test tests/cc0-animation-pack.test.mjs tests/renderpeople-license-guard.test.mjs tests/high-detail-visitor.test.mjs
+      - name: Install WebGL browser smoke-test package
+        run: npm install --no-save playwright@1.56.1
+      - name: Start built museum
+        run: |
+          python3 -m http.server 8765 --bind 127.0.0.1 --directory dist >/tmp/ara-guide-site.log 2>&1 &
+          sleep 2
+      - name: Inspect actual browser startup and native character animation
+        run: node scripts/test-museum-browser.mjs
+      - name: Archive screenshots for visual review
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ara-museum-guide-visual-proof
+          path: avatar-preview/
+          if-no-files-found: warn
+          retention-days: 10
+      - name: Publish ONLY validated CC0/CMU character and provenance
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add museum/assets/characters/ara_museum_guide.glb research/museum-guide-ara-report.json
+          if ! git diff --cached --quiet; then
+            git commit -m "Publish tested photo-textured native-rig guide and real walking animation"
+            git push
+          fi
