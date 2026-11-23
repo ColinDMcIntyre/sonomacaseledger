@@ -1,0 +1,27 @@
+name: Inspect CC0 guide animation and wrist rig
+
+on:
+  push:
+    paths:
+      - "scripts/inspect-guide-rig.mjs"
+      - ".github/workflows/inspect-guide-rig.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Obtain the public-domain animated character for diagnostics
+        run: node scripts/build-cloudflare.mjs
+      - name: Inspect joint hierarchy and animation names without publishing model
+        run: |
+          node scripts/inspect-guide-rig.mjs
+          echo "Character file stays in ephemeral Actions runner; it is not committed or uploaded."
