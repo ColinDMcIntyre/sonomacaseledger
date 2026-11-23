@@ -5,7 +5,7 @@ import {exhibitSockets,ENTRY_POINT} from './layout.js';
 import {loadCathedralMaterials} from './materials.js?v=unified-vault-bays-20261119';
 import {installCathedralLighting} from './lighting.js?v=unified-vault-bays-20261119';
 import {installBakedDaylight} from './daylight.js';
-import {createVisitor} from './character.js?v=formal-walk-20261123';
+import {createVisitor} from './character.js?v=ara-human-20261123';
 import {installMuseumAssets} from './asset-library.js?v=case-dioramas-20261119';
 import {caseIllustrationFor} from './case-dioramas.js?v=case-dioramas-20261119';
 import {RoomEnvironment} from 'three/addons/environments/RoomEnvironment.js';
@@ -776,8 +776,9 @@ async function installHighDetailGuideOption(){
   const response=await fetch('./assets/manifest.json',{cache:'force-cache'});
   if(!response.ok)return;
   const asset=(await response.json())?.character?.highDetail;
-  if(asset?.license!=='CC0-1.0'||
-    asset.path!=='./assets/characters/realistic_guide_cc0.glb')return;
+  const approved=new Set(['./assets/characters/realistic_guide_cc0.glb',
+   './assets/characters/ara_museum_guide.glb']);
+  if(asset?.license!=='CC0-1.0'||!approved.has(asset.path))return;
   // Successful startup already displayed the right guide: no redundant
   // button, second request or visible avatar swap.
   if(visitor.usesHighDetail)return;
