@@ -1,10 +1,12 @@
 /**
- * Skeleton-aware humanoid pose correction for CC0 museum guide.
- * Works AFTER AnimationMixer.update(): it steers over-wide T-pose shoulders,
- * sideways pointing wrists and split legs to a comfortable standing/walking
- * silhouette without guessing fixed 90-degree angles in unknown bone axes.
+ * Minimal wrist-only pose correction for the CC0 museum guide.
  *
- * Bones whose roles cannot be determined are left unchanged.
+ * The original Idle and Walk animation owns ALL shoulders, upper arms,
+ * forearms, hips, thighs, calves and feet. This module NEVER changes them.
+ *
+ * Some exported models have hands pointed sideways even in an idle pose.
+ * After the animation frame, gently aim ONLY the hand->finger direction down
+ * beside the torso, limited to a single wrist pivot. No accumulated rotation.
  */
 function boneKey(name){
  return String(name||'').toLowerCase()
@@ -13,133 +15,72 @@ function boneKey(name){
 function belongsToSide(key,side){
  const word=side<0?'left':'right',suffix=side<0?'l':'r';
  return key.includes(word)||
-  (key.endsWith(suffix)&&/(arm|leg|thigh|calf|shin|wrist|hand|finger|middle|index|foot|ankle)/.test(key))||
-  new RegExp('^'+suffix+'(upperarm|lowerarm|forearm|arm|hand|wrist|upperleg|lowerleg|thigh|calf|shin|leg|foot|finger)').test(key);
+  (key.endsWith(suffix)&&/(hand|wrist|finger|middle|index|thumb)/.test(key))||
+  new RegExp('^'+suffix+'(hand|wrist|finger|middle|index|thumb)').test(key);
 }
-function selectBone(bones,side,patterns){
- for(const test of patterns){
-  const found=bones.find(b=>belongsToSide(b.key,side)&&test(b.key));
-  if(found)return found.node;
- }
- return null;
+function isDescendant(node,parent){
+ for(let p=node?.parent;p;p=p.parent)if(p===parent)return true;
+ return false;
 }
 export function locateHumanoidBones(scene){
  const bones=[];
  scene.traverse(node=>{if(node.isBone)bones.push({node,key:boneKey(node.name)});});
- const out=[];
- for(const side of [-1,1]){
-  const arm=selectBone(bones,side,[
-   n=>n.includes('upperarm'),n=>/(leftarm|rightarm|larm|rarm)/.test(n)&&
-     !/forearm|lowerarm|twist|hand/.test(n)
-  ]);
-  const elbow=selectBone(bones,side,[
-   n=>n.includes('lowerarm'),n=>n.includes('forearm')
-  ]);
-  const hand=selectBone(bones,side,[
-   n=>n.includes('hand')&&!n.includes('handik'),n=>n.includes('wrist')
-  ]);
-  const finger=selectBone(bones,side,[
-   n=>n.includes('middle')&&!/metacarpal/.test(n),
-   n=>n.includes('index')&&!/metacarpal/.test(n),
-   n=>n.includes('finger')
-  ]);
-  const thigh=selectBone(bones,side,[
-   n=>n.includes('upperleg'),n=>n.includes('thigh'),n=>n.includes('upleg')
-  ]);
-  const shin=selectBone(bones,side,[
-   n=>n.includes('lowerleg'),n=>n.includes('calf'),n=>n.includes('shin'),
-   n=>/^(leftleg|rightleg|lleg|rleg)$/.test(n)
-  ]);
-  const foot=selectBone(bones,side,[
-   n=>n.includes('foot')&&!n.includes('toe'),n=>n.includes('ankle')
-  ]);
-  out.push({side,arm,elbow,hand,finger,thigh,shin,foot});
- }
- return out;
+ return [-1,1].map(side=>{
+  // A hand/wrist is the ONLY bone this module is allowed to rotate.
+  const hand=bones.find(b=>belongsToSide(b.key,side)&&
+    ((/(^|left|right|l|r)hand/.test(b.key)&&
+      !/ik|twist|finger|index|thumb|middle|ring|pinky/.test(b.key))||
+      b.key.includes('wrist')))?.node||null;
+  // First finger knuckle acts as a measured hand-forward reference.
+  const finger=bones.find(b=>belongsToSide(b.key,side)&&hand&&
+    isDescendant(b.node,hand)&&/middle|index/.test(b.key)&&
+    !/metacarpal|twist/.test(b.key))?.node||null;
+  return {side,hand,finger};
+ });
 }
 export function createHumanoidPoseCorrector(THREE,scene){
  const joints=locateHumanoidBones(scene);
- const positionA=new THREE.Vector3(),positionB=new THREE.Vector3();
- const from=new THREE.Vector3(),target=new THREE.Vector3();
- const worldModelQ=new THREE.Quaternion(),parentQ=new THREE.Quaternion();
- const desiredQ=new THREE.Quaternion(),turnQ=new THREE.Quaternion();
- const inverseQ=new THREE.Quaternion(),localQ=new THREE.Quaternion();
- const identity=new THREE.Quaternion();
- let lastState='';
+ const handPosition=new THREE.Vector3(),fingerPosition=new THREE.Vector3();
+ const current=new THREE.Vector3(),target=new THREE.Vector3();
+ const sceneQ=new THREE.Quaternion(),parentQ=new THREE.Quaternion();
+ const worldCorrection=new THREE.Quaternion(),localCorrection=new THREE.Quaternion();
+ const inverseParent=new THREE.Quaternion(),neutral=new THREE.Quaternion();
+ const MAX_CORRECTION=Math.PI/2; // maximum 90 degrees at the wrist
 
- function alignSegment(fromBone,toBone,desiredLocal,strength,deadzone=0.14){
-  if(!fromBone?.isBone||!toBone?.isBone||strength<=0)return;
-  fromBone.updateWorldMatrix(true,true);
-  fromBone.getWorldPosition(positionA);
-  toBone.getWorldPosition(positionB);
-  from.copy(positionB).sub(positionA);
-  if(from.lengthSq()<1e-8)return;
-  from.normalize();
-  target.copy(desiredLocal).normalize().applyQuaternion(worldModelQ);
-  // Avoid constantly "fixing" already-natural animation.
-  const angle=from.angleTo(target);
-  if(angle<deadzone)return;
-  desiredQ.setFromUnitVectors(from,target);
-  turnQ.copy(identity).slerp(desiredQ,Math.min(1,strength));
-  if(fromBone.parent)fromBone.parent.getWorldQuaternion(parentQ);
-  else parentQ.identity();
-  inverseQ.copy(parentQ).invert();
-  // Quaternion is a change in world space. Express the correction in
-  // parent-local coordinates, then apply it to the animated bone rotation.
-  localQ.copy(inverseQ).multiply(turnQ).multiply(parentQ);
-  fromBone.quaternion.premultiply(localQ).normalize();
-  fromBone.updateWorldMatrix(true,true);
- }
- function apply(walkBlend=0,cycle=0){
+ function apply(walkBlend=0){
+  // Always update *after* AnimationMixer.update(): pose changes never
+  // accumulate and the original imported animation remains authoritative.
   scene.updateMatrixWorld(true);
-  scene.getWorldQuaternion(worldModelQ);
-  const moving=Math.max(0,Math.min(1,walkBlend));
-  const wave=Math.sin(cycle);
+  scene.getWorldQuaternion(sceneQ);
+  const walking=Math.max(0,Math.min(1,walkBlend));
   for(const j of joints){
-   const side=j.side;
-   // Relax the upper arms from the source T-pose (up to ~90°), leaving a
-   // small natural gap between the elbows and torso. Animate a gentle swing.
-   if(j.arm&&j.elbow){
-    alignSegment(j.arm,j.elbow,
-      new THREE.Vector3(side*.16,-.97,-.06-side*wave*.22*moving),
-      .96,.09);
-   }
-   if(j.elbow&&j.hand){
-    alignSegment(j.elbow,j.hand,
-      new THREE.Vector3(side*.02,-.96,-.18-side*wave*.10*moving),
-      .83,.15);
-   }
-   // Align fingers with the line of the forearm, rather than applying an
-   // arbitrary fixed 90° wrist bend that can invert left vs right.
-   if(j.hand&&j.finger&&j.elbow){
-    j.elbow.getWorldPosition(positionA);
-    j.hand.getWorldPosition(positionB);
-    const wristDirection=positionB.clone().sub(positionA).normalize();
-    // World direction -> model-local direction for the pose solver.
-    const localDirection=wristDirection.applyQuaternion(worldModelQ.clone().invert());
-    alignSegment(j.hand,j.finger,localDirection,.78,.17);
-   }
-   // Close the source's wide stance while leaving the existing walk cycle
-   // intact. On moving frames, preserve the clip's forward/back leg motion.
-   if(j.thigh&&j.shin){
-    alignSegment(j.thigh,j.shin,
-      new THREE.Vector3(side*.095,-.99,side*wave*.30*moving),
-      moving>.35?.40:.86,.24);
-   }
-   if(j.shin&&j.foot){
-    alignSegment(j.shin,j.foot,
-      new THREE.Vector3(side*.035,-.99,-.05),
-      moving>.35?.16:.47,.40);
-   }
+   if(!j.hand||!j.finger||!j.hand.parent)continue;
+   j.hand.getWorldPosition(handPosition);
+   j.finger.getWorldPosition(fingerPosition);
+   current.copy(fingerPosition).sub(handPosition);
+   if(current.lengthSq()<1e-10)continue;
+   current.normalize();
+   // Neutral reference: fingers alongside the body, rather than sticking
+   // sideways from the wrist. This does not move the shoulder or elbow.
+   target.set(j.side*.075,-.995,-.055).normalize().applyQuaternion(sceneQ);
+   const angle=current.angleTo(target);
+   if(angle<.20)continue;
+   worldCorrection.setFromUnitVectors(current,target);
+   const fraction=Math.min(1,MAX_CORRECTION/angle)*(walking>.45?.55:.85);
+   worldCorrection.copy(neutral).slerp(worldCorrection,fraction);
+   j.hand.parent.getWorldQuaternion(parentQ);
+   inverseParent.copy(parentQ).invert();
+   localCorrection.copy(inverseParent).multiply(worldCorrection).multiply(parentQ);
+   j.hand.quaternion.premultiply(localCorrection).normalize();
+   j.hand.updateWorldMatrix(true,true);
   }
  }
- function describe(){
-  return joints.map(j=>({
-   side:j.side<0?'left':'right',
-   arm:j.arm?.name||null,elbow:j.elbow?.name||null,
-   hand:j.hand?.name||null,finger:j.finger?.name||null,
-   thigh:j.thigh?.name||null,shin:j.shin?.name||null
-  }));
- }
- return {apply,describe,hasSkeleton:joints.some(j=>j.arm&&j.elbow)};
+ return {
+  apply,
+  hasSkeleton:joints.some(j=>j.hand&&j.finger),
+  describe:()=>joints.map(j=>({
+   side:j.side<0?'left':'right',hand:j.hand?.name||null,
+   finger:j.finger?.name||null
+  }))
+ };
 }
