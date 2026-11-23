@@ -775,9 +775,10 @@ async function installHighDetailGuideOption(){
   }
   button.addEventListener('click',upgrade);
   const connection=navigator.connection||navigator.mozConnection||navigator.webkitConnection;
-  const roomyDisplay=window.matchMedia('(min-width: 1000px) and (pointer: fine)').matches;
+  // Visitors explicitly chose the 3D experience. Upgrade by default on
+  // normal connections, including mobile, but respect Data Saver / 2G / 3G.
   const limitedNetwork=connection?.saveData||/^(slow-2g|2g|3g)$/.test(connection?.effectiveType||'');
-  if(roomyDisplay&&!limitedNetwork)window.setTimeout(upgrade,1400);
+  if(!limitedNetwork)window.setTimeout(upgrade,1400);
  }catch(error){
   console.warn('Optional guide configuration unavailable; using existing visitor',error);
  }
