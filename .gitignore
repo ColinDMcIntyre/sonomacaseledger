@@ -8,3 +8,6 @@
 /museum/assets/characters/rp_*.glb
 /museum/assets/characters/renderpeople*/
 /museum/assets/characters/rp_*/
+
+# Cloudflare Pages generated site and optional CC0 downloaded character
+/dist/
