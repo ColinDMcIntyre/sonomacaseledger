@@ -22,7 +22,7 @@ try{
  let loadingError=null;
  try{
   await page.waitForFunction(()=>document.querySelector('#loading')?.classList.contains('done'),
-   null,{timeout:115000});
+   null,{timeout:52000});
  }catch(error){loadingError=error.message;lines.push('LOADING ERROR: '+loadingError);}
  await page.waitForTimeout(1200);
  await page.screenshot({path:dir+'/visitor-idle.png',timeout:20000});
