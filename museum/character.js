@@ -256,11 +256,14 @@ export function createVisitor(scene,onStatus){
    obj.traverse(node=>{
     if(node.isMesh||node.isSkinnedMesh){node.receiveShadow=true;node.castShadow=false;}
    });
+   // KinemIQ's source skeleton is not yet safely retargeted to Jordan.
+   // Keep the tested Jordan clips as the DEFAULT until a visual QA gate
+   // explicitly marks a future asset as verifiedRetarget=true.
    // Prefer the CC0 KinemIQ walking library, retargeted to Jordan's
    // original skeleton. A rig mismatch or download failure must NEVER
    // substitute invalid animations or break the visible character.
    let idleClip=idle,walkClip=walk,usedNaturalMotions=false;
-   if(availableMotions?.license==='CC0-1.0'){
+   if(availableMotions?.license==='CC0-1.0' && availableMotions?.verifiedRetarget===true){
     try{
      const result=await loadNaturalLocomotion(obj,availableMotions,idle);
      idleClip=result.idle;walkClip=result.walk;
