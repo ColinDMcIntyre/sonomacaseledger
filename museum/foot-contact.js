@@ -97,7 +97,7 @@ export function createFootContactController(model,root,clip){
   const yaw=root.rotation.y;
   const turn=Math.abs(Math.atan2(Math.sin(yaw-previousYaw),Math.cos(yaw-previousYaw)));
   previousYaw=yaw;
-  if(!active.length||!action||blend<.85||speed<.45||gesture||turn>dt*1.8){anchors.clear();return;}
+  if(active.length!==2||!action||blend<.85||speed<.45||gesture||turn>dt*1.8){anchors.clear();return;}
   const index=Math.floor(((action.time%clip.duration+clip.duration)%clip.duration)/clip.duration*COUNT)%COUNT;
   root.updateMatrixWorld(true);
   for(const leg of active){
