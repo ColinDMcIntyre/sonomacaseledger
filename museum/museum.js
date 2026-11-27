@@ -31,7 +31,7 @@ const state={
   cases:[],exhibits:[],gallery:'rotunda',fx:!window.matchMedia('(prefers-reduced-motion:reduce)').matches,
   yaw:0,pitch:.19,zoom:1,cameraMode:'close',waypoints:[],onArrival:null,moving:false,openPanel:false
 };
-let scene,camera,renderer,world,visitor,clock,noticeTimer,rafId;
+let scene,camera,renderer,world,visitor,clock,noticeTimer,rafId,daylight;
 const legacyMotion=new URLSearchParams(location.search).get('realism')==='0';
 let moveSpeed=0,lastManualAxes=null;
 const WALK_SPEED=3.0,ACCEL=9,DECEL=12;
@@ -760,6 +760,7 @@ function animate(){
  visitor.tick(dt,clock.elapsedTime);
  updateCamera(dt);
  world.update(clock.elapsedTime,dt,state.fx,camera);
+ daylight?.update(clock.elapsedTime,state.fx&&!window.matchMedia('(prefers-reduced-motion:reduce)').matches);
  renderer.render(scene,camera);
 }
 function installGuideActions(){
@@ -844,7 +845,7 @@ async function main(){
   loadingProgress(38);
   state.cases=await getCases();
   populateMuseum();
-   const daylight=installBakedDaylight(world,scene,{beams:MQ.matches});
+   daylight=installBakedDaylight(world,scene,{beams:MQ.matches});
    console.info('Static museum light:',daylight.pools+' stained-glass pools, '+daylight.shafts+' sun-shaft planes');
   loadingProgress(77);
   setupUI();setupPointer();
