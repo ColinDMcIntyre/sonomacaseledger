@@ -19,6 +19,7 @@ export function createRenderPipeline(renderer,scene,camera,{enabled=true,onStatu
  }
  async function prepare(){
   if(!enabled||failed||composer)return;
+  if(!renderer.extensions.has('EXT_color_buffer_float')){failed=true;onStatus('GTAO requires floating-point render targets; direct rendering');return;}
   if(loading)return loading;
   loading=(async()=>{
    try{
@@ -70,5 +71,6 @@ export function createRenderPipeline(renderer,scene,camera,{enabled=true,onStatu
   }
   renderer.render(scene,camera);
  }
- return {prepare,resize,render,dispose,get mode(){return composer?'GTAO':'direct';}};
+ function disable(){failed=true;dispose();onStatus('GTAO disabled to maintain performance');}
+ return {prepare,resize,render,dispose,disable,get mode(){return composer?'GTAO':'direct';}};
 }
