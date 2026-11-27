@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import {ROOM_DEFS,VESTIBULE,HALLWAYS,ENTRY_POINT,zoneAt} from './layout.js';
-import {buildArchitecture,buildArchitectureAsync} from './architecture.js?v=clean-walls-20261119-performance1';
+import {buildArchitecture,buildArchitectureAsync} from './architecture.js?v=clean-walls-20261119-lighting3';
 import {M,scaleBoxUV} from './materials.js?v=unified-vault-bays-20261119-performance1';
 import {createNavigation} from './navigation.js';
 import {ribStations,columnX} from './vault-profile.js';
@@ -9,7 +9,8 @@ export {ROOM_DEFS,HALLWAYS};
 const cube=new THREE.BoxGeometry(1,1,1);
 function mesh(parent,geo,material,x=0,y=0,z=0){
  const m=new THREE.Mesh(geo,material);m.position.set(x,y,z);
- m.castShadow=false;m.receiveShadow=true;parent.add(m);return m;
+ // Only opaque furniture casts into the frozen sun atlas; never glass or hit proxies.
+ m.castShadow=!material.transparent&&material.depthWrite!==false&&material.opacity===1;m.receiveShadow=true;parent.add(m);return m;
 }
 function box(g,m,x,y,z,w,h,d){
  // Physical UV density and seeded grain on built-in wooden furnishings.
@@ -65,7 +66,7 @@ export async function makeMuseumAsync(scene,yieldFrame){
 }
 export function makeMuseum(scene,prebuilt=null){
  const architecture=prebuilt||buildArchitecture(scene);
- const group=architecture.group,rooms={},interactives=[],obstacles=[],assetSlots=[],effects=[];
+ const group=architecture.group,rooms={},interactives=[],obstacles=[],assetSlots=[],effects=[],furnitureShadowRoots=[];
  const {floors,floorRects,cameraBlockers}=architecture;
  for(const r of ROOM_DEFS)rooms[r.id]=r;
  function register(g,record,rad=1){
@@ -90,7 +91,7 @@ export function makeMuseum(scene,prebuilt=null){
    const disc=mesh(fallback,new THREE.CylinderGeometry(.46,.46,.08,24),M.brass,0,1.52,.4);
    disc.rotation.x=Math.PI/2;
    const pointer=box(fallback,M.ink,0,1.56,.49,.048,.43,.025);
-   effects.push({object:pointer,type:'timeline'});
+   pointer.castShadow=false;effects.push({object:pointer,type:'timeline'});
   }else{
    box(fallback,M.plinth,0,.64,0,1.58,1.28,1.16);
    box(fallback,M.wood,0,1.38,0,1.45,.11,1.08).rotation.x=-.19;
@@ -101,22 +102,23 @@ export function makeMuseum(scene,prebuilt=null){
   plaque.position.set(0,display?.56:1.02,.67);g.add(plaque);
   register(g,{...record,roomId,type},type==='directory'?1.2:1);
   assetSlots.push({kind:type,group:g,mount,fallback,record});
+  furnitureShadowRoots.push(g);
   return g;
  }
  // Entry plaque faces the visitor without blocking the central nave.
- const sign=new THREE.Group();sign.position.set(-4.4,0,35);group.add(sign);
+ const sign=new THREE.Group();sign.position.set(-4.4,0,35);group.add(sign);furnitureShadowRoots.push(sign);
  box(sign,M.wood,0,.76,0,.98,1.52,.23);
  const entryLabel=label('SONOMA CASE LEDGER',3.2,.56);
  entryLabel.position.set(0,1.75,-.16);sign.add(entryLabel);
- const sculpture=new THREE.Group();sculpture.position.set(0,0,-14);group.add(sculpture);
+ const sculpture=new THREE.Group();sculpture.position.set(0,0,-14);group.add(sculpture);furnitureShadowRoots.push(sculpture);
  obstacles.push({x:0,z:-14,r:1.44});
  const base=mesh(sculpture,new THREE.CylinderGeometry(1.22,1.22,.46,30),M.plinth,0,.24,0);
  const center=mesh(sculpture,new THREE.SphereGeometry(.72,22,16),M.darkStone,0,1.75,0);
  const ring=mesh(sculpture,new THREE.TorusGeometry(.89,.055,8,38),M.brass,0,1.75,0);
- ring.rotation.y=.46;effects.push({object:ring,type:'sculpture'});
+ ring.rotation.y=.46;ring.castShadow=false;effects.push({object:ring,type:'sculpture'});
  // Side-wall benches preserve the 7m unobstructed main circulation spine.
  for(const z of [-23,-3,15])for(const side of [-1,1]){
-  const g=new THREE.Group();g.position.set(side*7.55,0,z);group.add(g);
+  const g=new THREE.Group();g.position.set(side*7.55,0,z);group.add(g);furnitureShadowRoots.push(g);
   box(g,M.wood,0,.47,0,1.66,.16,.68);
   box(g,M.wood,0,.95,.27,1.7,.76,.12);
   for(const x of [-.62,.62])box(g,M.wood,x,.22,0,.11,.46,.55);
@@ -141,6 +143,6 @@ export function makeMuseum(scene,prebuilt=null){
   }
  }
  return {group,rooms,floors,floorRects,interactives,obstacles,cameraBlockers,
-  assetSlots,windows:architecture.windows,walkable,canMove,nearestWalkable,roomAt,addExhibit,update,
+  assetSlots,furnitureShadowRoots,windows:architecture.windows,walkable,canMove,nearestWalkable,roomAt,addExhibit,update,
   entry:ENTRY_POINT};
 }
