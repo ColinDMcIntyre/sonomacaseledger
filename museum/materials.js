@@ -244,16 +244,18 @@ diffuseColor.rgb*=.89+.20*museumMacro+.08*(museumMeso-.5)+.05*(museumFine-.5)-.0
   if(!legacy){
    const strength=isFloor?.18:kind==='wood'?.16:.11;
    shader.fragmentShader=shader.fragmentShader.replace('#include <roughnessmap_fragment>',
-    '#include <roughnessmap_fragment>\nroughnessFactor=clamp(roughnessFactor+('+strength.toFixed(2)+')*(museumMacro-.5)+.06*(museumMeso-.5),.06,1.0);');
+    '#include <roughnessmap_fragment>\nroughnessFactor=clamp(roughnessFactor+('+strength.toFixed(2)+')*(museumMacro-.5)+.06*(museumMeso-.5),.06,1.0);'+(polish?'\n/* MUSEUM_WEAR_ROUGHNESS */\n':''));
   }
+  if(polish)applyWear(shader,kind);
+  if(stochastic)applyStochasticSampling(shader,kind);
  };
- material.customProgramCacheKey=()=> 'sonoma-patina-'+kind+'-v3-'+(legacy?'legacy':'detail');
+ material.customProgramCacheKey=()=> 'sonoma-patina-'+kind+'-v4-'+(legacy?'legacy':polish?'polish':'detail');
  return material;
 }
 worldVariation(M.stone,'stone');
 for(const m of [M.wood,M.woodHighlight,M.edge,M.beam])
  worldVariation(m,'wood');
-for(const m of [M.columnStone,M.quoinStone,M.plinth])
+for(const m of [M.columnStone,M.quoinStone,M.plinth,M.vault])
  worldVariation(m,'plaster');
 const materials=[...Object.values(M).filter(x=>x?.isMaterial)];
 const tiledInstances=[],sharedInstances=[];
