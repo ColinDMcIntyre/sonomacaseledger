@@ -9,6 +9,8 @@ import {createVisitor} from './character.js?v=ara-human-20261123';
 import {installMuseumAssets} from './asset-library.js?v=case-dioramas-20261119';
 import {caseIllustrationFor} from './case-dioramas.js?v=case-dioramas-20261119';
 import {RoomEnvironment} from 'three/addons/environments/RoomEnvironment.js';
+import {createRenderPipeline} from './render-pipeline.js?v=realism-20261127';
+import {createReflectionManager} from './reflection-manager.js?v=realism-20261127';
 
 /**
  * Sonoma Case Ledger / interactive museum.
@@ -31,10 +33,12 @@ const state={
   cases:[],exhibits:[],gallery:'rotunda',fx:!window.matchMedia('(prefers-reduced-motion:reduce)').matches,
   yaw:0,pitch:.19,zoom:1,cameraMode:'close',waypoints:[],onArrival:null,moving:false,openPanel:false
 };
-let scene,camera,renderer,world,visitor,clock,noticeTimer,rafId,daylight;
+let scene,camera,renderer,world,visitor,clock,noticeTimer,rafId,daylight,pipeline,reflections,lighting;
 const options=new URLSearchParams(location.search);
 const legacyMotion=options.get('realism')==='0';
 const reducedMotion=window.matchMedia('(prefers-reduced-motion: reduce)');
+const quality=options.get('quality')||'auto';
+const enhanced=!legacyMotion&&quality!=='low'&&(quality==='high'||MQ.matches);
 let debugPanel=null,debugFrames=0,debugStart=0,debugWorst=0,debugLast=0;
 function showPerformance(now){
  if(!options.has('debug'))return;
@@ -46,7 +50,7 @@ function showPerformance(now){
  debugFrames++;debugWorst=Math.max(debugWorst,now-debugLast);debugLast=now;
  if(now-debugStart<1000)return;
  const elapsed=now-debugStart,info=renderer.info;
- debugPanel.textContent=`${legacyMotion?'Original comparison':'Realism pass'}\nFPS: ${(debugFrames*1000/elapsed).toFixed(1)} | avg ${(elapsed/debugFrames).toFixed(1)} ms | max ${debugWorst.toFixed(1)} ms\nDraw calls: ${info.render.calls} | triangles: ${info.render.triangles.toLocaleString()}\nTextures: ${info.memory.textures} | geometries: ${info.memory.geometries}\nRender DPR: ${renderer.getPixelRatio().toFixed(2)} | movement: ${moveSpeed.toFixed(2)}`;
+ debugPanel.textContent=`${legacyMotion?'Original comparison':'Realism pass'}\nFPS: ${(debugFrames*1000/elapsed).toFixed(1)} | avg ${(elapsed/debugFrames).toFixed(1)} ms | max ${debugWorst.toFixed(1)} ms\nDraw calls: ${info.render.calls} | triangles: ${info.render.triangles.toLocaleString()}\nTextures: ${info.memory.textures} | geometries: ${info.memory.geometries}\nRender DPR: ${renderer.getPixelRatio().toFixed(2)} | movement: ${moveSpeed.toFixed(2)}\nRender: ${pipeline?.mode||'direct'} | probes: ${reflections?.count||0} | stride: ${visitor?.strideStatus||'estimated'}`;
  debugFrames=0;debugWorst=0;debugStart=now;
 }
 let moveSpeed=0,lastManualAxes=null;
@@ -187,7 +191,8 @@ function setupThree(){
   scene.environment=pmrem.fromScene(environment,0.04).texture;
   environment.dispose();pmrem.dispose();
   UI.viewport.append(renderer.domElement);
-  installCathedralLighting(scene,renderer,status=>console.info(status));
+  lighting=installCathedralLighting(scene,renderer,status=>console.info(status));
+  pipeline=createRenderPipeline(renderer,scene,camera,{enabled:enhanced&&options.get('ao')!=='0',onStatus:console.info});
   world=makeMuseum(scene);
   inspectDoorways(world);
   visitor=createVisitor(scene,status=>UI.asset.textContent=status);
@@ -209,7 +214,7 @@ function resize(){
  camera.aspect=w/h;
  camera.fov=w<650?67:60;
  camera.updateProjectionMatrix();
- renderer.setSize(w,h,true);
+ renderer.setSize(w,h,true);pipeline?.resize(w,h);
 }
 function updateCamera(dt){
  const player=visitor.root.position;
@@ -426,7 +431,7 @@ function tickControls(dt){
   return;
  }
  if(!UI.map.hidden){moveSpeed=0;lastManualAxes=null;visitor.setWalking(false);return;}
- if(axes){lastManualAxes=axes;moveSpeed=approachSpeed(moveSpeed,WALK_SPEED,dt);tickManualMovement(dt,axes);}
+ if(axes){lastManualAxes=axes;moveSpeed=approachSpeed(moveSpeed,visitor.preferredWalkSpeed||WALK_SPEED,dt);tickManualMovement(dt,axes);}
  else if(state.waypoints.length){lastManualAxes=null;tickMovement(dt);}
  else if(lastManualAxes&&moveSpeed>.03){
   moveSpeed=approachSpeed(moveSpeed,0,dt);tickManualMovement(dt,lastManualAxes);
@@ -440,7 +445,7 @@ function tickMovement(dt){
  let routeDistance=0,px=p.x,pz=p.z;
  if(!legacyMotion){
   for(const point of state.waypoints){routeDistance+=Math.hypot(point.x-px,point.z-pz);px=point.x;pz=point.z;}
-  const desired=Math.min(WALK_SPEED,Math.sqrt(2*DECEL*routeDistance));
+  const desired=Math.min(visitor.preferredWalkSpeed||WALK_SPEED,Math.sqrt(2*DECEL*routeDistance));
   moveSpeed=approachSpeed(moveSpeed,desired,dt);
  }
  let remaining=Math.min(.06,dt)*(legacyMotion?7.2:moveSpeed);
@@ -777,7 +782,8 @@ function animate(){
  updateCamera(dt);
  world.update(clock.elapsedTime,dt,state.fx,camera);
  daylight?.update(clock.elapsedTime,state.fx&&!reducedMotion.matches);
- renderer.render(scene,camera);
+ pipeline.render(dt);
+ reflections?.update(dt,speed);
  showPerformance(performance.now());
 }
 function installGuideActions(){
@@ -863,6 +869,7 @@ async function main(){
   state.cases=await getCases();
   populateMuseum();
    daylight=installBakedDaylight(world,scene,{beams:MQ.matches});
+   reflections=createReflectionManager(renderer,scene,world,visitor,daylight,{enabled:enhanced&&options.get('reflections')!=='0',onStatus:console.info});
    console.info('Static museum light:',daylight.pools+' stained-glass pools, '+daylight.shafts+' sun-shaft planes');
   loadingProgress(77);
   setupUI();setupPointer();
@@ -876,11 +883,11 @@ async function main(){
     }))
     .catch(error=>console.warn('Private model preview unavailable:',error));
   }
-  loadCathedralMaterials(status=>console.info(status))
+  const materialReady=loadCathedralMaterials(status=>console.info(status))
     .catch(error=>console.warn('PBR loading:',error));
   // Install free third-party furniture only when the locally hosted model
   // files are present. Case content and collision remain usable otherwise.
-  installMuseumAssets(world, status=>{UI.asset.textContent=status;})
+  const propsReady=installMuseumAssets(world, status=>{UI.asset.textContent=status;})
     .then(()=>{
       // Imported chairs/cabinets can change obstacles; recompute any cached
       // navigation cells after optional furniture finishes loading.
@@ -895,6 +902,8 @@ async function main(){
   const intro=UI.loading.querySelector('p');
   if(intro)intro.textContent='Preparing galleries and your animated guide…';
   await visitor.ready;
+  Promise.allSettled([materialReady,propsReady,lighting?.ready]).then(()=>reflections?.markReady());
+  pipeline.prepare();
   loadingProgress(96);
   installGuideActions();
   clock.start();animate();
