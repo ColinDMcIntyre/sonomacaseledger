@@ -44,6 +44,7 @@ const desiredCamera=new THREE.Vector3();
 let cameraEye=new THREE.Vector3();
 const heldKeys=new Set();
 const interactionPosition=new THREE.Vector3();
+const exhibitAttention=new THREE.Vector3();let hasExhibitAttention=false;
 let closestExhibit=null;
 const cameraDistance=()=>((state.cameraMode==='close')?6.5:11.2)/state.zoom;
 const COLOR={gold:0xd1b37b,aqua:0x86d8c9};
@@ -380,16 +381,16 @@ function tickManualMovement(dt,axes){
 }
 function closestInteraction(){
  const here=visitor.root.position;
- let found=null,best=2.9;
+ let found=null,best=2.9;hasExhibitAttention=false;
  for(const mesh of world.interactives){
   mesh.getWorldPosition(interactionPosition);
   const dist=Math.hypot(interactionPosition.x-here.x,interactionPosition.z-here.z);
-  if(dist<best){best=dist;found=mesh.userData.action;}
+  if(dist<best){best=dist;found=mesh.userData.action;exhibitAttention.copy(interactionPosition);hasExhibitAttention=true;}
  }
  return found;
 }
 function refreshInteraction(){
- if(state.openPanel){$('interact-hint').hidden=true;return;}
+ if(state.openPanel){$('interact-hint').hidden=true;hasExhibitAttention=false;return;}
  closestExhibit=closestInteraction();
  const prompt=$('interact-hint');
  prompt.hidden=!closestExhibit;
@@ -408,6 +409,7 @@ function tickControls(dt){
   else{tickMovement(dt);if(!state.waypoints.length)visitor.setWalking(false);}
   return;
  }
+ if(!UI.map.hidden){moveSpeed=0;lastManualAxes=null;visitor.setWalking(false);return;}
  if(axes){lastManualAxes=axes;moveSpeed=approachSpeed(moveSpeed,WALK_SPEED,dt);tickManualMovement(dt,axes);}
  else if(state.waypoints.length){lastManualAxes=null;tickMovement(dt);}
  else if(lastManualAxes&&moveSpeed>.03){
@@ -753,9 +755,9 @@ function animate(){
   if(active.id!==state.gallery)setActiveRoom(active.id);
  }
  const speed=dt>0?Math.hypot(visitor.root.position.x-beforeX,visitor.root.position.z-beforeZ)/dt:0;
- visitor.updateMotion({speed});
- visitor.tick(dt,clock.elapsedTime);
  refreshInteraction();
+ visitor.updateMotion({speed,lookTarget:hasExhibitAttention?exhibitAttention:null});
+ visitor.tick(dt,clock.elapsedTime);
  updateCamera(dt);
  world.update(clock.elapsedTime,dt,state.fx,camera);
  renderer.render(scene,camera);
