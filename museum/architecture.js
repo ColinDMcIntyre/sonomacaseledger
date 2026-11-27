@@ -14,6 +14,7 @@ import {WALL_THICKNESS,VAULT_SEGMENTS,vaultProfile,vaultSample,vaultY,ribStation
 const rooms=[...ROOM_DEFS,VESTIBULE];
 const slab=new THREE.BoxGeometry(1,1,1);
 const trim=M.quoinStone;
+const surfacePolish=!['0'].includes(new URLSearchParams(location.search).get('surface'))&&new URLSearchParams(location.search).get('realism')!=='0';
 function object(parent,geo,material,x=0,y=0,z=0,cast=false){
  const obj=new THREE.Mesh(geo,material);obj.position.set(x,y,z);
  obj.castShadow=cast;obj.receiveShadow=true;parent.add(obj);return obj;
@@ -29,7 +30,19 @@ function box(parent,mat,x,y,z,w,h,d,cast=false){
   const hash=n=>{const value=Math.sin(n)*43758.5453;return value-Math.floor(value);};
   const seed=at.x*127.1+at.y*74.7+at.z*311.7;
   const phase=[hash(seed)*.92,hash(seed+98.21)*.91];
+  const radius=Math.min(.028,w*.12,h*.12,d*.12);
+  // Rounded geometry uses its own face UV layout; preserve grain density.
   geometry=scaleBoxUV(new THREE.BoxGeometry(w,h,d),w,h,d,1.65,phase);
+  if(surfacePolish&&radius>.003&&Math.max(w,h,d)<4){
+   const rounded=new RoundedBoxGeometry(w,h,d,1,radius);
+   const uv=rounded.getAttribute('uv'),n=rounded.getAttribute('normal'),p=rounded.getAttribute('position');
+   for(let i=0;i<uv.count;i++){
+    const x=Math.abs(n.getX(i)),y=Math.abs(n.getY(i)),z=Math.abs(n.getZ(i));
+    uv.setXY(i,(x>y&&x>z?p.getZ(i):p.getX(i))/1.65+phase[0],
+     (y>x&&y>z?p.getZ(i):p.getY(i))/1.65+phase[1]);
+   }
+   geometry.dispose();geometry=rounded;
+  }
  }
  const o=object(parent,geometry,mat,x,y,z,cast);
  if(!textured)o.scale.set(w,h,d);
@@ -431,6 +444,11 @@ function cornerMasonry(parent){
   const block=blocks[i];transform.position.set(block.x,block.y,block.z);
   const variant=Math.sin(block.x*7.3+block.z*2.1+i*17.17);
   transform.scale.set(1+(variant>0?.1:0),1,1+(variant<0?.1:0));
+  if(surfacePolish){
+   transform.rotation.y=variant*.018;
+   transform.scale.y=1+variant*.025;
+   transform.position.y+=variant*.012;
+  }
   transform.updateMatrix();mesh.setMatrixAt(i,transform.matrix);
   // Quoins use subtle individual limestone tones; no two blocks are exact
   // copies even though their geometry and texture remain shared.
