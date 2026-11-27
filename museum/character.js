@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import {createFootContactController} from './foot-contact.js?v=realism-20261127';
 import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
 import {createHumanoidPoseCorrector} from './character-pose.js?v=twist90-motions-20261122';
 import {loadNaturalLocomotion,loadCc0Motion} from './animation-library.js?v=idle-calibration-20261122';
@@ -135,7 +136,17 @@ export function createVisitor(scene,onStatus){
  let walking=false,blend=0,phase=0;
  const legacy=new URLSearchParams(globalThis.location?.search||'').get('realism')==='0';
  const reduced=globalThis.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches||false;
- let motionSpeed=0,nominalSpeed=3.0,walkTempo=1;
+ let motionSpeed=0,nominalSpeed=3.0,walkTempo=1,footController=null;
+ const footIK=new URLSearchParams(globalThis.location?.search||'').get('footik')!=='0';
+ function configureFoot(obj,clip){
+  footController=null;nominalSpeed=3.0;
+  if(legacy)return;
+  try{
+   footController=createFootContactController(obj,root,clip);
+   if(footController.speed>0)nominalSpeed=footController.speed*walkTempo;
+   console.info('Guide stride calibration:',{speed:nominalSpeed,footIK:footController.supported&&footIK});
+  }catch(error){console.warn('Guide stride calibration fallback:',error);}
+ }
  let attentionBone=null,attentionBase=null,attentionYaw=0,attentionTarget=null;
  let glanceTime=0,glanceGoal=0;
  const attentionParentQ=new THREE.Quaternion(),attentionOffset=new THREE.Quaternion(),attentionAxis=new THREE.Vector3();
@@ -205,7 +216,7 @@ export function createVisitor(scene,onStatus){
   phase+=dt*(legacy?(walking?10:1.8):1.8+motionSpeed*2.5);
   // Only hands are pose-corrected. Restore them before each mixer step
   // so unkeyed wrist tracks never accumulate our prior correction.
-  resetAttention();
+  resetAttention();footController?.reset();
   if(detailInstalled&&detailPose)detailPose.reset();
   if(gestureAction){
    const exiting=walking||gestureAction.time>=gestureAction.getClip().duration-.22;
@@ -233,6 +244,7 @@ export function createVisitor(scene,onStatus){
   }
   if(detailInstalled&&detailPose)detailPose.apply(blend,phase);
   tickAttention(dt);
+  if(!legacy&&footIK&&!privatePreview)footController?.update(walkAction,dt,{speed:motionSpeed,blend,gesture:Boolean(gestureAction)});
   if(privatePreview)animatePrivatePose();
   // The procedural rig always has genuine walk and idle animation.
   if(!usingAsset){
@@ -283,6 +295,7 @@ export function createVisitor(scene,onStatus){
    idleAction.setEffectiveWeight(1-blend);
    walkAction.setEffectiveWeight(blend);
    root.add(obj);model=obj;usingAsset=true;proxy.visible=false;
+   configureFoot(obj,walk);
    onStatus('Visitor: lightweight animated guide');
    return true;
   }catch(error){
@@ -394,7 +407,7 @@ export function createVisitor(scene,onStatus){
    root.add(obj);
    model=obj;modelRestPosition.copy(obj.position);
    mixer=nextMixer;idleAction=nextIdle;walkAction=nextWalk;
-   configureMotion(clips,idleClip,nextWalk.timeScale);configureAttention(obj);
+   configureMotion(clips,idleClip,nextWalk.timeScale);configureAttention(obj);configureFoot(obj,walkClip);
    nativeGestureClips=nativeAra?new Map(clips.filter(c=>
     !/idle|walk|run|locomotion/i.test(c.name||'')
    ).map(c=>[c.name,c])):new Map();
@@ -472,7 +485,9 @@ export function createVisitor(scene,onStatus){
   }
  })();
  return {root,setWalking,updateMotion,tick,ready,installPrivateModel,upgradeToHighDetail,
-  get usesAsset(){return usingAsset;},
+  get preferredWalkSpeed(){return THREE.MathUtils.clamp(nominalSpeed,1.4,3.5);},
+  get strideStatus(){return footController?.speed>0?(footIK&&footController.supported?'calibrated + IK':'calibrated'):'estimated';},
+  get usesAsset(){return usingAsset;}
   get usesHighDetail(){return detailInstalled;},
   get availableAnimations(){return motionCatalog.slice();},playGesture};
 }
