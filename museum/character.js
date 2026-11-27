@@ -487,7 +487,7 @@ export function createVisitor(scene,onStatus){
  return {root,setWalking,updateMotion,tick,ready,installPrivateModel,upgradeToHighDetail,
   get preferredWalkSpeed(){return THREE.MathUtils.clamp(nominalSpeed,1.4,3.5);},
   get strideStatus(){return footController?.speed>0?(footIK&&footController.supported?'calibrated + IK':'calibrated'):'estimated';},
-  get usesAsset(){return usingAsset;}
+  get usesAsset(){return usingAsset;},
   get usesHighDetail(){return detailInstalled;},
   get availableAnimations(){return motionCatalog.slice();},playGesture};
 }
