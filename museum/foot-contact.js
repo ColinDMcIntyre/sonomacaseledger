@@ -40,8 +40,15 @@ export function measureStride(model,clip){
    for(const l of legs)samples.get(l.side).push(l.foot.getWorldPosition(pos).clone().sub(rootPos));
   }
  }finally{mixer.stopAllAction();mixer.uncacheRoot(copy);}
- const speeds=[],contacts=new Map(),step=clip.duration/COUNT;
+ return analyzeStrideSamples(samples,clip.duration);
+}
+
+export function analyzeStrideSamples(samples,duration){
+ const empty={speed:0,contacts:new Map()};
+ if(!Number.isFinite(duration)||duration<.3||samples.size!==2)return empty;
+ const speeds=[],contacts=new Map(),step=duration/COUNT;
  for(const [side,points] of samples){
+  if(points.length!==COUNT||points.some(p=>!Number.isFinite(p.y)||!Number.isFinite(p.z)))return empty;
   const low=Math.min(...points.map(p=>p.y)),high=Math.max(...points.map(p=>p.y));
   if(high-low<.025)continue;
   const flags=points.map((p,i)=>{
