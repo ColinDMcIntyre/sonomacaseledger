@@ -72,7 +72,7 @@ test('AO and room probes are optional and preserve direct rendering',()=>{
  assert.match(museum,/pipeline\.disable\(\)/);
  assert.match(museum,/options\.get\('ao'\)!=='0'/);
  assert.match(museum,/options\.get\('reflections'\)!=='0'/);
- assert.match(reflections,/probes\.has\(room\.id\)/);
+ assert.match(reflections,/if\(preparing\)return preparing/);
  assert.match(reflections,/visitor\.root\.visible=visitorVisible/);
  assert.match(reflections,/pmrem\.fromCubemap\(cube\.texture\)/);
  assert.match(foot,/active\.length!==2/);
