@@ -79,6 +79,6 @@ export function installCathedralLighting(scene,renderer,onStatus=()=>{}){
   onStatus('HDR lighting unavailable; warm studio environment active');
   return false;
  }
- loadHDR().catch(()=>onStatus('HDR lighting unavailable; studio fallback'));
- return {hemisphere,sun,fill};
+ const ready=loadHDR().catch(()=>onStatus('HDR lighting unavailable; studio fallback'));
+ return {hemisphere,sun,fill,ready};
 }
