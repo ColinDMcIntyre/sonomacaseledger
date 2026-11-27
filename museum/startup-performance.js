@@ -24,7 +24,8 @@ export async function batchExhibits(world,{onProgress=()=>{}}={}){
     const m=o.material,g=o.geometry;
     if(!o.isMesh||o.isSkinnedMesh||o.isInstancedMesh||o.children.length||
       !g?.isBufferGeometry||Array.isArray(m)||!m||m.transparent||
-      m.depthWrite===false||m.opacity<1||g.morphAttributes?.position?.length||
+      m.depthWrite===false||m.opacity<1||Object.values(g.morphAttributes||{}).some(a=>a.length)||
+      o.matrixWorld.determinant()<=0||o.customDepthMaterial||o.customDistanceMaterial||
       g.drawRange.start!==0||g.drawRange.count!==Infinity||o.userData.action||
       o.onBeforeRender!==THREE.Object3D.prototype.onBeforeRender)return;
     const attrs=Object.entries(g.attributes).map(([k,a])=>k+':'+a.itemSize+':'+a.normalized+':'+a.array.constructor.name).sort().join('|');
