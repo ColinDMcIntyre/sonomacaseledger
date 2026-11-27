@@ -32,7 +32,23 @@ const state={
   yaw:0,pitch:.19,zoom:1,cameraMode:'close',waypoints:[],onArrival:null,moving:false,openPanel:false
 };
 let scene,camera,renderer,world,visitor,clock,noticeTimer,rafId,daylight;
-const legacyMotion=new URLSearchParams(location.search).get('realism')==='0';
+const options=new URLSearchParams(location.search);
+const legacyMotion=options.get('realism')==='0';
+const reducedMotion=window.matchMedia('(prefers-reduced-motion: reduce)');
+let debugPanel=null,debugFrames=0,debugStart=0,debugWorst=0,debugLast=0;
+function showPerformance(now){
+ if(!options.has('debug'))return;
+ if(!debugPanel){
+  debugPanel=document.createElement('pre');debugPanel.setAttribute('aria-hidden','true');
+  Object.assign(debugPanel.style,{position:'fixed',left:'12px',bottom:'100px',zIndex:'30',pointerEvents:'none',background:'#141c23df',color:'#edf3f4',padding:'8px',font:'11px monospace',lineHeight:'1.4',margin:'0'});
+  document.body.append(debugPanel);debugStart=now;debugLast=now;
+ }
+ debugFrames++;debugWorst=Math.max(debugWorst,now-debugLast);debugLast=now;
+ if(now-debugStart<1000)return;
+ const elapsed=now-debugStart,info=renderer.info;
+ debugPanel.textContent=`${legacyMotion?'Original comparison':'Realism pass'}\nFPS: ${(debugFrames*1000/elapsed).toFixed(1)} | avg ${(elapsed/debugFrames).toFixed(1)} ms | max ${debugWorst.toFixed(1)} ms\nDraw calls: ${info.render.calls} | triangles: ${info.render.triangles.toLocaleString()}\nTextures: ${info.memory.textures} | geometries: ${info.memory.geometries}\nRender DPR: ${renderer.getPixelRatio().toFixed(2)} | movement: ${moveSpeed.toFixed(2)}`;
+ debugFrames=0;debugWorst=0;debugStart=now;
+}
 let moveSpeed=0,lastManualAxes=null;
 const WALK_SPEED=3.0,ACCEL=9,DECEL=12;
 function approachSpeed(current,target,dt){return current+Math.sign(target-current)*Math.min(Math.abs(target-current),(target>current?ACCEL:DECEL)*dt);}
@@ -760,8 +776,9 @@ function animate(){
  visitor.tick(dt,clock.elapsedTime);
  updateCamera(dt);
  world.update(clock.elapsedTime,dt,state.fx,camera);
- daylight?.update(clock.elapsedTime,state.fx&&!window.matchMedia('(prefers-reduced-motion:reduce)').matches);
+ daylight?.update(clock.elapsedTime,state.fx&&!reducedMotion.matches);
  renderer.render(scene,camera);
+ showPerformance(performance.now());
 }
 function installGuideActions(){
  const available=new Set(visitor.availableAnimations||[]);
