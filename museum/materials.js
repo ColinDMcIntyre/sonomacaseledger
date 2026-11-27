@@ -166,7 +166,8 @@ function worldVariation(material,kind){
  const options=new URLSearchParams(globalThis.location?.search||'');
  const legacy=options.get('realism')==='0';
  const polish=!legacy&&options.get('surface')!=='0'&&options.get('quality')!=='low';
- const stochastic=polish&&(kind==='wood'||kind==='plaster');
+ const stochastic=polish&&(kind==='wood'||kind==='plaster')&&
+  (options.get('quality')==='high'||(globalThis.innerWidth||0)>=781);
  material.onBeforeCompile=shader=>{
   shader.vertexShader=shader.vertexShader.replace('#include <common>',
    '#include <common>\nvarying vec3 vCathedralWorld;');
@@ -249,14 +250,16 @@ diffuseColor.rgb*=.89+.20*museumMacro+.08*(museumMeso-.5)+.05*(museumFine-.5)-.0
   if(polish)applyWear(shader,kind);
   if(stochastic)applyStochasticSampling(shader,kind);
  };
- material.customProgramCacheKey=()=> 'sonoma-patina-'+kind+'-v4-'+(legacy?'legacy':polish?'polish':'detail');
+ material.customProgramCacheKey=()=> 'sonoma-patina-'+kind+'-v4-'+(legacy?'legacy':stochastic?'stochastic':polish?'polish':'detail');
  return material;
 }
 worldVariation(M.stone,'stone');
 for(const m of [M.wood,M.woodHighlight,M.edge,M.beam])
  worldVariation(m,'wood');
-for(const m of [M.columnStone,M.quoinStone,M.plinth,M.vault])
+for(const m of [M.columnStone,M.quoinStone,M.plinth])
  worldVariation(m,'plaster');
+const surfaceOptions=new URLSearchParams(globalThis.location?.search||'');
+if(surfaceOptions.get('realism')!=='0'&&surfaceOptions.get('surface')!=='0'&&surfaceOptions.get('quality')!=='low')worldVariation(M.vault,'plaster');
 const materials=[...Object.values(M).filter(x=>x?.isMaterial)];
 const tiledInstances=[],sharedInstances=[];
 function tiledTexture(texture,x,y,phase=[0,0]){
