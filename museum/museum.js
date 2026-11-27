@@ -10,7 +10,7 @@ import {installMuseumAssets} from './asset-library.js?v=case-dioramas-20261119-p
 import {caseIllustrationFor} from './case-dioramas.js?v=case-dioramas-20261119';
 import {RoomEnvironment} from 'three/addons/environments/RoomEnvironment.js';
 import {createRenderPipeline} from './render-pipeline.js?v=performance1';
-import {createReflectionManager} from './reflection-manager.js?v=performance1';
+import {createReflectionManager} from './reflection-manager.js?v=performance2';
 import {yieldFrame,batchExhibits,warmTextures} from './startup-performance.js?v=performance1';
 
 /**
