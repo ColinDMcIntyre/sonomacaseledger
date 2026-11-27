@@ -185,8 +185,25 @@ float museumValueNoise(vec2 p){
  return mix(mix(a,b,f.x),mix(c,d,f.x),f.y);
 }
 `;
+  // Offset-only stochastic sampling for nonstructural limestone/plaster.
+  // Keep masonry mortar and directional wood grain on their authored UVs.
+  const stochastic=!legacy&&kind==='plaster'&&new URLSearchParams(globalThis.location?.search||'').get('surface')!=='0'&&new URLSearchParams(globalThis.location?.search||'').get('quality')!=='low';
+  const tileGLSL=stochastic?String.raw`
+vec4 museumTile(sampler2D tex,vec2 uv){
+ vec2 p=uv*.8,cell=floor(p),f=fract(p);
+ vec2 w=smoothstep(vec2(.15),vec2(.85),f);
+ vec2 dx=dFdx(uv),dy=dFdy(uv);
+ vec2 a=vec2(museumHash21(cell),museumHash21(cell+19.7));
+ vec2 b=vec2(museumHash21(cell+vec2(1,0)),museumHash21(cell+vec2(1,0)+19.7));
+ vec2 c=vec2(museumHash21(cell+vec2(0,1)),museumHash21(cell+vec2(0,1)+19.7));
+ vec2 d=vec2(museumHash21(cell+vec2(1,1)),museumHash21(cell+vec2(1,1)+19.7));
+ return mix(mix(textureGrad(tex,uv+a,dx,dy),textureGrad(tex,uv+b,dx,dy),w.x),
+ mix(textureGrad(tex,uv+c,dx,dy),textureGrad(tex,uv+d,dx,dy),w.x),w.y);
+}
+`:'';
   shader.fragmentShader=shader.fragmentShader.replace('#include <common>',
-   '#include <common>\n'+glsl);
+   '#include <common>\n'+glsl+tileGLSL);
+
   const sample=isFloor
    ?String.raw`
 vec2 mc=vCathedralWorld.xz;
@@ -241,8 +258,14 @@ diffuseColor.rgb*=.89+.20*museumMacro+.08*(museumMeso-.5)+.05*(museumFine-.5)-.0
    shader.fragmentShader=shader.fragmentShader.replace('#include <roughnessmap_fragment>',
     '#include <roughnessmap_fragment>\nroughnessFactor=clamp(roughnessFactor+('+strength.toFixed(2)+')*(museumMacro-.5)+.06*(museumMeso-.5),.06,1.0);');
   }
+  if(stochastic){
+   for(const chunk of ['map_fragment','roughnessmap_fragment','normal_fragment_maps','aomap_fragment']){
+    const source=THREE.ShaderChunk[chunk];
+    if(source)shader.fragmentShader=shader.fragmentShader.replace('#include <'+chunk+'>',source.replace(/texture2D\(\s*(map|roughnessMap|normalMap|aoMap)\s*,\s*(v\w+Uv)\s*\)/g,'museumTile($1,$2)'));
+   }
+  }
  };
- material.customProgramCacheKey=()=> 'sonoma-patina-'+kind+'-v3-'+(legacy?'legacy':'detail');
+ material.customProgramCacheKey=()=> 'sonoma-patina-'+kind+'-v4-'+(legacy?'legacy':'detail');
  return material;
 }
 worldVariation(M.stone,'stone');
