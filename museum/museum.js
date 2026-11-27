@@ -1,12 +1,12 @@
 import * as THREE from 'three';
-import {makeMuseumAsync,ROOM_DEFS} from './world.js?v=unified-vault-bays-20261119-performance1';
+import {makeMuseumAsync,ROOM_DEFS} from './world.js?v=unified-vault-bays-20261119-lighting3';
 import {inspectDoorways} from './scene-diagnostics.js';
 import {exhibitSockets,ENTRY_POINT} from './layout.js';
 import {loadCathedralMaterials} from './materials.js?v=unified-vault-bays-20261119-performance1';
-import {installCathedralLighting} from './lighting.js?v=unified-vault-bays-20261119-realism2-performance1';
-import {installBakedDaylight} from './daylight.js?v=realism-20261127';
+import {installCathedralLighting} from './lighting.js?v=unified-vault-bays-20261119-lighting3';
+import {installBakedDaylight} from './daylight.js?v=lighting3';
 import {createVisitor} from './character.js?v=ara-human-20261123-realism2-performance1';
-import {installMuseumAssets} from './asset-library.js?v=case-dioramas-20261119-performance1';
+import {installMuseumAssets} from './asset-library.js?v=case-dioramas-20261119-lighting3';
 import {caseIllustrationFor} from './case-dioramas.js?v=case-dioramas-20261119';
 import {RoomEnvironment} from 'three/addons/environments/RoomEnvironment.js';
 import {createRenderPipeline} from './render-pipeline.js?v=performance1';
@@ -956,6 +956,7 @@ async function main(){
   const pipelineReady=pipeline.prepare();
   await visitor.ready;
   await Promise.allSettled([materialReady,propsReady,lighting?.ready,pipelineReady]);
+  daylight.refreshFurnitureShadows?.();
   if(!scene.environment){
    const pmrem=new THREE.PMREMGenerator(renderer),environment=new RoomEnvironment();
    const target=pmrem.fromScene(environment,.04);scene.environment=target.texture;
