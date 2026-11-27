@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import {RGBELoader} from 'three/addons/loaders/RGBELoader.js';
 import {ROOM_DEFS,VESTIBULE} from './layout.js';
 import {vaultProfile} from './vault-profile.js';
-import {M} from './materials.js?v=unified-vault-bays-20261119';
+import {M} from './materials.js?v=unified-vault-bays-20261119-performance1';
 
 /**
  * Cathedral lighting: real HDR image-based lighting, restrained sunlight,
