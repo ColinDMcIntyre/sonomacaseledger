@@ -81,5 +81,9 @@ export function createReflectionManager(renderer,scene,world,visitor,daylight,{e
   }
   probes.clear();
  }
- return {prepare,dispose,get count(){return probes.size;},get mode(){return !probes.size?'HDR':local?'local':'shared';}};
+ // Compatibility for older cached museum.js entrypoints. Neither legacy
+ // method may trigger a capture during gameplay; the HDR stays active.
+ function update(){}
+ function markReady(){}
+ return {prepare,dispose,update,markReady,get count(){return probes.size;},get mode(){return !probes.size?'HDR':local?'local':'shared';}};
 }
