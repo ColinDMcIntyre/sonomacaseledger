@@ -25,7 +25,7 @@ test('approved stone floor style and its geometry remain unchanged',()=>{
  assert.match(architecture,/const tile=room\.id==='archive'\?M\.corridor:M\.floor/);
  assert.match(architecture,/const corridorSections=visibleCorridorSections\(rooms,HALLWAYS\)/);
  assert.match(architecture,/for\(const r of corridorSections\)addFloor\(r\.x,r\.z,r\.w,r\.d,M\.corridor\)/);
- assert.match(materials,/if\(role==='floor'&&\(key==='aoMap'\|\|key==='heightMap'\)\)continue/);
+ assert.match(materials,/!\(role==='floor'&&\(key==='aoMap'\|\|key==='heightMap'\)\)/);
 });
 
 test('metal, glass, paper, walnut and plaster have distinct finishes',()=>{

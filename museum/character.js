@@ -13,7 +13,7 @@ import {loadNaturalLocomotion,loadCc0Motion} from './animation-library.js?v=idle
 const LEGACY_ASSET='https://gobkit.com/freebies/human001/OfficeLady.glb';
 async function characterSource(){
  try{
-  const response=await fetch('./assets/manifest.json',{cache:'no-store'});
+  const response=await fetch('./assets/manifest.json',{cache:'no-cache'});
   if(response.ok){
    const config=(await response.json()).character;
    if(typeof config?.path==='string' &&
@@ -136,7 +136,7 @@ export function createVisitor(scene,onStatus){
  let walking=false,blend=0,phase=0;
  const legacy=new URLSearchParams(globalThis.location?.search||'').get('realism')==='0';
  const reduced=globalThis.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches||false;
- let motionSpeed=0,nominalSpeed=3.0,walkTempo=1,footController=null;
+ let motionSpeed=0,nominalSpeed=3.0,walkTempo=1,footController=null,sprinting=false,runAction=null,runBlend=0;
  const footIK=new URLSearchParams(globalThis.location?.search||'').get('footik')!=='0';
  function configureFoot(obj,clip){
   footController=null;nominalSpeed=3.0;
@@ -180,11 +180,14 @@ export function createVisitor(scene,onStatus){
  let idleVariants=[],idleVariant=null,idleVariantWeight=0,idleWait=5,lastIdle=null;
  function configureMotion(clips,baseIdle,tempo=1){
   walkTempo=tempo;idleVariant=null;idleVariantWeight=0;idleWait=5;lastIdle=null;
+  runAction=null;runBlend=0;
+  const nativeRun=clips.find(c=>/^(?:run|jog)(?:[ _-]?(?:forward[s]?|normal|brisk|relaxed|fast))?$/i.test(c.name||''));
+  if(nativeRun&&mixer&&!legacy&&nativeRun!==walkAction?.getClip()){runAction=mixer.clipAction(nativeRun);runAction.play();runAction.setEffectiveWeight(0);}
   // Native rig only: no arbitrary gesture/weapon or sitting clips on autoplay.
   idleVariants=clips.filter(c=>c!==baseIdle&&/^(idle|standing|breath)(?:[ _-]|$)/i.test(c.name||'')&&!/sit|crouch|combat|weapon|dance|jump|floor|lying|kneel/i.test(c.name||''));
  }
- function updateMotion({speed=0,lookTarget=null}={}){
-  motionSpeed=Math.max(0,Number.isFinite(speed)?speed:0);attentionTarget=lookTarget;
+ function updateMotion({speed=0,lookTarget=null,sprint=false}={}){
+  motionSpeed=Math.max(0,Number.isFinite(speed)?speed:0);attentionTarget=lookTarget;sprinting=sprint;
  }
  function tickIdle(dt,smooth){
   const eligible=!walking&&motionSpeed<.12&&!gestureAction&&!reduced&&!legacy;
@@ -226,13 +229,16 @@ export function createVisitor(scene,onStatus){
   if(usingAsset&&mixer){
    tickIdle(dt,smooth);
    if(!legacy){
-    const tempo=walkTempo*THREE.MathUtils.clamp(motionSpeed/nominalSpeed,.4,1.4);
+    const tempo=walkTempo*THREE.MathUtils.clamp(motionSpeed/nominalSpeed,.4,sprinting&&!runAction?2.35:1.65);
     walkAction.timeScale+=(tempo-walkAction.timeScale)*smooth;
    }
    const idleWeight=(1-blend)*(1-gestureBlend);
    idleAction.setEffectiveWeight(idleWeight*(1-idleVariantWeight));
    if(idleVariant)idleVariant.setEffectiveWeight(idleWeight*idleVariantWeight);
-   walkAction.setEffectiveWeight(blend*(1-gestureBlend));
+   const runTarget=runAction&&sprinting?THREE.MathUtils.smoothstep(motionSpeed,nominalSpeed*.95,nominalSpeed*1.55):0;
+   runBlend+=(runTarget-runBlend)*smooth;
+   walkAction.setEffectiveWeight(blend*(1-gestureBlend)*(1-runBlend));
+   if(runAction){runAction.setEffectiveWeight(blend*(1-gestureBlend)*runBlend);runAction.timeScale=THREE.MathUtils.clamp(motionSpeed/(nominalSpeed*1.9),.75,1.5);}
    if(gestureAction)gestureAction.setEffectiveWeight(gestureBlend);
    mixer.update(dt);
    // Preserve the imported model's measured local centering. Resetting X/Z
@@ -244,7 +250,7 @@ export function createVisitor(scene,onStatus){
   }
   if(detailInstalled&&detailPose)detailPose.apply(blend,phase);
   tickAttention(dt);
-  if(!legacy&&footIK&&!privatePreview)footController?.update(walkAction,dt,{speed:motionSpeed,blend,gesture:Boolean(gestureAction)});
+  if(!legacy&&footIK&&!privatePreview)footController?.update(walkAction,dt,{speed:motionSpeed,blend,gesture:Boolean(gestureAction)||sprinting||runBlend>.05});
   if(privatePreview)animatePrivatePose();
   // The procedural rig always has genuine walk and idle animation.
   if(!usingAsset){

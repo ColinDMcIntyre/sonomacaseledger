@@ -18,7 +18,8 @@ test('all 37 published case files have individual contextual 3D recipes',()=>{
  assert.deepEqual(catalogSlugs.slice().sort(),dataSlugs.slice().sort());
 });
 test('museum installs case models and keeps glass cases visible',()=>{
- assert.match(loader,/installCaseDioramas\(world,loaded,caseProps,normalize\)/);
+ assert.match(loader,/await buildDioramas\(world,loaded,caseProps\)/);
+ assert.match(loader,/installCaseDioramas\(\{\.\.\.world,assetSlots:\[slot\]\},loaded,configs,normalize\)/);
  assert.match(loader,/if\(slot\.kind==='case'\)continue/);
  assert.match(world,/assetSlots\.push\(\{kind:type,group:g,mount,fallback,record\}\)/);
  assert.match(museum,/caseIllustrationFor\(r\.slug\)/);

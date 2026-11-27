@@ -342,7 +342,7 @@ function setMap(target,key,texture){
 }
 async function manifestForMaterials(){
  try{
-  const r=await fetch('./assets/cathedral/materials.json',{cache:'no-store'});
+  const r=await fetch('./assets/cathedral/materials.json',{cache:'no-cache'});
   return r.ok?await r.json():{};
  }catch{return{};}
 }
@@ -361,15 +361,19 @@ export async function loadCathedralMaterials(onStatus=()=>{}){
    console.info('Cathedral: waiting for sandstone-block PBR import; using masonry fallback');
    return {role,maps:0};
   }
-  for(const key of keys){
-   // The existing floor PBR remains byte-for-byte unchanged.
-   if(role==='floor'&&(key==='aoMap'||key==='heightMap'))continue;
-   const url=manifest[role]?.[key];
-   // Do not guess Poly Haven filename variants for maps absent in the manifest.
-   if(!url)continue;
+  // Download each role's maps concurrently, then install them together.
+  // No room-specific fetches and no intermediate map/normal/roughness flashes.
+  const requested=keys.filter(key=>manifest[role]?.[key]&&
+   !(role==='floor'&&(key==='aoMap'||key==='heightMap')));
+  const loaded=await Promise.all(requested.map(async key=>{
+   try{return {key,tex:await loader.loadAsync(manifest[role][key])};}
+   catch(error){console.warn('Cathedral PBR missing:',role,key,error);return null;}
+  }));
+  const relevant=targets.filter(m=>m.userData?.kind===role);
+  for(const entry of loaded){
+   if(!entry)continue;
+   const {key,tex}=entry;
    try{
-    const tex=await loader.loadAsync(url);
-    const relevant=targets.filter(m=>m.userData?.kind===role);
     for(const m of relevant){
      if(key==='heightMap'){
       if(m.userData.relief){

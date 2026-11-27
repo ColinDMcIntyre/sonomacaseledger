@@ -1,16 +1,17 @@
 import * as THREE from 'three';
-import {makeMuseum,ROOM_DEFS} from './world.js?v=unified-vault-bays-20261119';
+import {makeMuseumAsync,ROOM_DEFS} from './world.js?v=unified-vault-bays-20261119-performance1';
 import {inspectDoorways} from './scene-diagnostics.js';
 import {exhibitSockets,ENTRY_POINT} from './layout.js';
-import {loadCathedralMaterials} from './materials.js?v=unified-vault-bays-20261119';
-import {installCathedralLighting} from './lighting.js?v=unified-vault-bays-20261119-realism2';
+import {loadCathedralMaterials} from './materials.js?v=unified-vault-bays-20261119-performance1';
+import {installCathedralLighting} from './lighting.js?v=unified-vault-bays-20261119-realism2-performance1';
 import {installBakedDaylight} from './daylight.js?v=realism-20261127';
-import {createVisitor} from './character.js?v=ara-human-20261123-realism2';
-import {installMuseumAssets} from './asset-library.js?v=case-dioramas-20261119';
+import {createVisitor} from './character.js?v=ara-human-20261123-realism2-performance1';
+import {installMuseumAssets} from './asset-library.js?v=case-dioramas-20261119-performance1';
 import {caseIllustrationFor} from './case-dioramas.js?v=case-dioramas-20261119';
 import {RoomEnvironment} from 'three/addons/environments/RoomEnvironment.js';
-import {createRenderPipeline} from './render-pipeline.js?v=realism-20261127';
-import {createReflectionManager} from './reflection-manager.js?v=realism-20261127';
+import {createRenderPipeline} from './render-pipeline.js?v=performance1';
+import {createReflectionManager} from './reflection-manager.js?v=performance1';
+import {yieldFrame,batchExhibits,warmTextures} from './startup-performance.js?v=performance1';
 
 /**
  * Sonoma Case Ledger / interactive museum.
@@ -40,14 +41,24 @@ const reducedMotion=window.matchMedia('(prefers-reduced-motion: reduce)');
 const quality=options.get('quality')||'auto';
 const enhanced=!legacyMotion&&quality!=='low'&&(quality==='high'||MQ.matches);
 let debugPanel=null,debugFrames=0,debugStart=0,debugWorst=0,debugLast=0;
-let perfLast=0,perfSlow=0,perfWarmup=0;
+let perfLast=0,perfSlow=0,perfWarmup=0,perfCooldown=0;
+let batchSavings=0,warmTextureCount=0;
 function guardFrameRate(now){
  const elapsed=perfLast?now-perfLast:0;perfLast=now;
- if(quality!=='auto'||pipeline?.mode!=='GTAO'||document.hidden||elapsed>1000){perfSlow=0;perfWarmup=0;return;}
- perfWarmup+=elapsed;if(perfWarmup<3000)return;
- // Only disable after sustained poor performance, not one capture or resize.
- perfSlow=Math.max(0,perfSlow+(elapsed>48?elapsed:-elapsed*2));
- if(perfSlow>4000){pipeline.disable();perfSlow=0;}
+ if(quality!=='auto'||legacyMotion||document.hidden||elapsed>1000){perfSlow=0;perfWarmup=0;return;}
+ perfWarmup+=elapsed;if(perfWarmup<2000)return;
+ perfCooldown=Math.max(0,perfCooldown-elapsed);
+ // Preserve full beauty resolution first: scale only the costly AO buffer.
+ perfSlow=Math.max(0,perfSlow+(elapsed>38?elapsed:-elapsed*2));
+ if(perfSlow<1800||perfCooldown>0)return;
+ if(pipeline?.mode==='GTAO'&&pipeline.aoScale>.51){
+  pipeline.setAOScale(pipeline.aoScale>.8?.75:.5);
+ }else if(pipeline?.mode==='GTAO'&&elapsed>48){
+  pipeline.disable();
+ }else if(renderer.getPixelRatio()>.85){
+  renderer.setPixelRatio(Math.max(.85,renderer.getPixelRatio()*.85));resize();
+ }
+ perfSlow=0;perfCooldown=3500;
 }
 function showPerformance(now){
  if(!options.has('debug'))return;
@@ -59,14 +70,24 @@ function showPerformance(now){
  debugFrames++;debugWorst=Math.max(debugWorst,now-debugLast);debugLast=now;
  if(now-debugStart<1000)return;
  const elapsed=now-debugStart,info=renderer.info;
- debugPanel.textContent=`${legacyMotion?'Original comparison':'Realism pass'}\nFPS: ${(debugFrames*1000/elapsed).toFixed(1)} | avg ${(elapsed/debugFrames).toFixed(1)} ms | max ${debugWorst.toFixed(1)} ms\nDraw calls: ${info.render.calls} | triangles: ${info.render.triangles.toLocaleString()}\nTextures: ${info.memory.textures} | geometries: ${info.memory.geometries}\nRender DPR: ${renderer.getPixelRatio().toFixed(2)} | movement: ${moveSpeed.toFixed(2)}\nRender: ${pipeline?.mode||'direct'} | probes: ${reflections?.count||0} | stride: ${visitor?.strideStatus||'estimated'}`;
+ debugPanel.textContent=`${legacyMotion?'Original comparison':'Realism pass'}\nFPS: ${(debugFrames*1000/elapsed).toFixed(1)} | avg ${(elapsed/debugFrames).toFixed(1)} ms | max ${debugWorst.toFixed(1)} ms\nDraw calls: ${info.render.calls} | triangles: ${info.render.triangles.toLocaleString()}\nTextures: ${info.memory.textures} | geometries: ${info.memory.geometries}\nRender DPR: ${renderer.getPixelRatio().toFixed(2)} | movement: ${moveSpeed.toFixed(2)}\nRender: ${pipeline?.mode||'direct'} | AO scale: ${pipeline?.aoScale?.toFixed(2)||'1.00'} | probes: ${reflections?.count||0} (${reflections?.mode||'HDR'}) | stride: ${visitor?.strideStatus||'estimated'}\nBatched draws saved: ${batchSavings} | prewarmed textures: ${warmTextureCount}`;
  debugFrames=0;debugWorst=0;debugStart=now;
 }
 let moveSpeed=0,lastManualAxes=null;
 const WALK_SPEED=3.0,ACCEL=9,DECEL=12;
 function approachSpeed(current,target,dt){return current+Math.sign(target-current)*Math.min(Math.abs(target-current),(target>current?ACCEL:DECEL)*dt);}
+function sprintSpeed(walk){return Math.min(6.8,Math.max(4.8,walk*1.9));}
+function sprintHeld(){return heldKeys.has('ShiftLeft')||heldKeys.has('ShiftRight');}
 let viewTarget=new THREE.Vector3(ENTRY_POINT.x,0,ENTRY_POINT.z);
 const cameraCollisionRay=new THREE.Raycaster();
+let cameraBlockerBounds=[];
+const cameraCandidates=[],cameraHits=[];
+const cachedRayOrigin=new THREE.Vector3(Infinity,Infinity,Infinity),cachedRayEnd=new THREE.Vector3(Infinity,Infinity,Infinity);
+let cachedObstruction=Infinity;
+function prepareCameraBounds(){
+ scene.updateMatrixWorld(true);
+ cameraBlockerBounds=world.cameraBlockers.map(mesh=>({mesh,box:new THREE.Box3().setFromObject(mesh).expandByScalar(.02)}));
+}
 const cameraAnchor=new THREE.Vector3();
 const cameraDirection=new THREE.Vector3();
 const desiredCamera=new THREE.Vector3();
@@ -74,7 +95,8 @@ let cameraEye=new THREE.Vector3();
 const heldKeys=new Set();
 const interactionPosition=new THREE.Vector3();
 const exhibitAttention=new THREE.Vector3();let hasExhibitAttention=false;
-let closestExhibit=null;
+let closestExhibit=null,interactionTimer=0;
+const interactionLocations=new Map();
 const cameraDistance=()=>((state.cameraMode==='close')?6.5:11.2)/state.zoom;
 const COLOR={gold:0xd1b37b,aqua:0x86d8c9};
 const clamp=THREE.MathUtils.clamp;
@@ -132,7 +154,7 @@ function galleryFor(r){
 }
 function positionsForExhibits(roomId){return exhibitSockets(roomId);}
 
-function populateMuseum(){
+async function populateMuseum(){
   const clusters={investment:[],business:[],insurance:[],trust:[],federal:[]};
   for(const r of state.cases){r.roomId=galleryFor(r);clusters[r.roomId].push(r);}
   // A wing provides 16 reusable display sockets. If one fills, overflow
@@ -158,6 +180,7 @@ function populateMuseum(){
       world.addExhibit(roomId,p.x,p.z,obj,'case',p.yaw||0);
       state.exhibits.push(obj);
     });
+    await yieldFrame();
   }
   const interactives=[
     ['rotunda',-5,-4.3,'directory','Museum Directory','Browse every gallery and search all case records.','map'],
@@ -175,7 +198,7 @@ function populateMuseum(){
   world.addExhibit('rotunda',6,5.1,{id:'portal:federal',name:'Federal Gallery Portal',action:'portal',destination:'federal',roomId:'rotunda'},'portal');
   world.addExhibit('rotunda',-6,5.1,{id:'portal:archive',name:'Records Library Portal',action:'portal',destination:'archive',roomId:'rotunda'},'portal');
 }
-function setupThree(){
+async function setupThree(){
   scene=new THREE.Scene();
   scene.background=new THREE.Color(0x252d33);
   scene.fog=new THREE.FogExp2(0x252d33,.0019);
@@ -196,16 +219,13 @@ function setupThree(){
   // then reuse it across camera movement and visitor animation.
   renderer.shadowMap.autoUpdate=false;
   renderer.shadowMap.needsUpdate=MQ.matches;
-  const pmrem=new THREE.PMREMGenerator(renderer);
-  const environment=new RoomEnvironment();
-  scene.environment=pmrem.fromScene(environment,0.04).texture;
-  environment.dispose();pmrem.dispose();
+  // Generate the studio PMREM only if the real HDR fails.
   UI.viewport.append(renderer.domElement);
   lighting=installCathedralLighting(scene,renderer,status=>console.info(status));
   pipeline=createRenderPipeline(renderer,scene,camera,{enabled:enhanced&&options.get('ao')!=='0',onStatus:console.info});
-  world=makeMuseum(scene);
-  inspectDoorways(world);
   visitor=createVisitor(scene,status=>UI.asset.textContent=status);
+  world=await makeMuseumAsync(scene,yieldFrame);
+  if(options.has('debug')||options.has('validate'))inspectDoorways(world);
   // The visitor has its own contact shadow; do not bake its silhouette at entry.
   visitor.root.traverse(node=>{if(node.isMesh)node.castShadow=false;});
   visitor.root.position.set(ENTRY_POINT.x,0,ENTRY_POINT.z);
@@ -245,10 +265,18 @@ function updateCamera(dt){
  if(world.cameraBlockers?.length){
   cameraCollisionRay.set(cameraAnchor,cameraDirection);
   cameraCollisionRay.near=.13;cameraCollisionRay.far=reach;
-  const hits=cameraCollisionRay.intersectObjects(world.cameraBlockers,false);
-  if(hits.length&&hits[0].distance<reach){
+  if(!cachedRayOrigin.equals(cameraAnchor)||!cachedRayEnd.equals(desiredCamera)){
+   cachedRayOrigin.copy(cameraAnchor);cachedRayEnd.copy(desiredCamera);
+   cameraCandidates.length=0;cameraHits.length=0;
+   for(const item of cameraBlockerBounds){
+    if(cameraCollisionRay.ray.intersectsBox(item.box))cameraCandidates.push(item.mesh);
+   }
+   cameraCollisionRay.intersectObjects(cameraBlockerBounds.length?cameraCandidates:world.cameraBlockers,false,cameraHits);
+   cachedObstruction=cameraHits.length?cameraHits[0].distance:Infinity;
+  }
+  if(cachedObstruction<reach){
    // Never enforce a minimum follow distance *through* a wall.
-   const safe=Math.max(.20,hits[0].distance-.4);
+   const safe=Math.max(.20,cachedObstruction-.4);
    desiredCamera.copy(cameraAnchor).addScaledVector(cameraDirection,safe);
    occluded=true;
   }
@@ -394,7 +422,7 @@ function tickManualMovement(dt,axes){
  }
  const s=Math.sin(state.yaw),c=Math.cos(state.yaw);
  const dx=(axes.x*c-axes.forward*s),dz=(-axes.x*s-axes.forward*c);
- const distance=Math.min(.05,dt)*(legacyMotion?6.6:moveSpeed);
+ const distance=Math.min(.05,dt)*(legacyMotion?(sprintHeld()?9:6.6):moveSpeed);
  const steps=Math.max(1,Math.ceil(distance/.085));
  let moved=false;
  for(let i=0;i<steps;i++){
@@ -414,7 +442,9 @@ function closestInteraction(){
  const here=visitor.root.position;
  let found=null,best=2.9;hasExhibitAttention=false;
  for(const mesh of world.interactives){
-  mesh.getWorldPosition(interactionPosition);
+  let at=interactionLocations.get(mesh);
+  if(!at){at=mesh.getWorldPosition(new THREE.Vector3());interactionLocations.set(mesh,at);}
+  interactionPosition.copy(at);
   const dist=Math.hypot(interactionPosition.x-here.x,interactionPosition.z-here.z);
   if(dist<best){best=dist;found=mesh.userData.action;exhibitAttention.copy(interactionPosition);hasExhibitAttention=true;}
  }
@@ -425,7 +455,7 @@ function refreshInteraction(){
  closestExhibit=closestInteraction();
  const prompt=$('interact-hint');
  prompt.hidden=!closestExhibit;
- if(closestExhibit)$('interact-label').textContent=closestExhibit.name;
+ if(closestExhibit&&$('interact-label').textContent!==closestExhibit.name)$('interact-label').textContent=closestExhibit.name;
 }
 function interactNearby(){
  if(state.openPanel||!UI.map.hidden)return;
@@ -441,7 +471,12 @@ function tickControls(dt){
   return;
  }
  if(!UI.map.hidden){moveSpeed=0;lastManualAxes=null;visitor.setWalking(false);return;}
- if(axes){lastManualAxes=axes;moveSpeed=approachSpeed(moveSpeed,visitor.preferredWalkSpeed||WALK_SPEED,dt);tickManualMovement(dt,axes);}
+ if(axes){
+  lastManualAxes=axes;
+  const walk=visitor.preferredWalkSpeed||WALK_SPEED;
+  moveSpeed=approachSpeed(moveSpeed,sprintHeld()?sprintSpeed(walk):walk,dt);
+  tickManualMovement(dt,axes);
+ }
  else if(state.waypoints.length){lastManualAxes=null;tickMovement(dt);}
  else if(lastManualAxes&&moveSpeed>.03){
   moveSpeed=approachSpeed(moveSpeed,0,dt);tickManualMovement(dt,lastManualAxes);
@@ -694,6 +729,7 @@ function setupUI(){
   const active=document.activeElement;
   if(active&&active.matches('input,textarea,select,[contenteditable="true"]'))return;
   const movementKeys=['KeyW','KeyA','KeyS','KeyD','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'];
+  if(e.code==='ShiftLeft'||e.code==='ShiftRight'){heldKeys.add(e.code);return;}
   if(movementKeys.includes(e.code)){
    e.preventDefault();heldKeys.add(e.code);return;
   }
@@ -786,8 +822,9 @@ function animate(){
   if(active.id!==state.gallery)setActiveRoom(active.id);
  }
  const speed=dt>0?Math.hypot(visitor.root.position.x-beforeX,visitor.root.position.z-beforeZ)/dt:0;
- refreshInteraction();
- visitor.updateMotion({speed,lookTarget:hasExhibitAttention?exhibitAttention:null});
+ interactionTimer-=dt;
+ if(interactionTimer<=0||state.openPanel){refreshInteraction();interactionTimer=.1;}
+ visitor.updateMotion({speed,lookTarget:hasExhibitAttention?exhibitAttention:null,sprint:speed>(visitor.preferredWalkSpeed||WALK_SPEED)*1.12});
  visitor.tick(dt,clock.elapsedTime);
  updateCamera(dt);
  world.update(clock.elapsedTime,dt,state.fx,camera);
@@ -796,7 +833,7 @@ function animate(){
  pipeline.render(dt);
  const frameEnd=performance.now();
  showPerformance(frameEnd);guardFrameRate(frameEnd);
- reflections?.update(dt,speed);
+ // All reflection captures finish before the interactive loop starts.
 }
 function installGuideActions(){
  const available=new Set(visitor.availableAnimations||[]);
@@ -853,6 +890,7 @@ async function installHighDetailGuideOption(){
    try{
     const installed=await visitor.upgradeToHighDetail();
     if(installed){
+     pipeline.refreshOcclusion();
      button.textContent='HD ✓';
      button.title='Detailed animated guide installed';
      button.setAttribute('aria-label','Detailed animated guide installed');
@@ -876,12 +914,14 @@ async function installHighDetailGuideOption(){
 async function main(){
  try{
   loadingProgress(16);
-  setupThree();
+  await yieldFrame();
+  await setupThree();
   loadingProgress(38);
+  await yieldFrame();
   state.cases=await getCases();
-  populateMuseum();
+  await populateMuseum();
    daylight=installBakedDaylight(world,scene,{beams:MQ.matches});
-   reflections=createReflectionManager(renderer,scene,world,visitor,daylight,{enabled:enhanced&&options.get('reflections')!=='0',onStatus:console.info});
+   reflections=createReflectionManager(renderer,scene,world,visitor,daylight,{enabled:enhanced&&options.get('reflections')!=='0',local:options.get('reflections')==='local',onStatus:console.info});
    console.info('Static museum light:',daylight.pools+' stained-glass pools, '+daylight.shafts+' sun-shaft planes');
   loadingProgress(77);
   setupUI();setupPointer();
@@ -913,10 +953,33 @@ async function main(){
   // correct character (or a real fallback on failure) is ready.
   const intro=UI.loading.querySelector('p');
   if(intro)intro.textContent='Preparing galleries and your animated guide…';
+  const pipelineReady=pipeline.prepare();
   await visitor.ready;
-  Promise.allSettled([materialReady,propsReady,lighting?.ready]).then(()=>reflections?.markReady());
-  pipeline.prepare();
-  loadingProgress(96);
+  await Promise.allSettled([materialReady,propsReady,lighting?.ready,pipelineReady]);
+  if(!scene.environment){
+   const pmrem=new THREE.PMREMGenerator(renderer),environment=new RoomEnvironment();
+   const target=pmrem.fromScene(environment,.04);scene.environment=target.texture;
+   environment.dispose();pmrem.dispose();
+  }
+  if(intro)intro.textContent='Optimizing static exhibits…';
+  loadingProgress(83);await yieldFrame();
+  if(options.get('batch')!=='0'&&!legacyMotion){
+   try{batchSavings=(await batchExhibits(world)).saved;}catch(error){console.warn('Static batching fallback:',error);}
+  }
+  prepareCameraBounds();
+  if(intro)intro.textContent='Uploading gallery textures…';
+  loadingProgress(87);await yieldFrame();
+  warmTextureCount=await warmTextures(renderer,scene);
+  pipeline.refreshOcclusion();
+  if(intro)intro.textContent='Preparing shaders and shadows…';
+  loadingProgress(91);await yieldFrame();
+  try{await renderer.compileAsync(scene,camera);}catch(error){console.warn('Async shader warm-up:',error);}
+  renderer.render(scene,camera);await yieldFrame();
+  if(intro)intro.textContent='Preparing gallery reflections…';
+  try{await reflections.prepare();}catch(error){console.warn('Reflection warm-up:',error);}
+  loadingProgress(96);await yieldFrame();
+  try{await renderer.compileAsync(scene,camera);}catch(error){console.warn('Final shader warm-up:',error);}
+  pipeline.render(0);await yieldFrame();
   installGuideActions();
   clock.start();animate();
   // This is only a manual retry when the preferred character could not load.

@@ -1,7 +1,17 @@
 import * as THREE from 'three';
 import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
 import {clone as skeletonClone} from 'three/addons/utils/SkeletonUtils.js';
-import {installCaseDioramas} from './case-dioramas.js';
+import {installCaseDioramas,caseIllustrationFor} from './case-dioramas.js';
+import {yieldFrame} from './startup-performance.js?v=performance1';
+async function buildDioramas(world,loaded,configs){
+ let count=0;
+ for(const slot of world.assetSlots||[]){
+  if(slot.kind!=='case')continue;
+  count+=installCaseDioramas({...world,assetSlots:[slot]},loaded,configs,normalize);
+  await yieldFrame();
+ }
+ return count;
+}
 
 /**
  * Local-only asset mount system. It never calls a public model API at runtime.
@@ -78,17 +88,26 @@ function normalize(original,config,seed='museum'){
 export async function installMuseumAssets(world,onStatus=()=>{}){
  let manifest;
  try{
-  const response=await fetch('./assets/manifest.json',{cache:'no-store'});
+  const response=await fetch('./assets/manifest.json',{cache:'no-cache'});
   if(!response.ok)throw Error('Asset manifest could not be loaded');
   manifest=await response.json();
  }catch(error){
-  const caseCount=installCaseDioramas(world,{}, {},normalize);
+  const caseCount=await buildDioramas(world,{}, {});
   onStatus('Case illustrations: '+caseCount+' procedural displays (asset manifest unavailable)');
   return {installed:0,caseCount,errors:[String(error)]};
  }
  const props=manifest.props||{};
  const caseProps=manifest.caseProps||{};
- const available=Object.entries({...props,...caseProps}).filter(([,v])=>safeLocalPath(v?.path));
+ const required=new Set(['armchair','gothicCabinet']);
+ for(const slot of world.assetSlots||[]){
+  if(slot.kind==='archive')required.add('displayCase');
+  if(slot.kind==='directory')required.add('directoryDesk');
+  if(slot.kind==='case'){
+   const recipe=caseIllustrationFor((slot.record?.record||slot.record)?.slug);
+   if(recipe?.prop)required.add(recipe.prop);
+  }
+ }
+ const available=Object.entries({...props,...caseProps}).filter(([key,v])=>required.has(key)&&safeLocalPath(v?.path));
  const loaded={};const errors=[];
  await Promise.all(available.map(async ([key,config])=>{
   try{loaded[key]=await load(config.path);}
@@ -132,7 +151,7 @@ export async function installMuseumAssets(world,onStatus=()=>{}){
    installed++;
   }catch(error){errors.push(place.role+': '+String(error));}
  }
- const caseCount=installCaseDioramas(world,loaded,caseProps,normalize);
+ const caseCount=await buildDioramas(world,loaded,caseProps);
  onStatus('Case illustrations: '+caseCount+' · Museum props: '+installed+(errors.length?' ('+errors.length+' unavailable)':''));
  return {installed,caseCount,errors};
 }
