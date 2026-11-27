@@ -28,6 +28,27 @@ This branch is intentionally not merged before visual review. The traditional ar
 
 Run source regressions with `node --test tests/museum-realism.test.mjs`. The tests are not a live shader, animation, or browser benchmark.
 
+## Second pass: GTAO, room probes, and stride / foot contact
+
+- GTAO uses the pinned Three.js addon, a bounded render target (DPR <= 1.15 and longest side <= 1600), modest sample counts and an output color pass. Transparent surfaces and interaction cylinders are excluded from the AO geometry pass, not the beauty pass. Unsupported hardware or an exception falls back to direct rendering. Auto mode disables GTAO after sustained low frame rates.
+- Captures a 128-pixel cube reflection lazily once per visited gallery or vestibule, after the PBR, prop and HDR loads settle. Filters with PMREM and applies to that room's existing floor material only. The character and daylight planes are excluded from captures; their visibility is restored. Other materials retain the original environment. No continuous cube capture, box projection or planar reflections.
+- Samples 48 poses on a separate copy of the active walking rig. Identified left/right ankle tracks provide a stance-speed estimate in world units and contact phase flags. Incompatible or implausible samples fall back to the earlier 3-unit nominal speed. Manual and routed movement use the calibrated preferred speed. Compatible two-joint chains receive bounded CCD stance correction; it releases on sharp turns, gestures, excessive drift or insufficient blend. Corrections are reset before the next mixer update. This is not validated against the actual deployed Ara/Jordan assets yet.
+
+### Additional comparison switches
+
+- `?quality=low`: no GTAO or room probes, render DPR <= 1.
+- `?quality=high`: enables enhanced rendering even on narrow screens, where hardware permits; does not automatically disable GTAO for low frame rates.
+- Default/auto: enhanced rendering on desktop-width viewports with automatic GTAO fallback.
+- `?ao=0`, `?reflections=0`, `?footik=0`: independent disable switches; disabling foot IK retains stride measurement.
+- `?debug=1`: also reports active pipeline, probe count and whether stride calibration and compatible IK are active.
+- `?realism=0`: comparison also disables new AO, probes and stride calibration.
+
+### Review additions
+
+Compare the nave and side galleries with GTAO on/off. Confirm stained glass, rays, contact decals and text remain visible and no phantom AO silhouettes appear around transparent display cases. Pause in each gallery until a probe is captured, then check the floor for unnatural brightness, projection errors or capture hitches. Inspect debug stride status and observe the feet in a side-on view during straight walking, turns, starts and stops. Test both detailed and fallback rigs. Verify there are no WebGL errors and compare desktop/mobile FPS before choosing hardware requirements.
+
+Six source/pure-math regression checks passed when evaluated against the branch in JavaScript. The tests include synthetic stance-speed recovery and unsupported-track fallback; this does not establish actual character rig compatibility or WebGL rendering quality.
+
 ## Next
 
-Actual stride-length/foot-contact calibration, foot-locking IK, GTAO, localized shadows and room probes, quality presets/adaptive resolution, geometry batching and offline global illumination are separate subsequent passes. Do not claim those are already implemented.
+Live visual review, native-rig tuning if needed, localized shadows, broader reflection coverage, adaptive resolution, geometry batching, true non-repeating material sampling and offline global illumination. Do not claim these are already implemented.
