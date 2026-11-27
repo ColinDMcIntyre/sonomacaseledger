@@ -27,10 +27,13 @@ export function installCathedralLighting(scene,renderer,onStatus=()=>{}){
  fill.position.set(25,21,-32);scene.add(fill);
  const fixtureMesh=new THREE.CylinderGeometry(.34,.54,.32,12);
  const rim=new THREE.TorusGeometry(.48,.045,7,18);
- const metal=M.blackMetal,glass=M.light;
+ const metal=M.blackMetal,glass=legacy?M.light:M.light.clone();
+ if(!legacy){glass.emissiveIntensity=3.1;glass.emissive.setHex(0xffdbac);}
  function fixture(x,z,ceiling){
   const group=new THREE.Group();group.position.set(x,0,z);scene.add(group);
-  const length=Math.min(3.3,Math.max(.95,ceiling-6.6));
+  // Lower the pendant to illuminate the exhibits rather than the vault.
+  const oldLength=Math.min(3.3,Math.max(.95,ceiling-6.6));
+  const length=legacy?oldLength:Math.max(.95,ceiling-(ceiling>13?7.2:6.0));
   // The ceiling mount is anchored at the actual vault apex, not at a guessed
   // height floating below the plaster.
   const mount=new THREE.Mesh(new THREE.CylinderGeometry(.2,.2,.1,12),M.quoinStone);
@@ -43,7 +46,11 @@ export function installCathedralLighting(scene,renderer,onStatus=()=>{}){
   bottom.position.y=ceiling-length-.33;group.add(bottom);
   const ring=new THREE.Mesh(rim,M.brass);
   ring.position.y=ceiling-length-.25;ring.rotation.x=Math.PI/2;group.add(ring);
-  const light=new THREE.PointLight(0xffd7a1,legacy?1.65:22,12,2);
+  // Inverse-square falloff at floor height requires considerably more
+  // luminous intensity than the former 22-candela pendant. No new lights
+  // or shadow maps: the existing point lights illuminate nearby surfaces.
+  const light=new THREE.PointLight(0xffdeb2,legacy?1.65:(ceiling>13?230:160),legacy?12:24,2);
+  light.castShadow=false;
   light.position.set(x,ceiling-length-.62,z);scene.add(light);
  }
  const nave=ROOM_DEFS.find(r=>r.id==='rotunda');
