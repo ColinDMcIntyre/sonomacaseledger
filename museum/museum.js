@@ -32,6 +32,10 @@ const state={
   yaw:0,pitch:.19,zoom:1,cameraMode:'close',waypoints:[],onArrival:null,moving:false,openPanel:false
 };
 let scene,camera,renderer,world,visitor,clock,noticeTimer,rafId;
+const legacyMotion=new URLSearchParams(location.search).get('realism')==='0';
+let moveSpeed=0,lastManualAxes=null;
+const WALK_SPEED=3.0,ACCEL=9,DECEL=12;
+function approachSpeed(current,target,dt){return current+Math.sign(target-current)*Math.min(Math.abs(target-current),(target>current?ACCEL:DECEL)*dt);}
 let viewTarget=new THREE.Vector3(ENTRY_POINT.x,0,ENTRY_POINT.z);
 const cameraCollisionRay=new THREE.Raycaster();
 const cameraAnchor=new THREE.Vector3();
@@ -326,7 +330,7 @@ function findPath(start,goal){
   return compact;
 }
 function stopMovement(){
- state.waypoints=[];state.onArrival=null;state.moving=false;visitor.setWalking(false);
+ state.waypoints=[];state.onArrival=null;state.moving=false;moveSpeed=0;lastManualAxes=null;visitor.setWalking(false);
 }
 function moveTo(point,onArrival){
  const safe=world.nearestWalkable(point.x,point.z);
@@ -358,7 +362,7 @@ function tickManualMovement(dt,axes){
  }
  const s=Math.sin(state.yaw),c=Math.cos(state.yaw);
  const dx=(axes.x*c-axes.forward*s),dz=(-axes.x*s-axes.forward*c);
- const distance=Math.min(.05,dt)*6.6;
+ const distance=Math.min(.05,dt)*(legacyMotion?6.6:moveSpeed);
  const steps=Math.max(1,Math.ceil(distance/.085));
  let moved=false;
  for(let i=0;i<steps;i++){
@@ -399,16 +403,29 @@ function interactNearby(){
 }
 function tickControls(dt){
  const axes=manualAxes();
- if(axes){tickManualMovement(dt,axes);}
- else{
-  tickMovement(dt);
-  if(!state.waypoints.length)visitor.setWalking(false);
+ if(legacyMotion){
+  if(axes)tickManualMovement(dt,axes);
+  else{tickMovement(dt);if(!state.waypoints.length)visitor.setWalking(false);}
+  return;
  }
+ if(axes){lastManualAxes=axes;moveSpeed=approachSpeed(moveSpeed,WALK_SPEED,dt);tickManualMovement(dt,axes);}
+ else if(state.waypoints.length){lastManualAxes=null;tickMovement(dt);}
+ else if(lastManualAxes&&moveSpeed>.03){
+  moveSpeed=approachSpeed(moveSpeed,0,dt);tickManualMovement(dt,lastManualAxes);
+  if(moveSpeed<=.03){moveSpeed=0;lastManualAxes=null;visitor.setWalking(false);}
+ }else{moveSpeed=0;lastManualAxes=null;visitor.setWalking(false);}
 }
 
 function tickMovement(dt){
  if(!state.waypoints.length){if(state.moving){state.moving=false;visitor.setWalking(false);}return;}
- let remaining=Math.min(.06,dt)*7.2;
+ const p=visitor.root.position;
+ let routeDistance=0,px=p.x,pz=p.z;
+ if(!legacyMotion){
+  for(const point of state.waypoints){routeDistance+=Math.hypot(point.x-px,point.z-pz);px=point.x;pz=point.z;}
+  const desired=Math.min(WALK_SPEED,Math.sqrt(2*DECEL*routeDistance));
+  moveSpeed=approachSpeed(moveSpeed,desired,dt);
+ }
+ let remaining=Math.min(.06,dt)*(legacyMotion?7.2:moveSpeed);
  while(remaining>0&&state.waypoints.length){
   const target=state.waypoints[0];
   const dx=target.x-visitor.root.position.x,dz=target.z-visitor.root.position.z;
@@ -429,7 +446,7 @@ function tickMovement(dt){
   remaining-=step;
   if(step>=distance-.01)state.waypoints.shift();
  }
- if(!state.waypoints.length){state.moving=false;visitor.setWalking(false);const fn=state.onArrival;state.onArrival=null;if(fn)fn();}
+ if(!state.waypoints.length){state.moving=false;moveSpeed=0;visitor.setWalking(false);const fn=state.onArrival;state.onArrival=null;if(fn)fn();}
 }
 function nearestApproach(x,z){
  const me=visitor.root.position;
@@ -653,8 +670,8 @@ function setupUI(){
   }
  });
  window.addEventListener('keyup',e=>heldKeys.delete(e.code));
- window.addEventListener('blur',()=>{heldKeys.clear();visitor.setWalking(false);});
- document.addEventListener('visibilitychange',()=>{if(document.hidden)heldKeys.clear();});
+ window.addEventListener('blur',()=>{heldKeys.clear();lastManualAxes=null;moveSpeed=0;visitor.setWalking(false);});
+ document.addEventListener('visibilitychange',()=>{if(document.hidden){heldKeys.clear();lastManualAxes=null;moveSpeed=0;}});
  window.addEventListener('hashchange',routeHash);
 }
 function routeHash(){
@@ -729,11 +746,14 @@ function setupPointer(){
 function animate(){
  rafId=requestAnimationFrame(animate);
  const dt=Math.min(clock.getDelta(),.065);
+ const beforeX=visitor.root.position.x,beforeZ=visitor.root.position.z;
  if(!state.openPanel){
   tickControls(dt);
   const active=world.roomAt(visitor.root.position.x,visitor.root.position.z);
   if(active.id!==state.gallery)setActiveRoom(active.id);
  }
+ const speed=dt>0?Math.hypot(visitor.root.position.x-beforeX,visitor.root.position.z-beforeZ)/dt:0;
+ visitor.updateMotion({speed});
  visitor.tick(dt,clock.elapsedTime);
  refreshInteraction();
  updateCamera(dt);
