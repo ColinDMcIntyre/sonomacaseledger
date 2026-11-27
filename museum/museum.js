@@ -40,6 +40,15 @@ const reducedMotion=window.matchMedia('(prefers-reduced-motion: reduce)');
 const quality=options.get('quality')||'auto';
 const enhanced=!legacyMotion&&quality!=='low'&&(quality==='high'||MQ.matches);
 let debugPanel=null,debugFrames=0,debugStart=0,debugWorst=0,debugLast=0;
+let perfLast=0,perfSlow=0,perfWarmup=0;
+function guardFrameRate(now){
+ const elapsed=perfLast?now-perfLast:0;perfLast=now;
+ if(quality!=='auto'||pipeline?.mode!=='GTAO'||document.hidden||elapsed>1000){perfSlow=0;perfWarmup=0;return;}
+ perfWarmup+=elapsed;if(perfWarmup<3000)return;
+ // Only disable after sustained poor performance, not one capture or resize.
+ perfSlow=Math.max(0,perfSlow+(elapsed>48?elapsed:-elapsed*2));
+ if(perfSlow>4000){pipeline.disable();perfSlow=0;}
+}
 function showPerformance(now){
  if(!options.has('debug'))return;
  if(!debugPanel){
@@ -172,7 +181,8 @@ function setupThree(){
   scene.fog=new THREE.FogExp2(0x252d33,.0019);
   camera=new THREE.PerspectiveCamera(60,window.innerWidth/window.innerHeight,.1,260);
   renderer=new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:'high-performance'});
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.65));
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,quality==='low'?1:1.65));
+  renderer.info.autoReset=false;
   // setSize(..., true) writes CSS dimensions in logical pixels; the backing
   // buffer still uses devicePixelRatio. Otherwise the canvas becomes wider
   // than the viewport on high-DPI displays and visually shifts the avatar.
@@ -782,9 +792,11 @@ function animate(){
  updateCamera(dt);
  world.update(clock.elapsedTime,dt,state.fx,camera);
  daylight?.update(clock.elapsedTime,state.fx&&!reducedMotion.matches);
+ renderer.info.reset();
  pipeline.render(dt);
+ const frameEnd=performance.now();
+ showPerformance(frameEnd);guardFrameRate(frameEnd);
  reflections?.update(dt,speed);
- showPerformance(performance.now());
 }
 function installGuideActions(){
  const available=new Set(visitor.availableAnimations||[]);
