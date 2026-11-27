@@ -13,7 +13,7 @@ import {loadNaturalLocomotion,loadCc0Motion} from './animation-library.js?v=idle
 const LEGACY_ASSET='https://gobkit.com/freebies/human001/OfficeLady.glb';
 async function characterSource(){
  try{
-  const response=await fetch('./assets/manifest.json',{cache:'no-store'});
+  const response=await fetch('./assets/manifest.json',{cache:'no-cache'});
   if(response.ok){
    const config=(await response.json()).character;
    if(typeof config?.path==='string' &&
@@ -182,7 +182,7 @@ export function createVisitor(scene,onStatus){
   walkTempo=tempo;idleVariant=null;idleVariantWeight=0;idleWait=5;lastIdle=null;
   runAction=null;runBlend=0;
   const nativeRun=clips.find(c=>/^(?:run|jog)(?:[ _-]?(?:forward[s]?|normal|brisk|relaxed|fast))?$/i.test(c.name||''));
-  if(nativeRun&&mixer&&!legacy){runAction=mixer.clipAction(nativeRun);runAction.play();runAction.setEffectiveWeight(0);}
+  if(nativeRun&&mixer&&!legacy&&nativeRun!==walkAction?.getClip()){runAction=mixer.clipAction(nativeRun);runAction.play();runAction.setEffectiveWeight(0);}
   // Native rig only: no arbitrary gesture/weapon or sitting clips on autoplay.
   idleVariants=clips.filter(c=>c!==baseIdle&&/^(idle|standing|breath)(?:[ _-]|$)/i.test(c.name||'')&&!/sit|crouch|combat|weapon|dance|jump|floor|lying|kneel/i.test(c.name||''));
  }
