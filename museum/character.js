@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import {createFootContactController} from './foot-contact.js?v=realism-20261127';
 import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
 import {createHumanoidPoseCorrector} from './character-pose.js?v=twist90-motions-20261122';
 import {loadNaturalLocomotion,loadCc0Motion} from './animation-library.js?v=idle-calibration-20261122';
@@ -133,14 +134,89 @@ export function createVisitor(scene,onStatus){
  }
 
  let walking=false,blend=0,phase=0;
+ const legacy=new URLSearchParams(globalThis.location?.search||'').get('realism')==='0';
+ const reduced=globalThis.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches||false;
+ let motionSpeed=0,nominalSpeed=3.0,walkTempo=1,footController=null;
+ const footIK=new URLSearchParams(globalThis.location?.search||'').get('footik')!=='0';
+ function configureFoot(obj,clip){
+  footController=null;nominalSpeed=3.0;
+  if(legacy)return;
+  try{
+   footController=createFootContactController(obj,root,clip);
+   if(footController.speed>0)nominalSpeed=footController.speed*walkTempo;
+   console.info('Guide stride calibration:',{speed:nominalSpeed,footIK:footController.supported&&footIK});
+  }catch(error){console.warn('Guide stride calibration fallback:',error);}
+ }
+ let attentionBone=null,attentionBase=null,attentionYaw=0,attentionTarget=null;
+ let glanceTime=0,glanceGoal=0;
+ const attentionParentQ=new THREE.Quaternion(),attentionOffset=new THREE.Quaternion(),attentionAxis=new THREE.Vector3();
+ function configureAttention(obj){
+  attentionBone=null;attentionBase=null;attentionYaw=0;
+  obj.traverse(n=>{if(n.isBone&&!attentionBone&&/^(?:mixamorig[:_]?|bip01[_ ]?|def[-_])?head(?:[._-]0?1)?$/i.test(n.name||''))attentionBone=n;});
+ }
+ function resetAttention(){if(attentionBone&&attentionBase)attentionBone.quaternion.copy(attentionBase);attentionBase=null;}
+ function tickAttention(dt){
+  if(legacy||reduced||privatePreview||!attentionBone||!attentionBone.parent)return;
+  let desired=0;
+  if(motionSpeed<.85&&!gestureAction){
+   if(attentionTarget){
+    const angle=Math.atan2(attentionTarget.x-root.position.x,attentionTarget.z-root.position.z)-root.rotation.y;
+    const yaw=Math.atan2(Math.sin(angle),Math.cos(angle));
+    if(Math.abs(yaw)<1.0)desired=THREE.MathUtils.clamp(yaw*.55,-.28,.28);
+   }else{
+    glanceTime-=dt;
+    if(glanceTime<=0){glanceGoal=(Math.random()-.5)*.17;glanceTime=3+Math.random()*6;}
+    desired=glanceGoal;
+   }
+  }
+  attentionYaw+=(desired-attentionYaw)*(1-Math.exp(-dt*3));
+  if(Math.abs(attentionYaw)<.001)return;
+  attentionBase=attentionBone.quaternion.clone();
+  attentionBone.parent.getWorldQuaternion(attentionParentQ).invert();
+  attentionAxis.set(0,1,0).applyQuaternion(attentionParentQ).normalize();
+  attentionOffset.setFromAxisAngle(attentionAxis,attentionYaw);
+  attentionBone.quaternion.premultiply(attentionOffset);
+ }
+ let idleVariants=[],idleVariant=null,idleVariantWeight=0,idleWait=5,lastIdle=null;
+ function configureMotion(clips,baseIdle,tempo=1){
+  walkTempo=tempo;idleVariant=null;idleVariantWeight=0;idleWait=5;lastIdle=null;
+  // Native rig only: no arbitrary gesture/weapon or sitting clips on autoplay.
+  idleVariants=clips.filter(c=>c!==baseIdle&&/^(idle|standing|breath)(?:[ _-]|$)/i.test(c.name||'')&&!/sit|crouch|combat|weapon|dance|jump|floor|lying|kneel/i.test(c.name||''));
+ }
+ function updateMotion({speed=0,lookTarget=null}={}){
+  motionSpeed=Math.max(0,Number.isFinite(speed)?speed:0);attentionTarget=lookTarget;
+ }
+ function tickIdle(dt,smooth){
+  const eligible=!walking&&motionSpeed<.12&&!gestureAction&&!reduced&&!legacy;
+  if(!idleVariant&&eligible&&idleVariants.length){
+   idleWait-=dt;
+   if(idleWait<=0){
+    const choices=idleVariants.filter(c=>c!==lastIdle);
+    if(choices.length){
+     const clip=choices[Math.floor(Math.random()*choices.length)];
+     lastIdle=clip;idleVariant=mixer.clipAction(clip);
+     idleVariant.reset().setLoop(THREE.LoopOnce,1);idleVariant.clampWhenFinished=true;
+     idleVariant.setEffectiveWeight(0).play();
+    }else lastIdle=null;
+    idleWait=4+Math.random()*8;
+   }
+  }
+  if(idleVariant){
+   const end=idleVariant.time>=Math.max(0,idleVariant.getClip().duration-.35);
+   idleVariantWeight+=(Number(eligible&&!end)-idleVariantWeight)*smooth;
+   if((!eligible||end)&&idleVariantWeight<.025){idleVariant.stop();idleVariant=null;idleVariantWeight=0;}
+  }
+ }
  let gestureAction=null,gestureBlend=0;
  function setWalking(value){walking=Boolean(value);}
  function tick(dt){
   const smooth=1-Math.exp(-dt*11);
-  blend+=(Number(walking)-blend)*smooth;
-  phase+=dt*(walking?10:1.8);
+  const targetBlend=legacy?Number(walking):THREE.MathUtils.smoothstep(motionSpeed,.05,.85);
+  blend+=(targetBlend-blend)*smooth;
+  phase+=dt*(legacy?(walking?10:1.8):1.8+motionSpeed*2.5);
   // Only hands are pose-corrected. Restore them before each mixer step
   // so unkeyed wrist tracks never accumulate our prior correction.
+  resetAttention();footController?.reset();
   if(detailInstalled&&detailPose)detailPose.reset();
   if(gestureAction){
    const exiting=walking||gestureAction.time>=gestureAction.getClip().duration-.22;
@@ -148,7 +224,14 @@ export function createVisitor(scene,onStatus){
    if(exiting&&gestureBlend<.025){gestureAction.stop();gestureAction=null;gestureBlend=0;}
   }
   if(usingAsset&&mixer){
-   idleAction.setEffectiveWeight((1-blend)*(1-gestureBlend));
+   tickIdle(dt,smooth);
+   if(!legacy){
+    const tempo=walkTempo*THREE.MathUtils.clamp(motionSpeed/nominalSpeed,.4,1.4);
+    walkAction.timeScale+=(tempo-walkAction.timeScale)*smooth;
+   }
+   const idleWeight=(1-blend)*(1-gestureBlend);
+   idleAction.setEffectiveWeight(idleWeight*(1-idleVariantWeight));
+   if(idleVariant)idleVariant.setEffectiveWeight(idleWeight*idleVariantWeight);
    walkAction.setEffectiveWeight(blend*(1-gestureBlend));
    if(gestureAction)gestureAction.setEffectiveWeight(gestureBlend);
    mixer.update(dt);
@@ -160,6 +243,8 @@ export function createVisitor(scene,onStatus){
    }
   }
   if(detailInstalled&&detailPose)detailPose.apply(blend,phase);
+  tickAttention(dt);
+  if(!legacy&&footIK&&!privatePreview)footController?.update(walkAction,dt,{speed:motionSpeed,blend,gesture:Boolean(gestureAction)});
   if(privatePreview)animatePrivatePose();
   // The procedural rig always has genuine walk and idle animation.
   if(!usingAsset){
@@ -205,10 +290,12 @@ export function createVisitor(scene,onStatus){
    obj.traverse(node=>{if(node.isMesh){node.castShadow=false;node.receiveShadow=true;}});
    mixer=new THREE.AnimationMixer(obj);
    idleAction=mixer.clipAction(idle);walkAction=mixer.clipAction(walk);
+   configureMotion(clips,idle);configureAttention(obj);
    idleAction.play();walkAction.play();
    idleAction.setEffectiveWeight(1-blend);
    walkAction.setEffectiveWeight(blend);
    root.add(obj);model=obj;usingAsset=true;proxy.visible=false;
+   configureFoot(obj,walk);
    onStatus('Visitor: lightweight animated guide');
    return true;
   }catch(error){
@@ -320,6 +407,7 @@ export function createVisitor(scene,onStatus){
    root.add(obj);
    model=obj;modelRestPosition.copy(obj.position);
    mixer=nextMixer;idleAction=nextIdle;walkAction=nextWalk;
+   configureMotion(clips,idleClip,nextWalk.timeScale);configureAttention(obj);configureFoot(obj,walkClip);
    nativeGestureClips=nativeAra?new Map(clips.filter(c=>
     !/idle|walk|run|locomotion/i.test(c.name||'')
    ).map(c=>[c.name,c])):new Map();
@@ -396,7 +484,9 @@ export function createVisitor(scene,onStatus){
    return false;
   }
  })();
- return {root,setWalking,tick,ready,installPrivateModel,upgradeToHighDetail,
+ return {root,setWalking,updateMotion,tick,ready,installPrivateModel,upgradeToHighDetail,
+  get preferredWalkSpeed(){return THREE.MathUtils.clamp(nominalSpeed,1.4,3.5);},
+  get strideStatus(){return footController?.speed>0?(footIK&&footController.supported?'calibrated + IK':'calibrated'):'estimated';},
   get usesAsset(){return usingAsset;},
   get usesHighDetail(){return detailInstalled;},
   get availableAnimations(){return motionCatalog.slice();},playGesture};

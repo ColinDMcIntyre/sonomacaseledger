@@ -116,6 +116,8 @@ export function installBakedDaylight(world,scene,{beams=true}={}){
  }):null;
  const poolGeo=new THREE.PlaneGeometry(2.8,4.5);
  let pools=0,shafts=0;
+ const dustPaths=[];
+ const legacy=new URLSearchParams(globalThis.location?.search||'').get('realism')==='0';
  for(const w of world.windows||[]){
   const info=w.userData.museumDaylight;
   if(!info)continue;
@@ -130,11 +132,38 @@ export function installBakedDaylight(world,scene,{beams=true}={}){
    info.bottom+(info.shoulder-info.bottom)*.61,w.position.z);
   const along=info.axis==='x'?new THREE.Vector3(0,0,1):new THREE.Vector3(1,0,0);
   const cross=info.axis==='x'?new THREE.Vector3(1,0,0):new THREE.Vector3(0,0,1);
+  if(!legacy)dustPaths.push({source:source.clone(),tip:tip.clone(),along:along.clone(),cross:cross.clone(),width:info.width});
   for(const [axis,f] of [[along,1],[cross,.4]]){
    const mesh=new THREE.Mesh(quad(source,tip,info.width*.25*f,info.width*.85*f,axis),beamMat);
    mesh.renderOrder=2;group.add(mesh);shafts++;
   }
  }
+ // All shafts share one low-cost particle draw call. World-space positions
+ // move gently inside the beams; no new lights or per-particle meshes.
+ const dustCount=Math.min(480,dustPaths.length*18),positions=new Float32Array(dustCount*3),seeds=[];
+ let seed=3847;const random=()=>((seed=(Math.imul(seed,1664525)+1013904223)>>>0)/4294967296);
+ let dust=null;
+ if(dustCount){
+  for(let i=0;i<dustCount;i++)seeds.push({path:dustPaths[i%dustPaths.length],phase:random(),x:random()-.5,z:random()-.5,drift:random()*6.283,speed:.008+random()*.012});
+  const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(positions,3).setUsage(THREE.DynamicDrawUsage));
+  const map=texture(32,(c,n)=>{const grad=c.createRadialGradient(n/2,n/2,0,n/2,n/2,n/2);grad.addColorStop(0,'rgba(255,255,255,.8)');grad.addColorStop(.35,'rgba(255,255,255,.35)');grad.addColorStop(1,'rgba(255,255,255,0)');c.fillStyle=grad;c.fillRect(0,0,n,n);});
+  dust=new THREE.Points(g,new THREE.PointsMaterial({color:0xffe2ad,map,size:.055,transparent:true,opacity:.20,depthWrite:false,blending:THREE.AdditiveBlending,toneMapped:false}));
+  dust.frustumCulled=false;dust.renderOrder=4;dust.visible=false;group.add(dust);
+ }
+ function update(t,enabled=true){
+  if(!dust)return;
+  dust.visible=enabled;if(!enabled)return;
+  for(let i=0;i<seeds.length;i++){
+   const s=seeds[i],p=s.path,u=(s.phase+t*s.speed)%1;
+   const q=.08+.84*u,w=p.width*(.25+.60*q);
+   const a=(s.x+.09*Math.sin(t*.38+s.drift))*w*.85;
+   const b=(s.z+.08*Math.cos(t*.27+s.drift))*w*.32;
+   positions[i*3]=THREE.MathUtils.lerp(p.source.x,p.tip.x,q)+p.along.x*a+p.cross.x*b;
+   positions[i*3+1]=THREE.MathUtils.lerp(p.source.y,p.tip.y,q)+.08*Math.sin(t*.21+s.drift);
+   positions[i*3+2]=THREE.MathUtils.lerp(p.source.z,p.tip.z,q)+p.along.z*a+p.cross.z*b;
+  }
+  dust.geometry.attributes.position.needsUpdate=true;
+ }
  group.userData.bakedLight={contactMeshCount:1,pools,shafts};
- return {group,pools,shafts};
+ return {group,pools,shafts,update};
 }

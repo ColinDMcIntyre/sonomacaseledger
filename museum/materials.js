@@ -161,6 +161,7 @@ export const M={
  */
 function worldVariation(material,kind){
  const isFloor=kind==='floor';
+ const legacy=new URLSearchParams(globalThis.location?.search||'').get('realism')==='0';
  material.onBeforeCompile=shader=>{
   shader.vertexShader=shader.vertexShader.replace('#include <common>',
    '#include <common>\nvarying vec3 vCathedralWorld;');
@@ -217,10 +218,31 @@ float grain=museumValueNoise(mc*.79);
 float lower=1.0-smoothstep(0.2,2.35,vCathedralWorld.y);
 diffuseColor.rgb*=.934+.11*large+.014*(grain-.5)-.025*lower*(1.0-grain);
 `;
+  // Physical pattern and mortar stay aligned. Independent world-space detail
+  // varies appearance and gloss without duplicating any image or changing UVs.
+  const detail=legacy?'':String.raw`
+vec2 museumDetailUV=vCathedralWorld.xz+vCathedralWorld.y*vec2(.47,.83);
+float museumMacro=museumValueNoise(museumDetailUV*.23+vec2(17.1,3.4));
+float museumMeso=museumValueNoise(museumDetailUV*2.4+vec2(6.2,31.8));
+float museumFine=mix(.5,museumValueNoise(museumDetailUV*21.0),
+ 1.0-smoothstep(.015,.055,max(length(dFdx(museumDetailUV)),length(dFdy(museumDetailUV)))));
+float museumWear=1.0-smoothstep(.2,1.8,vCathedralWorld.y);
+`+(isFloor?String.raw`
+diffuseColor.rgb*=.94+.12*museumMacro+.035*(museumMeso-.5)+.024*(museumFine-.5);
+`:kind==='wood'?String.raw`
+diffuseColor.rgb*=.94+.12*museumMacro+.07*(museumMeso-.5)+.035*(museumFine-.5);
+`:String.raw`
+diffuseColor.rgb*=.89+.20*museumMacro+.08*(museumMeso-.5)+.05*(museumFine-.5)-.035*museumWear*(1.0-museumMeso);
+`);
   shader.fragmentShader=shader.fragmentShader.replace('#include <map_fragment>',
-   '#include <map_fragment>\n'+sample);
+   '#include <map_fragment>\n'+sample+detail);
+  if(!legacy){
+   const strength=isFloor?.18:kind==='wood'?.16:.11;
+   shader.fragmentShader=shader.fragmentShader.replace('#include <roughnessmap_fragment>',
+    '#include <roughnessmap_fragment>\nroughnessFactor=clamp(roughnessFactor+('+strength.toFixed(2)+')*(museumMacro-.5)+.06*(museumMeso-.5),.06,1.0);');
+  }
  };
- material.customProgramCacheKey=()=> 'sonoma-patina-'+kind+'-v2';
+ material.customProgramCacheKey=()=> 'sonoma-patina-'+kind+'-v3-'+(legacy?'legacy':'detail');
  return material;
 }
 worldVariation(M.stone,'stone');

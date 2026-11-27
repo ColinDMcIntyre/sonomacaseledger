@@ -3,12 +3,14 @@ import {makeMuseum,ROOM_DEFS} from './world.js?v=unified-vault-bays-20261119';
 import {inspectDoorways} from './scene-diagnostics.js';
 import {exhibitSockets,ENTRY_POINT} from './layout.js';
 import {loadCathedralMaterials} from './materials.js?v=unified-vault-bays-20261119';
-import {installCathedralLighting} from './lighting.js?v=unified-vault-bays-20261119';
-import {installBakedDaylight} from './daylight.js';
-import {createVisitor} from './character.js?v=ara-human-20261123';
+import {installCathedralLighting} from './lighting.js?v=unified-vault-bays-20261119-realism2';
+import {installBakedDaylight} from './daylight.js?v=realism-20261127';
+import {createVisitor} from './character.js?v=ara-human-20261123-realism2';
 import {installMuseumAssets} from './asset-library.js?v=case-dioramas-20261119';
 import {caseIllustrationFor} from './case-dioramas.js?v=case-dioramas-20261119';
 import {RoomEnvironment} from 'three/addons/environments/RoomEnvironment.js';
+import {createRenderPipeline} from './render-pipeline.js?v=realism-20261127';
+import {createReflectionManager} from './reflection-manager.js?v=realism-20261127';
 
 /**
  * Sonoma Case Ledger / interactive museum.
@@ -31,7 +33,38 @@ const state={
   cases:[],exhibits:[],gallery:'rotunda',fx:!window.matchMedia('(prefers-reduced-motion:reduce)').matches,
   yaw:0,pitch:.19,zoom:1,cameraMode:'close',waypoints:[],onArrival:null,moving:false,openPanel:false
 };
-let scene,camera,renderer,world,visitor,clock,noticeTimer,rafId;
+let scene,camera,renderer,world,visitor,clock,noticeTimer,rafId,daylight,pipeline,reflections,lighting;
+const options=new URLSearchParams(location.search);
+const legacyMotion=options.get('realism')==='0';
+const reducedMotion=window.matchMedia('(prefers-reduced-motion: reduce)');
+const quality=options.get('quality')||'auto';
+const enhanced=!legacyMotion&&quality!=='low'&&(quality==='high'||MQ.matches);
+let debugPanel=null,debugFrames=0,debugStart=0,debugWorst=0,debugLast=0;
+let perfLast=0,perfSlow=0,perfWarmup=0;
+function guardFrameRate(now){
+ const elapsed=perfLast?now-perfLast:0;perfLast=now;
+ if(quality!=='auto'||pipeline?.mode!=='GTAO'||document.hidden||elapsed>1000){perfSlow=0;perfWarmup=0;return;}
+ perfWarmup+=elapsed;if(perfWarmup<3000)return;
+ // Only disable after sustained poor performance, not one capture or resize.
+ perfSlow=Math.max(0,perfSlow+(elapsed>48?elapsed:-elapsed*2));
+ if(perfSlow>4000){pipeline.disable();perfSlow=0;}
+}
+function showPerformance(now){
+ if(!options.has('debug'))return;
+ if(!debugPanel){
+  debugPanel=document.createElement('pre');debugPanel.setAttribute('aria-hidden','true');
+  Object.assign(debugPanel.style,{position:'fixed',left:'12px',bottom:'100px',zIndex:'30',pointerEvents:'none',background:'#141c23df',color:'#edf3f4',padding:'8px',font:'11px monospace',lineHeight:'1.4',margin:'0'});
+  document.body.append(debugPanel);debugStart=now;debugLast=now;
+ }
+ debugFrames++;debugWorst=Math.max(debugWorst,now-debugLast);debugLast=now;
+ if(now-debugStart<1000)return;
+ const elapsed=now-debugStart,info=renderer.info;
+ debugPanel.textContent=`${legacyMotion?'Original comparison':'Realism pass'}\nFPS: ${(debugFrames*1000/elapsed).toFixed(1)} | avg ${(elapsed/debugFrames).toFixed(1)} ms | max ${debugWorst.toFixed(1)} ms\nDraw calls: ${info.render.calls} | triangles: ${info.render.triangles.toLocaleString()}\nTextures: ${info.memory.textures} | geometries: ${info.memory.geometries}\nRender DPR: ${renderer.getPixelRatio().toFixed(2)} | movement: ${moveSpeed.toFixed(2)}\nRender: ${pipeline?.mode||'direct'} | probes: ${reflections?.count||0} | stride: ${visitor?.strideStatus||'estimated'}`;
+ debugFrames=0;debugWorst=0;debugStart=now;
+}
+let moveSpeed=0,lastManualAxes=null;
+const WALK_SPEED=3.0,ACCEL=9,DECEL=12;
+function approachSpeed(current,target,dt){return current+Math.sign(target-current)*Math.min(Math.abs(target-current),(target>current?ACCEL:DECEL)*dt);}
 let viewTarget=new THREE.Vector3(ENTRY_POINT.x,0,ENTRY_POINT.z);
 const cameraCollisionRay=new THREE.Raycaster();
 const cameraAnchor=new THREE.Vector3();
@@ -40,6 +73,7 @@ const desiredCamera=new THREE.Vector3();
 let cameraEye=new THREE.Vector3();
 const heldKeys=new Set();
 const interactionPosition=new THREE.Vector3();
+const exhibitAttention=new THREE.Vector3();let hasExhibitAttention=false;
 let closestExhibit=null;
 const cameraDistance=()=>((state.cameraMode==='close')?6.5:11.2)/state.zoom;
 const COLOR={gold:0xd1b37b,aqua:0x86d8c9};
@@ -147,7 +181,8 @@ function setupThree(){
   scene.fog=new THREE.FogExp2(0x252d33,.0019);
   camera=new THREE.PerspectiveCamera(60,window.innerWidth/window.innerHeight,.1,260);
   renderer=new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:'high-performance'});
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.65));
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,quality==='low'?1:1.65));
+  renderer.info.autoReset=false;
   // setSize(..., true) writes CSS dimensions in logical pixels; the backing
   // buffer still uses devicePixelRatio. Otherwise the canvas becomes wider
   // than the viewport on high-DPI displays and visually shifts the avatar.
@@ -166,7 +201,8 @@ function setupThree(){
   scene.environment=pmrem.fromScene(environment,0.04).texture;
   environment.dispose();pmrem.dispose();
   UI.viewport.append(renderer.domElement);
-  installCathedralLighting(scene,renderer,status=>console.info(status));
+  lighting=installCathedralLighting(scene,renderer,status=>console.info(status));
+  pipeline=createRenderPipeline(renderer,scene,camera,{enabled:enhanced&&options.get('ao')!=='0',onStatus:console.info});
   world=makeMuseum(scene);
   inspectDoorways(world);
   visitor=createVisitor(scene,status=>UI.asset.textContent=status);
@@ -188,7 +224,7 @@ function resize(){
  camera.aspect=w/h;
  camera.fov=w<650?67:60;
  camera.updateProjectionMatrix();
- renderer.setSize(w,h,true);
+ renderer.setSize(w,h,true);pipeline?.resize(w,h);
 }
 function updateCamera(dt){
  const player=visitor.root.position;
@@ -326,7 +362,7 @@ function findPath(start,goal){
   return compact;
 }
 function stopMovement(){
- state.waypoints=[];state.onArrival=null;state.moving=false;visitor.setWalking(false);
+ state.waypoints=[];state.onArrival=null;state.moving=false;moveSpeed=0;lastManualAxes=null;visitor.setWalking(false);
 }
 function moveTo(point,onArrival){
  const safe=world.nearestWalkable(point.x,point.z);
@@ -358,7 +394,7 @@ function tickManualMovement(dt,axes){
  }
  const s=Math.sin(state.yaw),c=Math.cos(state.yaw);
  const dx=(axes.x*c-axes.forward*s),dz=(-axes.x*s-axes.forward*c);
- const distance=Math.min(.05,dt)*6.6;
+ const distance=Math.min(.05,dt)*(legacyMotion?6.6:moveSpeed);
  const steps=Math.max(1,Math.ceil(distance/.085));
  let moved=false;
  for(let i=0;i<steps;i++){
@@ -376,16 +412,16 @@ function tickManualMovement(dt,axes){
 }
 function closestInteraction(){
  const here=visitor.root.position;
- let found=null,best=2.9;
+ let found=null,best=2.9;hasExhibitAttention=false;
  for(const mesh of world.interactives){
   mesh.getWorldPosition(interactionPosition);
   const dist=Math.hypot(interactionPosition.x-here.x,interactionPosition.z-here.z);
-  if(dist<best){best=dist;found=mesh.userData.action;}
+  if(dist<best){best=dist;found=mesh.userData.action;exhibitAttention.copy(interactionPosition);hasExhibitAttention=true;}
  }
  return found;
 }
 function refreshInteraction(){
- if(state.openPanel){$('interact-hint').hidden=true;return;}
+ if(state.openPanel){$('interact-hint').hidden=true;hasExhibitAttention=false;return;}
  closestExhibit=closestInteraction();
  const prompt=$('interact-hint');
  prompt.hidden=!closestExhibit;
@@ -399,16 +435,30 @@ function interactNearby(){
 }
 function tickControls(dt){
  const axes=manualAxes();
- if(axes){tickManualMovement(dt,axes);}
- else{
-  tickMovement(dt);
-  if(!state.waypoints.length)visitor.setWalking(false);
+ if(legacyMotion){
+  if(axes)tickManualMovement(dt,axes);
+  else{tickMovement(dt);if(!state.waypoints.length)visitor.setWalking(false);}
+  return;
  }
+ if(!UI.map.hidden){moveSpeed=0;lastManualAxes=null;visitor.setWalking(false);return;}
+ if(axes){lastManualAxes=axes;moveSpeed=approachSpeed(moveSpeed,visitor.preferredWalkSpeed||WALK_SPEED,dt);tickManualMovement(dt,axes);}
+ else if(state.waypoints.length){lastManualAxes=null;tickMovement(dt);}
+ else if(lastManualAxes&&moveSpeed>.03){
+  moveSpeed=approachSpeed(moveSpeed,0,dt);tickManualMovement(dt,lastManualAxes);
+  if(moveSpeed<=.03){moveSpeed=0;lastManualAxes=null;visitor.setWalking(false);}
+ }else{moveSpeed=0;lastManualAxes=null;visitor.setWalking(false);}
 }
 
 function tickMovement(dt){
  if(!state.waypoints.length){if(state.moving){state.moving=false;visitor.setWalking(false);}return;}
- let remaining=Math.min(.06,dt)*7.2;
+ const p=visitor.root.position;
+ let routeDistance=0,px=p.x,pz=p.z;
+ if(!legacyMotion){
+  for(const point of state.waypoints){routeDistance+=Math.hypot(point.x-px,point.z-pz);px=point.x;pz=point.z;}
+  const desired=Math.min(visitor.preferredWalkSpeed||WALK_SPEED,Math.sqrt(2*DECEL*routeDistance));
+  moveSpeed=approachSpeed(moveSpeed,desired,dt);
+ }
+ let remaining=Math.min(.06,dt)*(legacyMotion?7.2:moveSpeed);
  while(remaining>0&&state.waypoints.length){
   const target=state.waypoints[0];
   const dx=target.x-visitor.root.position.x,dz=target.z-visitor.root.position.z;
@@ -429,7 +479,7 @@ function tickMovement(dt){
   remaining-=step;
   if(step>=distance-.01)state.waypoints.shift();
  }
- if(!state.waypoints.length){state.moving=false;visitor.setWalking(false);const fn=state.onArrival;state.onArrival=null;if(fn)fn();}
+ if(!state.waypoints.length){state.moving=false;moveSpeed=0;visitor.setWalking(false);const fn=state.onArrival;state.onArrival=null;if(fn)fn();}
 }
 function nearestApproach(x,z){
  const me=visitor.root.position;
@@ -653,8 +703,8 @@ function setupUI(){
   }
  });
  window.addEventListener('keyup',e=>heldKeys.delete(e.code));
- window.addEventListener('blur',()=>{heldKeys.clear();visitor.setWalking(false);});
- document.addEventListener('visibilitychange',()=>{if(document.hidden)heldKeys.clear();});
+ window.addEventListener('blur',()=>{heldKeys.clear();lastManualAxes=null;moveSpeed=0;visitor.setWalking(false);});
+ document.addEventListener('visibilitychange',()=>{if(document.hidden){heldKeys.clear();lastManualAxes=null;moveSpeed=0;}});
  window.addEventListener('hashchange',routeHash);
 }
 function routeHash(){
@@ -729,16 +779,24 @@ function setupPointer(){
 function animate(){
  rafId=requestAnimationFrame(animate);
  const dt=Math.min(clock.getDelta(),.065);
+ const beforeX=visitor.root.position.x,beforeZ=visitor.root.position.z;
  if(!state.openPanel){
   tickControls(dt);
   const active=world.roomAt(visitor.root.position.x,visitor.root.position.z);
   if(active.id!==state.gallery)setActiveRoom(active.id);
  }
- visitor.tick(dt,clock.elapsedTime);
+ const speed=dt>0?Math.hypot(visitor.root.position.x-beforeX,visitor.root.position.z-beforeZ)/dt:0;
  refreshInteraction();
+ visitor.updateMotion({speed,lookTarget:hasExhibitAttention?exhibitAttention:null});
+ visitor.tick(dt,clock.elapsedTime);
  updateCamera(dt);
  world.update(clock.elapsedTime,dt,state.fx,camera);
- renderer.render(scene,camera);
+ daylight?.update(clock.elapsedTime,state.fx&&!reducedMotion.matches);
+ renderer.info.reset();
+ pipeline.render(dt);
+ const frameEnd=performance.now();
+ showPerformance(frameEnd);guardFrameRate(frameEnd);
+ reflections?.update(dt,speed);
 }
 function installGuideActions(){
  const available=new Set(visitor.availableAnimations||[]);
@@ -822,7 +880,8 @@ async function main(){
   loadingProgress(38);
   state.cases=await getCases();
   populateMuseum();
-   const daylight=installBakedDaylight(world,scene,{beams:MQ.matches});
+   daylight=installBakedDaylight(world,scene,{beams:MQ.matches});
+   reflections=createReflectionManager(renderer,scene,world,visitor,daylight,{enabled:enhanced&&options.get('reflections')!=='0',onStatus:console.info});
    console.info('Static museum light:',daylight.pools+' stained-glass pools, '+daylight.shafts+' sun-shaft planes');
   loadingProgress(77);
   setupUI();setupPointer();
@@ -836,11 +895,11 @@ async function main(){
     }))
     .catch(error=>console.warn('Private model preview unavailable:',error));
   }
-  loadCathedralMaterials(status=>console.info(status))
+  const materialReady=loadCathedralMaterials(status=>console.info(status))
     .catch(error=>console.warn('PBR loading:',error));
   // Install free third-party furniture only when the locally hosted model
   // files are present. Case content and collision remain usable otherwise.
-  installMuseumAssets(world, status=>{UI.asset.textContent=status;})
+  const propsReady=installMuseumAssets(world, status=>{UI.asset.textContent=status;})
     .then(()=>{
       // Imported chairs/cabinets can change obstacles; recompute any cached
       // navigation cells after optional furniture finishes loading.
@@ -855,6 +914,8 @@ async function main(){
   const intro=UI.loading.querySelector('p');
   if(intro)intro.textContent='Preparing galleries and your animated guide…';
   await visitor.ready;
+  Promise.allSettled([materialReady,propsReady,lighting?.ready]).then(()=>reflections?.markReady());
+  pipeline.prepare();
   loadingProgress(96);
   installGuideActions();
   clock.start();animate();
