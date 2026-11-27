@@ -461,7 +461,7 @@ function cornerMasonry(parent){
  parent.add(mesh);
  return {uniqueCorners:corners.size,quoinBlocks:blocks.length};
 }
-export function buildArchitecture(scene){
+function* buildArchitectureStages(scene){
  const group=new THREE.Group();scene.add(group);
  // Corridor floor meshes are clipped to avoid z-fighting, but their ORIGINAL
  // footprints must remain in navigation. Otherwise the walkability margin on
@@ -482,12 +482,16 @@ export function buildArchitecture(scene){
  for(const room of rooms){
   const tile=room.id==='archive'?M.corridor:M.floor;
   addFloor(room.x,room.z,room.w,room.d,tile);
-  for(const dir of ['n','s','e','w'])wall(room,dir,group,cameraBlockers,windows);
+  for(const dir of ['n','s','e','w']){
+   wall(room,dir,group,cameraBlockers,windows);
+   if(room.id==='rotunda')yield;
+  }
   // The lower wall, gable stone and ceiling now meet at the same spring line.
   for(const dir of ['n','s'])endGable(room,dir,group,cameraBlockers);
   vault(room,group,cameraBlockers);
   for(const z of ribStations(room))
    for(const side of [-1,1])column(group,room,side,z,cameraBlockers);
+  yield;
  }
  corridorShell(group,corridorSections,cameraBlockers);
  // Interlocking stone quoins soften square architectural intersections while
@@ -497,4 +501,14 @@ export function buildArchitecture(scene){
  box(group,M.rug,0,.018,0,4.6,.035,54);
  for(const x of [-2.22,2.22])box(group,trim,x,.041,0,.05,.012,53.6);
  return {group,floors,floorRects,cameraBlockers,windows};
+}
+export function buildArchitecture(scene){
+ const stages=buildArchitectureStages(scene);let step=stages.next();
+ while(!step.done)step=stages.next();
+ return step.value;
+}
+export async function buildArchitectureAsync(scene,yieldFrame){
+ const stages=buildArchitectureStages(scene);let step=stages.next();
+ while(!step.done){await yieldFrame();step=stages.next();}
+ return step.value;
 }
