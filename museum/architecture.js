@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import {ROOM_DEFS,VESTIBULE,HALLWAYS,PORTALS} from './layout.js';
-import {M,createTiledMaterial,createSurfaceMaterial,scaleBoxUV} from './materials.js?v=unified-vault-bays-20261119';
+import {M,createTiledMaterial,createSurfaceMaterial,scaleBoxUV} from './materials.js?v=unified-vault-bays-20261119-performance1';
 import {createStainedWindow} from './stained-glass.js';
 import {visibleCorridorSections} from './floor-geometry.js';
 import {RoundedBoxGeometry} from 'three/addons/geometries/RoundedBoxGeometry.js';
