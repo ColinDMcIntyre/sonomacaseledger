@@ -9,9 +9,11 @@ import {M} from './materials.js?v=unified-vault-bays-20261119';
  * warm pendants and sconces. Ambient fallback stays if HDR unavailable.
  */
 export function installCathedralLighting(scene,renderer,onStatus=()=>{}){
- const hemisphere=new THREE.HemisphereLight(0xeef4ff,0x7c654f,1.08);
+ // Preserve the original lighting as a visual comparison (?realism=0).
+ const legacy=new URLSearchParams(globalThis.location?.search||'').get('realism')==='0';
+ const hemisphere=new THREE.HemisphereLight(0xeef4ff,0x7c654f,legacy?1.08:.58);
  scene.add(hemisphere);
- const sun=new THREE.DirectionalLight(0xffe9c4,2.05);
+ const sun=new THREE.DirectionalLight(0xffe9c4,legacy?2.05:1.85);
  sun.position.set(-28,37,22);sun.target.position.set(0,0,-10);
  scene.add(sun,sun.target);
  sun.castShadow=window.innerWidth>780;
@@ -21,7 +23,7 @@ export function installCathedralLighting(scene,renderer,onStatus=()=>{}){
  sun.shadow.camera.top=74;sun.shadow.camera.bottom=-74;
  sun.shadow.camera.near=.3;sun.shadow.camera.far=155;
  sun.shadow.bias=-.0005;sun.shadow.normalBias=.048;
- const fill=new THREE.DirectionalLight(0xa7c4d4,.63);
+ const fill=new THREE.DirectionalLight(0xa7c4d4,legacy?.63:.18);
  fill.position.set(25,21,-32);scene.add(fill);
  const fixtureMesh=new THREE.CylinderGeometry(.34,.54,.32,12);
  const rim=new THREE.TorusGeometry(.48,.045,7,18);
@@ -41,7 +43,7 @@ export function installCathedralLighting(scene,renderer,onStatus=()=>{}){
   bottom.position.y=ceiling-length-.33;group.add(bottom);
   const ring=new THREE.Mesh(rim,M.brass);
   ring.position.y=ceiling-length-.25;ring.rotation.x=Math.PI/2;group.add(ring);
-  const light=new THREE.PointLight(0xffd7a1,1.65,12,2);
+  const light=new THREE.PointLight(0xffd7a1,legacy?1.65:22,12,2);
   light.position.set(x,ceiling-length-.62,z);scene.add(light);
  }
  const nave=ROOM_DEFS.find(r=>r.id==='rotunda');
@@ -51,6 +53,7 @@ export function installCathedralLighting(scene,renderer,onStatus=()=>{}){
  fixture(VESTIBULE.x,VESTIBULE.z,vaultProfile(VESTIBULE).apex);
  // Keep actual HDR local if imported; remote CC0 fallback is the publisher's
  // static CDN URL, never live API calls from visitors.
+ if(!legacy)scene.environmentIntensity=.55;
  async function loadHDR(){
   const hdrSources=[
    './assets/cathedral/church_meeting_room_1k.hdr',
@@ -63,7 +66,9 @@ export function installCathedralLighting(scene,renderer,onStatus=()=>{}){
     const pmrem=new THREE.PMREMGenerator(renderer);
     pmrem.compileEquirectangularShader();
     const env=pmrem.fromEquirectangular(hdr).texture;
-    scene.environment=env;scene.environmentIntensity=.79;
+    const old=scene.environment;
+    scene.environment=env;scene.environmentIntensity=legacy?.79:.55;
+    if(old&&old!==env)old.dispose();
     // Keep a natural architectural background, not the original photographed
     // church interior from the reflection map.
     hdr.dispose();pmrem.dispose();
