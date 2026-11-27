@@ -372,6 +372,9 @@ function column(parent,room,side,z,blockers){
   shaftHeight,20);
  const neck=cylinder(parent,M.quoinStone,x,spring-.22,z,.45,.24,20);
  const capital=cylinder(parent,M.quoinStone,x,spring-.055,z,.6,.24,20);
+ // Architectural pillars receive light and shading but cast no directional
+ // shadow. Keep the camera blockers and column construction unchanged.
+ for(const part of [base,shaft,neck,capital])part.castShadow=false;
  // The rib starts exactly at y=spring on the wall face. This capital extends
  // across that point, so the column never ends in open air.
  capital.userData.supportsVault=room.id;
