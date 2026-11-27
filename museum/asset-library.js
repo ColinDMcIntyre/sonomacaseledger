@@ -71,7 +71,9 @@ function normalize(original,config,seed='museum'){
  clone.rotation.y=THREE.MathUtils.degToRad(config.yawDegrees||0);
  clone.traverse(object=>{
   if(!object.isMesh)return;
-  object.castShadow=true;object.receiveShadow=true;
+  const mats=Array.isArray(object.material)?object.material:[object.material];
+  object.castShadow=mats.length>0&&mats.every(m=>m&&!m.transparent&&m.depthWrite!==false&&m.opacity===1);
+  object.receiveShadow=true;
   if(object.material){
    const tweak=(m,i)=>{
     const result=variationMaterial(m,String(seed)+':'+object.name+':'+i);
@@ -147,6 +149,7 @@ export async function installMuseumAssets(world,onStatus=()=>{}){
     place.role+':'+place.x+':'+place.z);
    instance.rotation.y+=THREE.MathUtils.degToRad(place.rot);
    anchor.add(instance);world.group.add(anchor);
+   world.furnitureShadowRoots?.push(anchor);
    world.obstacles.push({x:anchor.position.x,z:anchor.position.z,r:place.r});
    installed++;
   }catch(error){errors.push(place.role+': '+String(error));}
