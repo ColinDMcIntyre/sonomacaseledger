@@ -1,6 +1,5 @@
 import * as THREE from 'three';
 import {ROOM_DEFS,VESTIBULE} from './layout.js';
-import {ribStations,columnX} from './vault-profile.js';
 
 /**
  * Static lighting: soft contact occlusion is a single batched mesh (one draw
@@ -33,12 +32,28 @@ function batchContactShadows(world){
    x+w/2,y,z+d/2,x-w/2,y,z+d/2);
   uv.push(0,0,1,0,1,1,0,1);indices.push(n,n+2,n+1,n,n+3,n+2);
  }
- for(const room of rooms)for(const z of ribStations(room))
-  for(const side of [-1,1])add(columnX(room,side),z,1.75,1.75,.036);
- for(const slot of world.assetSlots||[]){
-  const x=slot.group.position.x,z=slot.group.position.z;
-  if(['case','archive'].includes(slot.kind))add(x,z,2.8,2.5,.053);
-  else if(['timeline','directory'].includes(slot.kind))add(x,z,2.1,1.8,.053);
+ // Ground only actual furniture, not pillars or architectural columns.
+ // Derive the contact footprint from the visible model's lower geometry,
+ // including imported cabinets/chairs and all fallback furniture.
+ const bounds=new THREE.Box3(),part=new THREE.Box3(),full=new THREE.Box3();
+ for(const root of world.furnitureShadowRoots||world.assetSlots?.map(slot=>slot.group)||[]){
+  root.updateWorldMatrix(true,true);bounds.makeEmpty();full.makeEmpty();
+  root.traverseVisible(mesh=>{
+   if(!mesh.isMesh||!mesh.geometry||mesh.userData.action)return;
+   const mats=Array.isArray(mesh.material)?mesh.material:[mesh.material];
+   if(!mats.some(m=>m&&!m.transparent&&m.depthWrite!==false&&m.opacity===1))return;
+   if(!mesh.geometry.boundingBox)mesh.geometry.computeBoundingBox();
+   if(!mesh.geometry.boundingBox)return;
+   part.copy(mesh.geometry.boundingBox).applyMatrix4(mesh.matrixWorld);
+   if(part.isEmpty())return;
+   full.union(part);
+   if(part.min.y<=.4&&part.max.y>=.02)bounds.union(part);
+  });
+  if(bounds.isEmpty())bounds.copy(full);
+  if(bounds.isEmpty())continue;
+  const w=Math.max(.3,bounds.max.x-bounds.min.x)*1.32+.18;
+  const d=Math.max(.3,bounds.max.z-bounds.min.z)*1.32+.18;
+  add((bounds.min.x+bounds.max.x)/2,(bounds.min.z+bounds.max.z)/2,w,d,.053);
  }
  const g=new THREE.BufferGeometry();
  g.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));
@@ -101,7 +116,7 @@ function landing(w,info){
 export function installBakedDaylight(world,scene,{beams=true}={}){
  const group=new THREE.Group();group.name='static-daylight';scene.add(group);
  const contact=new THREE.Mesh(batchContactShadows(world),new THREE.MeshBasicMaterial({
-  map:contactMap(),transparent:true,depthWrite:false,opacity:.69,
+  map:contactMap(),transparent:true,depthWrite:false,opacity:.63,
   polygonOffset:true,polygonOffsetFactor:-1
  }));
  contact.name='single-draw-contact-occlusion';contact.renderOrder=1;
@@ -165,5 +180,9 @@ export function installBakedDaylight(world,scene,{beams=true}={}){
   dust.geometry.attributes.position.needsUpdate=true;
  }
  group.userData.bakedLight={contactMeshCount:1,pools,shafts};
- return {group,pools,shafts,update};
+ // Refresh once after imported furniture settles, before GPU warm-up.
+ function refreshFurnitureShadows(){
+  const previous=contact.geometry;contact.geometry=batchContactShadows(world);previous.dispose();
+ }
+ return {group,pools,shafts,update,refreshFurnitureShadows};
 }
