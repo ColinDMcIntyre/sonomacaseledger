@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import {wornBox,surfacePolishEnabled} from './surface-geometry.js?v=20261127';
 import {ROOM_DEFS,VESTIBULE,HALLWAYS,PORTALS} from './layout.js';
 import {M,createTiledMaterial,createSurfaceMaterial,scaleBoxUV} from './materials.js?v=unified-vault-bays-20261119';
 import {createStainedWindow} from './stained-glass.js';
@@ -22,6 +23,7 @@ function box(parent,mat,x,y,z,w,h,d,cast=false){
  // Give each separately made wooden piece a unique grain phase while sharing
  // the SAME PBR image files across all pieces. Never offset authored GLTF UVs.
  const textured=mat.userData?.kind==='wood';
+ const bevelStone=surfacePolishEnabled()&&mat.userData?.kind==='vault'&&Math.min(w,h,d)>=.055;
  let geometry=slab;
  if(textured){
   parent.updateWorldMatrix(true,false);
@@ -29,10 +31,12 @@ function box(parent,mat,x,y,z,w,h,d,cast=false){
   const hash=n=>{const value=Math.sin(n)*43758.5453;return value-Math.floor(value);};
   const seed=at.x*127.1+at.y*74.7+at.z*311.7;
   const phase=[hash(seed)*.92,hash(seed+98.21)*.91];
-  geometry=scaleBoxUV(new THREE.BoxGeometry(w,h,d),w,h,d,1.65,phase);
+  geometry=scaleBoxUV(wornBox(w,h,d,'wood',seed),w,h,d,1.65,phase);
+ }else if(bevelStone){
+  geometry=scaleBoxUV(wornBox(w,h,d,'vault',x*17+y*31+z*11),w,h,d,2.35);
  }
  const o=object(parent,geometry,mat,x,y,z,cast);
- if(!textured)o.scale.set(w,h,d);
+ if(!textured&&!bevelStone)o.scale.set(w,h,d);
  return o;
 }
 function masonry(parent,material,x,y,z,w,h,d,blockers){
@@ -430,12 +434,17 @@ function cornerMasonry(parent){
  for(let i=0;i<blocks.length;i++){
   const block=blocks[i];transform.position.set(block.x,block.y,block.z);
   const variant=Math.sin(block.x*7.3+block.z*2.1+i*17.17);
-  transform.scale.set(1+(variant>0?.1:0),1,1+(variant<0?.1:0));
+  const polish=surfacePolishEnabled();
+  const secondary=Math.sin(block.x*11.2-block.z*3.8+i*23.7);
+  transform.scale.set(1+(variant>0?.1:0),polish?1+secondary*.018:1,1+(variant<0?.1:0));
+  transform.rotation.set(polish?secondary*.012:0,polish?variant*.028:0,polish?variant*.009:0);
   transform.updateMatrix();mesh.setMatrixAt(i,transform.matrix);
   // Quoins use subtle individual limestone tones; no two blocks are exact
   // copies even though their geometry and texture remain shared.
   const tone=.90+.17*(.5+.5*Math.sin(block.x*1.3+block.z*2.7+i*8.23));
-  mesh.setColorAt(i,new THREE.Color(0xffffff).multiplyScalar(tone));
+  const color=new THREE.Color(0xffffff).multiplyScalar(tone);
+  if(polish){color.r*=1+.025*secondary;color.b*=1-.04*secondary;}
+  mesh.setColorAt(i,color);
  }
  mesh.instanceMatrix.needsUpdate=true;
  if(mesh.instanceColor)mesh.instanceColor.needsUpdate=true;
