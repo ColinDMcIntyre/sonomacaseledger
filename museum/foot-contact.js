@@ -45,8 +45,8 @@ export function measureStride(model,clip){
   const low=Math.min(...points.map(p=>p.y)),high=Math.max(...points.map(p=>p.y));
   if(high-low<.025)continue;
   const flags=points.map((p,i)=>{
-   const prev=points[(i+COUNT-1)%COUNT],next=points[(i+1)%COUNT];
-   const velocity=(next.z-prev.z)/(2*step);
+   const prev=points[Math.max(0,i-1)],next=points[Math.min(COUNT-1,i+1)];
+   const velocity=(next.z-prev.z)/((i===0||i===COUNT-1?1:2)*step);
    const stance=p.y<low+Math.max(.025,(high-low)*.28)&&velocity<-.35;
    if(stance)speeds.push(-velocity);
    return stance;
