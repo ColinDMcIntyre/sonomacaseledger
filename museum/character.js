@@ -133,12 +133,44 @@ export function createVisitor(scene,onStatus){
  }
 
  let walking=false,blend=0,phase=0;
+ const legacy=new URLSearchParams(globalThis.location?.search||'').get('realism')==='0';
+ const reduced=globalThis.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches||false;
+ let motionSpeed=0,nominalSpeed=3.0,walkTempo=1;
+ let idleVariants=[],idleVariant=null,idleVariantWeight=0,idleWait=5,lastIdle=null;
+ function configureMotion(clips,baseIdle,tempo=1){
+  walkTempo=tempo;idleVariant=null;idleVariantWeight=0;idleWait=5;lastIdle=null;
+  // Native rig only: no arbitrary gesture/weapon or sitting clips on autoplay.
+  idleVariants=clips.filter(c=>c!==baseIdle&&/^(idle|standing|breath)(?:[ _-]|$)/i.test(c.name||'')&&!/sit|crouch|combat|weapon|dance|jump|floor|lying|kneel/i.test(c.name||''));
+ }
+ function updateMotion({speed=0}={}){motionSpeed=Math.max(0,Number.isFinite(speed)?speed:0);}
+ function tickIdle(dt,smooth){
+  const eligible=!walking&&motionSpeed<.12&&!gestureAction&&!reduced&&!legacy;
+  if(!idleVariant&&eligible&&idleVariants.length){
+   idleWait-=dt;
+   if(idleWait<=0){
+    const choices=idleVariants.filter(c=>c!==lastIdle);
+    if(choices.length){
+     const clip=choices[Math.floor(Math.random()*choices.length)];
+     lastIdle=clip;idleVariant=mixer.clipAction(clip);
+     idleVariant.reset().setLoop(THREE.LoopOnce,1);idleVariant.clampWhenFinished=true;
+     idleVariant.setEffectiveWeight(0).play();
+    }else lastIdle=null;
+    idleWait=4+Math.random()*8;
+   }
+  }
+  if(idleVariant){
+   const end=idleVariant.time>=Math.max(0,idleVariant.getClip().duration-.35);
+   idleVariantWeight+=(Number(eligible&&!end)-idleVariantWeight)*smooth;
+   if((!eligible||end)&&idleVariantWeight<.025){idleVariant.stop();idleVariant=null;idleVariantWeight=0;}
+  }
+ }
  let gestureAction=null,gestureBlend=0;
  function setWalking(value){walking=Boolean(value);}
  function tick(dt){
   const smooth=1-Math.exp(-dt*11);
-  blend+=(Number(walking)-blend)*smooth;
-  phase+=dt*(walking?10:1.8);
+  const targetBlend=legacy?Number(walking):THREE.MathUtils.smoothstep(motionSpeed,.05,.85);
+  blend+=(targetBlend-blend)*smooth;
+  phase+=dt*(legacy?(walking?10:1.8):1.8+motionSpeed*2.5);
   // Only hands are pose-corrected. Restore them before each mixer step
   // so unkeyed wrist tracks never accumulate our prior correction.
   if(detailInstalled&&detailPose)detailPose.reset();
@@ -148,7 +180,14 @@ export function createVisitor(scene,onStatus){
    if(exiting&&gestureBlend<.025){gestureAction.stop();gestureAction=null;gestureBlend=0;}
   }
   if(usingAsset&&mixer){
-   idleAction.setEffectiveWeight((1-blend)*(1-gestureBlend));
+   tickIdle(dt,smooth);
+   if(!legacy){
+    const tempo=walkTempo*THREE.MathUtils.clamp(motionSpeed/nominalSpeed,.4,1.4);
+    walkAction.timeScale+=(tempo-walkAction.timeScale)*smooth;
+   }
+   const idleWeight=(1-blend)*(1-gestureBlend);
+   idleAction.setEffectiveWeight(idleWeight*(1-idleVariantWeight));
+   if(idleVariant)idleVariant.setEffectiveWeight(idleWeight*idleVariantWeight);
    walkAction.setEffectiveWeight(blend*(1-gestureBlend));
    if(gestureAction)gestureAction.setEffectiveWeight(gestureBlend);
    mixer.update(dt);
@@ -205,6 +244,7 @@ export function createVisitor(scene,onStatus){
    obj.traverse(node=>{if(node.isMesh){node.castShadow=false;node.receiveShadow=true;}});
    mixer=new THREE.AnimationMixer(obj);
    idleAction=mixer.clipAction(idle);walkAction=mixer.clipAction(walk);
+   configureMotion(clips,idle);
    idleAction.play();walkAction.play();
    idleAction.setEffectiveWeight(1-blend);
    walkAction.setEffectiveWeight(blend);
@@ -320,6 +360,7 @@ export function createVisitor(scene,onStatus){
    root.add(obj);
    model=obj;modelRestPosition.copy(obj.position);
    mixer=nextMixer;idleAction=nextIdle;walkAction=nextWalk;
+   configureMotion(clips,idleClip,nextWalk.timeScale);
    nativeGestureClips=nativeAra?new Map(clips.filter(c=>
     !/idle|walk|run|locomotion/i.test(c.name||'')
    ).map(c=>[c.name,c])):new Map();
@@ -396,7 +437,7 @@ export function createVisitor(scene,onStatus){
    return false;
   }
  })();
- return {root,setWalking,tick,ready,installPrivateModel,upgradeToHighDetail,
+ return {root,setWalking,updateMotion,tick,ready,installPrivateModel,upgradeToHighDetail,
   get usesAsset(){return usingAsset;},
   get usesHighDetail(){return detailInstalled;},
   get availableAnimations(){return motionCatalog.slice();},playGesture};
