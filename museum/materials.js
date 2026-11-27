@@ -1,4 +1,6 @@
 import * as THREE from 'three';
+import {applyStochasticSampling} from './surface-sampling.js?v=20261127';
+import {applyWear} from './surface-wear.js?v=20261127';
 
 /**
  * Cathedral PBR surfaces. Local Poly Haven assets take precedence.
@@ -161,7 +163,10 @@ export const M={
  */
 function worldVariation(material,kind){
  const isFloor=kind==='floor';
- const legacy=new URLSearchParams(globalThis.location?.search||'').get('realism')==='0';
+ const options=new URLSearchParams(globalThis.location?.search||'');
+ const legacy=options.get('realism')==='0';
+ const polish=!legacy&&options.get('surface')!=='0'&&options.get('quality')!=='low';
+ const stochastic=polish&&(kind==='wood'||kind==='plaster');
  material.onBeforeCompile=shader=>{
   shader.vertexShader=shader.vertexShader.replace('#include <common>',
    '#include <common>\nvarying vec3 vCathedralWorld;');
@@ -235,7 +240,7 @@ diffuseColor.rgb*=.94+.12*museumMacro+.07*(museumMeso-.5)+.035*(museumFine-.5);
 diffuseColor.rgb*=.89+.20*museumMacro+.08*(museumMeso-.5)+.05*(museumFine-.5)-.035*museumWear*(1.0-museumMeso);
 `);
   shader.fragmentShader=shader.fragmentShader.replace('#include <map_fragment>',
-   '#include <map_fragment>\n'+sample+detail);
+   '#include <map_fragment>\n'+sample+detail+(polish?'\n/* MUSEUM_WEAR */\n':''));
   if(!legacy){
    const strength=isFloor?.18:kind==='wood'?.16:.11;
    shader.fragmentShader=shader.fragmentShader.replace('#include <roughnessmap_fragment>',
