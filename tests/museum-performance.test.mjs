@@ -64,3 +64,15 @@ test('AO quality scales before the final fallback',()=>{
  assert.match(museum,/quality!=='auto'/);
  assert.match(museum,/renderer\.setPixelRatio\(Math\.max\(\.85/);
 });
+
+
+test('cached entrypoints can call the legacy reflection API without rendering',()=>{
+ const body=reflections.replace(/^import .*?;\s*$/gm,'').replace(/^export\s+(?=function)/gm,'');
+ const create=new Function('THREE','ROOM_DEFS','VESTIBULE',body+'\nreturn createReflectionManager;')({Vector3:class{}},[],{});
+ const manager=create({}, {}, {}, {}, {}, {enabled:false});
+ assert.equal(typeof manager.prepare,'function');
+ assert.doesNotThrow(()=>manager.markReady());
+ assert.doesNotThrow(()=>manager.update(.016,3));
+ assert.equal(manager.count,0);
+ assert.equal(manager.mode,'HDR');
+});
