@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import {ROOM_DEFS,VESTIBULE,HALLWAYS,ENTRY_POINT,zoneAt} from './layout.js';
-import {buildArchitecture} from './architecture.js?v=clean-walls-20261119';
+import {buildArchitecture,buildArchitectureAsync} from './architecture.js?v=clean-walls-20261119-performance1';
 import {M,scaleBoxUV} from './materials.js?v=unified-vault-bays-20261119';
 import {createNavigation} from './navigation.js';
 import {ribStations,columnX} from './vault-profile.js';
@@ -60,8 +60,11 @@ function archiveCase(g){
  for(const z of [-.58,.58])box(g,M.glass,0,1.62,z,1.56,1.4,.017);
  box(g,M.wood,0,2.35,0,1.66,.085,1.27);
 }
-export function makeMuseum(scene){
- const architecture=buildArchitecture(scene);
+export async function makeMuseumAsync(scene,yieldFrame){
+ return makeMuseum(scene,await buildArchitectureAsync(scene,yieldFrame));
+}
+export function makeMuseum(scene,prebuilt=null){
+ const architecture=prebuilt||buildArchitecture(scene);
  const group=architecture.group,rooms={},interactives=[],obstacles=[],assetSlots=[],effects=[];
  const {floors,floorRects,cameraBlockers}=architecture;
  for(const r of ROOM_DEFS)rooms[r.id]=r;
