@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import {wornBox} from './surface-geometry.js?v=20261127';
 import {ROOM_DEFS,VESTIBULE,HALLWAYS,ENTRY_POINT,zoneAt} from './layout.js';
 import {buildArchitecture} from './architecture.js?v=clean-walls-20261119';
 import {M,scaleBoxUV} from './materials.js?v=unified-vault-bays-20261119';
@@ -22,7 +23,7 @@ function box(g,m,x,y,z,w,h,d){
   const at=new THREE.Vector3(x,y,z).applyMatrix4(g.matrixWorld);
   const hash=n=>{const q=Math.sin(n)*43758.5453;return q-Math.floor(q);};
   const seed=at.x*19.2+at.y*58.3+at.z*133.9;
-  geo=scaleBoxUV(new THREE.BoxGeometry(w,h,d),w,h,d,
+  geo=scaleBoxUV(wornBox(w,h,d,kind,seed),w,h,d,
    kind==='wood'?1.65:2.4,[hash(seed)*.87,hash(seed+77.7)*.89]);
  }
  const o=mesh(g,geo,m,x,y,z);
