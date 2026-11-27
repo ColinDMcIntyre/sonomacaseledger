@@ -2,7 +2,7 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 const read=name=>readFileSync(new URL('../museum/'+name,import.meta.url),'utf8');
-const strip=s=>s.replace(/^import .*?;\s*$/gm,'').replace(/^export\s+(?=(?:async\s+)?function|const|let|class)/gm,'');
+const strip=s=>s.replace(/^import .*?;\s*$/gm,'').replace(/^export\s+(?=(?:async\s+)?function|const|let|class)/gm,'').replace(/^export\s*\{[^}]*\};\s*$/gm,'');
 const sampling=read('surface-sampling.js'),wear=read('surface-wear.js'),geometry=read('surface-geometry.js'),materials=read('materials.js');
 test('surface modules and integrated geometry parse',()=>{
  for(const source of [sampling,wear,geometry,materials,read('world.js'),read('architecture.js')]){
