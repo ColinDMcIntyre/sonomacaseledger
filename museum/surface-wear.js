@@ -1,5 +1,6 @@
 // Procedural microdetail preserves structural mortar and floor joints.
 export const wearGLSL=String.raw`
+float museumHash21(vec2 p);
 float museumScratch(vec2 uv){
  vec2 cell=floor(uv),p=fract(uv)-.5;
  float angle=museumHash21(cell+vec2(8.1,23.4))*6.2831853;
