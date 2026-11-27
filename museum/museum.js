@@ -1,12 +1,12 @@
 import * as THREE from 'three';
-import {makeMuseum,ROOM_DEFS} from './world.js?v=unified-vault-bays-20261119';
+import {makeMuseumAsync,ROOM_DEFS} from './world.js?v=unified-vault-bays-20261119-performance1';
 import {inspectDoorways} from './scene-diagnostics.js';
 import {exhibitSockets,ENTRY_POINT} from './layout.js';
 import {loadCathedralMaterials} from './materials.js?v=unified-vault-bays-20261119';
 import {installCathedralLighting} from './lighting.js?v=unified-vault-bays-20261119-realism2';
 import {installBakedDaylight} from './daylight.js?v=realism-20261127';
 import {createVisitor} from './character.js?v=ara-human-20261123-realism2-performance1';
-import {installMuseumAssets} from './asset-library.js?v=case-dioramas-20261119';
+import {installMuseumAssets} from './asset-library.js?v=case-dioramas-20261119-performance1';
 import {caseIllustrationFor} from './case-dioramas.js?v=case-dioramas-20261119';
 import {RoomEnvironment} from 'three/addons/environments/RoomEnvironment.js';
 import {createRenderPipeline} from './render-pipeline.js?v=performance1';
@@ -198,7 +198,7 @@ async function populateMuseum(){
   world.addExhibit('rotunda',6,5.1,{id:'portal:federal',name:'Federal Gallery Portal',action:'portal',destination:'federal',roomId:'rotunda'},'portal');
   world.addExhibit('rotunda',-6,5.1,{id:'portal:archive',name:'Records Library Portal',action:'portal',destination:'archive',roomId:'rotunda'},'portal');
 }
-function setupThree(){
+async function setupThree(){
   scene=new THREE.Scene();
   scene.background=new THREE.Color(0x252d33);
   scene.fog=new THREE.FogExp2(0x252d33,.0019);
@@ -223,9 +223,9 @@ function setupThree(){
   UI.viewport.append(renderer.domElement);
   lighting=installCathedralLighting(scene,renderer,status=>console.info(status));
   pipeline=createRenderPipeline(renderer,scene,camera,{enabled:enhanced&&options.get('ao')!=='0',onStatus:console.info});
-  world=makeMuseum(scene);
-  inspectDoorways(world);
   visitor=createVisitor(scene,status=>UI.asset.textContent=status);
+  world=await makeMuseumAsync(scene,yieldFrame);
+  if(options.has('debug')||options.has('validate'))inspectDoorways(world);
   // The visitor has its own contact shadow; do not bake its silhouette at entry.
   visitor.root.traverse(node=>{if(node.isMesh)node.castShadow=false;});
   visitor.root.position.set(ENTRY_POINT.x,0,ENTRY_POINT.z);
@@ -915,7 +915,7 @@ async function main(){
  try{
   loadingProgress(16);
   await yieldFrame();
-  setupThree();
+  await setupThree();
   loadingProgress(38);
   await yieldFrame();
   state.cases=await getCases();
@@ -954,7 +954,8 @@ async function main(){
   const intro=UI.loading.querySelector('p');
   if(intro)intro.textContent='Preparing galleries and your animated guide…';
   const pipelineReady=pipeline.prepare();
-  await Promise.allSettled([visitor.ready,materialReady,propsReady,lighting?.ready,pipelineReady]);
+  await visitor.ready;
+  await Promise.allSettled([materialReady,propsReady,lighting?.ready,pipelineReady]);
   if(!scene.environment){
    const pmrem=new THREE.PMREMGenerator(renderer),environment=new RoomEnvironment();
    const target=pmrem.fromScene(environment,.04);scene.environment=target.texture;
