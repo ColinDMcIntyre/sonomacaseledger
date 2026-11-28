@@ -12,6 +12,7 @@ import {resolve, join} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {createHash} from 'node:crypto';
 import {installCc0Animations} from './import-cc0-animation-pack.mjs';
+import {buildSeo} from './seo/index.mjs';
 
 const ROOT=resolve(fileURLToPath(new URL('..',import.meta.url)));
 const OUT=join(ROOT,'dist');
@@ -81,7 +82,7 @@ async function copyPublishedSite(){
  await mkdir(OUT,{recursive:true});
  const publicEntries=[
    'index.html','robots.txt','sitemap.xml',
-   'assets','cases','federal','records','corrections','museum','public-records'
+   'assets','cases','federal','records','corrections','museum','methodology','public-records'
  ];
  for(const name of publicEntries){
   await cp(join(ROOT,name),join(OUT,name),{recursive:true});
@@ -214,6 +215,7 @@ async function prepareCharacter(){
  }
 }
 await copyPublishedSite();
+await buildSeo({root:OUT,reportDir:join(ROOT,'.build-reports'),origin:process.env.SITE_ORIGIN||undefined});
 // Offline CI verifies the static deployment without requesting the 23 MB model.
 const enabled=process.env.SKIP_HD_DOWNLOAD==='1' ? false : await prepareCharacter();
 if(enabled){
