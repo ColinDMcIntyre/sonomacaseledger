@@ -33,3 +33,8 @@ Three full source printouts were inspected page by page and released as privacy-
 The [PDF relevance and disposition audit](RECORD-MATCHING-REVIEW.md) identifies eight unrelated proceedings and six search-result lists among the original 28 court PDFs. It also records Broin's 2021 and Karen Holzworth's 2018 post-conviction dismissals and distinguishes completed case-matching from incomplete privacy clearance for longer PDFs.
 
 **New case-number leads:** [Court Records — Candidate Dockets](COURT-SEARCH-LEADS.md), including Malfa's `SCR-701902-2` and Webb's `SCR-508159-1`, both *unverified* until their case-detail exports are matched.
+
+
+## Editorial consistency and maintenance (2026-11-27)
+
+`case-briefs.json` is the authoritative plain-language summary register for the 37 profiles. Edit it and run `node scripts/sync-case-briefs.mjs` from the repository root; this synchronizes the profile summaries, HTML and structured metadata, archive cards and case-data.json fields consumed by the museum. `node scripts/sync-case-briefs.mjs --check` and `node --test tests/case-briefs.test.mjs` guard against drift. The editorial revision date is distinct from the last source-review date. A match or later reported outcome is not a current certified court record. No new primary records were obtained for this wording pass; conflicting or unavailable details remain qualified. Existing evidence links, redacted PDF releases and privacy restrictions remain in force. Apply identical evidentiary standards to every case, including those involving individuals with a professional relationship to the developer.

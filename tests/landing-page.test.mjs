@@ -48,7 +48,7 @@ test('SEO signals preserve indexable content and official caveats', () => {
   assert.match(homepage, /14 county case profiles have matching criminal court-record details/);
   assert.match(homepage, /17 still require a confirmed matching docket/);
   assert.match(homepage, /not affiliated with the Sonoma County Superior Court/);
-  assert.match(homepage, /Constantine Petros's personal website/);
+  assert.match(homepage, /professional relationship with Constantine Petros, including work on his personal website/);
   for (const href of ['./cases/', './federal/', './records/', './corrections/', './sitemap.xml']) {
     assert.ok(homepage.includes('href="' + href + '"'), 'Missing crawlable '+href);
   }
