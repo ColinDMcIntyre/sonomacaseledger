@@ -37,7 +37,7 @@ function checkCase(path, brief, opts = {}) {
   assert.ok(script, path + ': JSON-LD is missing');
   const meta = JSON.parse(script[1]);
   assert.equal(meta.description, brief.lead, path + ': structured description out of sync');
-  assert.equal(meta.dateModified, briefs.asOf, path + ': modification date out of sync');
+  assert.equal(meta.dateModified, briefs.editorialRevision || briefs.asOf, path + ': modification date out of sync');
   if (opts.caseNo) {
     assert.ok(html.includes('<code>' + opts.caseNo + '</code>'), path + ': court ID missing');
     assert.ok(section.includes('matching Sonoma case-detail export'), path + ': matching docket qualification absent');
@@ -93,4 +93,23 @@ test('case index reflects the current court-record inventory', () => {
   assert.match(html, /14 criminal case files have been matched/);
   assert.match(html, /17 remain unresolved/);
   assert.match(html, /allegation, plea or verdict, sentence or restitution/);
+});
+
+test('all public archive cards, metadata and museum data share the canonical outcome',()=>{
+  const all=[...canonical.county,...canonical.federal,...Object.values(canonical.special)];
+  const registry={...briefs.county,...briefs.federal,...briefs.special};
+  assert.equal(all.length,37);
+  for(const row of all){
+    const brief=registry[row.slug];
+    assert.equal(row.outcome,brief.lead,row.slug);
+    for(const k of ['allegation','disposition','sentence','later'])assert.equal(row.brief[k],brief[k],row.slug+': '+k);
+    const group=canonical.federal.some(x=>x.slug===row.slug)?'federal':'cases';
+    const index=read(group+'/index.html');
+    const card=(index.match(/<article class="card archive-card"[\s\S]*?<\/article>/g)||[]).find(c=>c.includes('/'+row.slug+'/'));
+    assert.ok(card,row.slug);
+    assert.ok(card.includes('<p>'+escapeHtml(brief.lead)+'</p>'),row.slug);
+  }
+  assert.match(read('museum/museum.js'),/data\.special\?\.\['constantine-petros'\]/);
+  assert.match(read('museum/museum.js'),/r\.brief\[key\]/);
+  assert.match(canonical.special['constantine-petros'].outcome,/2017.*conviction.*September 17, 2020.*not an acquittal/);
 });

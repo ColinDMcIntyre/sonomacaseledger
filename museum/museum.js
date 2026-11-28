@@ -141,7 +141,7 @@ async function getCases(){
   return [
     ...data.county.map(r=>({...r,group:'county'})),
     ...data.federal.map(r=>({...r,group:'federal'})),
-    petros()
+    {...(data.special?.['constantine-petros']||petros()),group:'county'}
   ];
 }
 function galleryFor(r){
@@ -571,12 +571,17 @@ function openCase(r){
  infoRow(root,'Source grade',r.verification||'Status not supplied');
  if(r.group==='county')infoRow(root,'Sonoma court number',r.caseNo||'Not yet independently confirmed');
  else infoRow(root,'Jurisdiction','Federal court (no Sonoma court number)');
- addParagraph(root,'Source grades classify sources, not exhaustive docket reviews. Last documented source review: '+(r.courtRecordReviewedOn?'November 19, 2026':'November 18, 2026')+'.');
+ addParagraph(root,'Source grades describe the cited sources, not exhaustive docket reviews. Last documented review: '+(r.courtRecordReviewedOn||'2026-11-18')+'. This is not a live court-status check.');
  addParagraph(root,r.courtRecordStatus||(r.slug==='constantine-petros'
-  ? 'A Sonoma case-detail docket export was reviewed, but it is not hosted here. Check the court for later orders.'
+  ? 'A Sonoma case-detail docket export was reviewed; a privacy-redacted reproduction is linked on the case page. Check the court for later orders.'
   : 'The full trial-court docket has not been independently reviewed. Refer to the case page for docket-number status.'));
  root.append(element('h3','Documented outcome'));
  addParagraph(root,r.outcome||'Read the full source-backed case page.');
+ if(r.brief){
+  for(const [heading,key] of [['What was alleged','allegation'],['Plea or verdict','disposition'],['Sentence or restitution','sentence'],['Later developments','later']]){
+   root.append(element('h3',heading));addParagraph(root,r.brief[key]);
+  }
+ }
  root.append(element('h3','Context and limitations'));
  addParagraph(root,r.details||'Consult the source documents for context.');
  const illustration=caseIllustrationFor(r.slug);
@@ -630,7 +635,7 @@ function openInfo(a){
   UI.caseLink.href='../corrections/';UI.caseLink.textContent='Corrections and source submissions ↗';
  }else if(a.action==='about'){
   para('Sonoma Case Ledger exists to make the full histories of selected Sonoma County criminal cases easier to understand, particularly how outcomes can differ from initial reports.');
-  para('The collection is privately developed, not operated by any court or government agency. Its developer has also worked on Constantine Petros’s personal website.');
+  para('The collection is privately developed, not operated by any court or government agency. Its developer has a professional relationship with Constantine Petros and has worked on his personal website.');
   para('This museum is an interactive way to explore case summaries; the ordinary HTML pages remain the authoritative reading experience for this publication.');
   UI.caseLink.href='../#about';UI.caseLink.textContent='About the publication ↗';
  }else {
