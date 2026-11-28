@@ -20,7 +20,7 @@ The homepage uses self-contained critical CSS, system fonts, no third-party imag
 
 **Performance guardrail:** `node --test tests/landing-page.test.mjs` checks the no-JS/no-media requirement, the 16 KB raw HTML budget, metadata, crawlable links and key anchors. A GitHub Actions workflow runs the test when landing files change. This is a *static budget check*, not a measured Lighthouse score or guaranteed search ranking.
 
-**Post-deployment verification:** inspect the public homepage on both mobile and desktop, test both entry options, check [PageSpeed Insights](https://pagespeed.web.dev/) for real LCP/INP/CLS metrics, and submit `https://colindmcintyre.github.io/sonomacaseledger/sitemap.xml` as a sitemap in a verified [Google Search Console](https://search.google.com/search-console/) property. Performance and ranking depend on user networks, devices, indexing and content quality, not only HTML size.
+**Post-deployment verification:** inspect the public homepage on both mobile and desktop, test both entry options, check [PageSpeed Insights](https://pagespeed.web.dev/) for real LCP/INP/CLS metrics, and submit `https://sonomacaseledger.org/sitemap.xml` as a sitemap in a verified [Google Search Console](https://search.google.com/search-console/) property. Performance and ranking depend on user networks, devices, indexing and content quality, not only HTML size.
 
 ## Cloudflare Pages — current recommended deployment
 
@@ -50,7 +50,7 @@ node --test tests/cloudflare-build.test.mjs tests/high-detail-visitor.test.mjs t
 
 Cloudflare Pages must use the command and output directory above. An ordinary static deployment with the output set to `.` will not download the character or include it.
 
-**Custom domain:** after `sonomacaseledger.org` is registered and attached, set the Cloudflare build environment variable `SITE_ORIGIN=https://sonomacaseledger.org` to rewrite absolute canonical, social and sitemap URLs for the new origin. Until then, existing absolute URLs may still point to GitHub Pages. Verify the Cloudflare deployment works before changing the repository to private.
+**Custom domain:** `https://sonomacaseledger.org` is the primary public origin and the default for the Cloudflare build. The optional `SITE_ORIGIN` environment variable can override it for another HTTPS origin. Remove any outdated override or set it to `https://sonomacaseledger.org`. Submit the custom-domain sitemap in Google Search Console. Verify the Cloudflare deployment works before changing the repository to private.
 
 **Current limitation:** the automated download and model appearance are not verified until a real Cloudflare build runs. The model is not a Renderpeople asset. Do not claim the high-detail guide is live based solely on the committed build script.
 
@@ -75,7 +75,7 @@ The unredacted original Petros export remains private. A separate **privacy-reda
 3. Select \`main\` and \`/ (root)\`, then Save.
 4. Website URL after deployment: https://colindmcintyre.github.io/sonomacaseledger/
 
-If the site is later moved to a custom domain, update canonical URLs, Open Graph URLs, sitemap, and robots.txt.
+The GitHub Pages address is a legacy deployment; canonical URLs, Open Graph URLs, sitemap, and robots.txt now identify https://sonomacaseledger.org/ as the primary site.
 
 ## Editorial rules
 

@@ -114,19 +114,21 @@ async function copyPublishedSite(){
  }
  // Deliberately omit private archives, repo metadata, importer code, and
  // unpublished court-data research: dist is the complete public release.
- const siteOrigin=process.env.SITE_ORIGIN?.replace(/\/$/,'');
+ const siteOrigin=(process.env.SITE_ORIGIN||'https://sonomacaseledger.org').replace(/\/$/,'');
  if(siteOrigin){
   const u=new URL(siteOrigin);
   if(u.protocol!=='https:'||u.pathname!=='/'||u.search||u.hash)throw Error('SITE_ORIGIN must be an HTTPS origin');
   const old='https://colindmcintyre.github.io/sonomacaseledger/';
+  const primary='https://sonomacaseledger.org/';
   const newest=u.origin+'/';
+  const rewriteOrigin=text=>text.split(old).join(primary).split(primary).join(newest);
   // Only rewrite absolute signals; relative links stay identical.
   for(const file of ['index.html','robots.txt','sitemap.xml']){
    const p=join(OUT,file);
    const s=await readFile(p,'utf8');
-   await writeFile(p,s.split(old).join(newest));
+   await writeFile(p,rewriteOrigin(s));
   }
-  // Case profile canonicals and social tags use GitHub Pages absolute URLs.
+  // Case profile canonicals and social tags use the primary public origin.
   async function rewrite(dir){
    const {readdir}=await import('node:fs/promises');
    for(const item of await readdir(dir,{withFileTypes:true})){
@@ -134,7 +136,8 @@ async function copyPublishedSite(){
     if(item.isDirectory())await rewrite(p);
     else if(/\.html$/i.test(item.name)){
      const text=await readFile(p,'utf8');
-     if(text.includes(old))await writeFile(p,text.split(old).join(newest));
+     const updated=rewriteOrigin(text);
+     if(updated!==text)await writeFile(p,updated);
     }
    }
   }

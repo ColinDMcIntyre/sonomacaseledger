@@ -54,3 +54,20 @@ test('Cloudflare build validates GLB and restricts download hosts',()=>{
  assert.match(s,/process\.env\.SITE_ORIGIN/);
  assert.doesNotMatch(s,/renderpeople\.com\/.*download/i);
 });
+
+test('public SEO signals consistently use the configured HTTPS origin',()=>{
+ const origin=new URL(process.env.SITE_ORIGIN||'https://sonomacaseledger.org').origin;
+ const sitemap=read('dist/sitemap.xml');
+ const urls=[...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map(m=>m[1]);
+ assert.ok(urls.length>=43,'Sitemap should cover the public archive');
+ assert.equal(new Set(urls).size,urls.length,'Duplicate sitemap URLs');
+ assert.ok(read('dist/robots.txt').includes('Sitemap: '+origin+'/sitemap.xml'));
+ for(const url of urls){
+  const parsed=new URL(url);
+  assert.equal(parsed.origin,origin,'Wrong sitemap origin: '+url);
+  const path='dist'+parsed.pathname+'index.html';
+  const html=read(path);
+  assert.ok(html.includes('<link rel="canonical" href="'+url+'"'),'Wrong canonical: '+path);
+  assert.ok(!html.includes('https://colindmcintyre.github.io/sonomacaseledger/'),'Legacy origin: '+path);
+ }
+});

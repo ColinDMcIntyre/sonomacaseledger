@@ -37,7 +37,7 @@ test('SEO signals preserve indexable content and official caveats', () => {
   assert.match(homepage, /<title>Sonoma Case Ledger \| Sonoma County Court Records/);
   assert.match(homepage, /<meta name="description" content="[^"]{80,180}"/);
   assert.match(homepage, /<meta name="robots" content="index,follow"/);
-  assert.match(homepage, /<link rel="canonical" href="https:\/\/colindmcintyre\.github\.io\/sonomacaseledger\/"/);
+  assert.match(homepage, /<link rel="canonical" href="https:\/\/sonomacaseledger\.org\/"/);
   const ld = homepage.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/);
   assert.ok(ld);
   const json = JSON.parse(ld[1]);
