@@ -4,6 +4,18 @@ on:
   push:
     paths:
       - "scripts/build-cloudflare.mjs"
+      - "scripts/seo/**"
+      - "tests/seo.test.mjs"
+      - "methodology/**"
+      - "index.html"
+      - "cases/**"
+      - "federal/**"
+      - "records/**"
+      - "corrections/**"
+      - "research/case-data.json"
+      - "research/case-briefs.json"
+      - "sitemap.xml"
+      - "robots.txt"
       - "tests/cloudflare-build.test.mjs"
       - "museum/character.js"
       - "museum/character-pose.js"
@@ -14,6 +26,18 @@ on:
   pull_request:
     paths:
       - "scripts/build-cloudflare.mjs"
+      - "scripts/seo/**"
+      - "tests/seo.test.mjs"
+      - "methodology/**"
+      - "index.html"
+      - "cases/**"
+      - "federal/**"
+      - "records/**"
+      - "corrections/**"
+      - "research/case-data.json"
+      - "research/case-briefs.json"
+      - "sitemap.xml"
+      - "robots.txt"
       - "tests/cloudflare-build.test.mjs"
       - "museum/character.js"
       - "museum/character-pose.js"
@@ -36,4 +60,4 @@ jobs:
       - name: Build deployment bundle without network
         run: SKIP_HD_DOWNLOAD=1 node scripts/build-cloudflare.mjs
       - name: Inspect deployment output and safeguards
-        run: node --test tests/cloudflare-build.test.mjs tests/renderpeople-license-guard.test.mjs tests/high-detail-visitor.test.mjs tests/character-pose.test.mjs
+        run: node --test tests/seo.test.mjs tests/landing-page.test.mjs tests/case-briefs.test.mjs tests/cloudflare-build.test.mjs tests/renderpeople-license-guard.test.mjs tests/high-detail-visitor.test.mjs tests/character-pose.test.mjs

@@ -114,3 +114,18 @@ The current Sonoma record acquisition tracker is [research/COURT-RECORDS-CHECKLI
 - **Default motions (updated):** Jordan's original `Idle_Standing` is retained. Only the walking motion switches to KinemIQ's retargeted CC0 `Walk_formal` (92% source speed), with Jordan's own `Walk_Brisk` (82% speed) as a compatible fallback. The old `Walk_Relaxed` is no longer the primary walk. `?motion-preview=1` tries the alternate retargeted `Walk_forwards` for comparison. The 90° wrist fix remains in both modes. An optional `Actions` control offers gestures from the same CC0 set.
 - Performance: the public landing page still loads no 3D model; the entire animation library is deployed as small individual GLBs and only active clips are fetched by the browser. The high-detail guide remains first choice behind the museum loading screen.
 - Source validation: `scripts/inspect-guide-rig.mjs`, `scripts/inspect-kinemiq-pack.mjs`, and `tests/cc0-animation-pack.test.mjs`. Browser visual inspection is still required to establish that the retargeted movements look natural, even when metadata and automated build checks pass.
+
+
+## Modular SEO pipeline
+
+Every Cloudflare build runs the dependency-free modules under scripts/seo/ after copying the approved public bundle. The pipeline reads research/case-data.json and research/case-briefs.json, checks that the visible case summary agrees with the approved dataset, retains the editorial page titles and dates, and generates canonical, social, Article and breadcrumb metadata. It only cites URLs already shown in the article's visible source list. It adds accessible archive/evidence navigation without modifying the court-record narrative or museum runtime.
+
+The public sitemap is regenerated from the allowed public sections and case-profile folders; private research and PDFs are never discovered automatically. The source sitemap is a legacy static snapshot; the deployed dist/sitemap.xml is authoritative. New cases require an HTML profile, a matching data row and a matching case brief. Do not add unreviewed private evidence. Source-page metadata remains editable for editorial accuracy.
+
+Run locally:
+    SKIP_HD_DOWNLOAD=1 node scripts/build-cloudflare.mjs
+    node --test tests/seo.test.mjs tests/cloudflare-build.test.mjs tests/landing-page.test.mjs tests/case-briefs.test.mjs
+
+The non-public .build-reports/seo-report.json and build logs contain coverage, canonical, duplicate-metadata, schema, source and internal-link checks. Critical errors block publishing; existing unresolved noncritical links or anchors are reported as warnings for editorial review. No ranking promises or live Google indexing checks are implied by a passing build. Social preview graphics are generated locally, without third-party tracking or downloads.
+
+The editorial methodology page is published at /methodology/. Keep it current as ownership, funding, conflicts, evidence or correction practices change. Do not confuse a source review with an editorial revision date. Search Console monitoring, external backlinks, live indexing, and any cross-site updates remain separate tasks.

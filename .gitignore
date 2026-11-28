@@ -11,3 +11,6 @@
 
 # Cloudflare Pages generated site and optional CC0 downloaded character
 /dist/
+
+# Non-public SEO diagnostics
+.build-reports/
